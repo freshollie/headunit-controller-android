@@ -1,0 +1,116 @@
+﻿Version=5.02
+NumberOfModules=3
+Module1=ControllingService
+Module2=NotificationService
+Module3=ReceiverService
+Build1=Default,com.freshollie.headunitcontroller
+ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: http://www.b4x.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="21"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>~\n~<uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL"/>~\n~<uses-permission android:name="android.permission.GET_TASKS" /> ~\n~<uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"/>)~\n~AddApplicationText(~\n~<service android:name="anywheresoftware.b4a.objects.NotificationListenerWrapper"~\n~   android:label="Notification Listener"~\n~  android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">~\n~  <intent-filter>~\n~  <action android:name="android.service.notification.NotificationListenerService" />~\n~  </intent-filter>~\n~</service>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~SetApplicationAttribute(android:theme, "@android:style/Theme.Material.Light")~\n~'End of default text.~\n~
+IconFile=
+NumberOfFiles=4
+File1=5sec.mp3
+File2=ic_tablet_black_48dp.png
+File3=landscape.bal
+File4=MainLayout.bal
+NumberOfLibraries=10
+Library1=core
+Library2=broadcastreceiver
+Library3=notificationlistener
+Library4=audiofocus
+Library5=javaobject
+Library6=preferenceactivity
+Library7=phone
+Library8=sucommand
+Library9=threading
+Library10=usb
+@EndOfDesignText@
+#Region  Project Attributes 
+	#ApplicationLabel: Head unit controller
+	#VersionCode: 1
+	#VersionName: 
+	'SupportedOrientations possible values: unspecified, landscape or portrait.
+	#SupportedOrientations: unspecified
+	#CanInstallToExternalStorage: False
+#End Region
+
+#Region  Activity Attributes 
+	#FullScreen: False
+	#IncludeTitle: True
+#End Region
+
+Sub Process_Globals
+	'These global variables will be declared once when the application starts.
+	'These variables can be accessed from all modules.
+
+End Sub
+
+Sub Globals
+	'These global variables will be redeclared each time the activity is created.
+	'These variables can only be accessed from this module.
+	Dim Button1 As Button
+	Dim Button2 As Button
+	Dim Button3 As Button
+	Dim Button4 As Button
+	Dim CheckBox1 As CheckBox
+	Dim Spinner1 As Spinner
+End Sub
+
+Sub Activity_Create(FirstTime As Boolean)
+	'Do not forget to load the layout file created with the visual designer. For example:
+	Activity.LoadLayout("MainLayout")
+	Button1.Text = "enable notification listening"
+	Button4.Text = "enable usage checking"
+	Button2.Text = "Test Start up"
+	Button3.Text = "Test shutdown"
+	CheckBox1.Checked = False
+	Spinner1.AddAll(Array As String("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"))
+	
+	
+	StartService(ControllingService)
+	
+	If ControllingService.PreferenceManager.GetBoolean("DebugMode") = True Then
+		CheckBox1.Checked = True
+	Else
+		CheckBox1.Checked = False
+	End If
+	
+	Spinner1.SelectedIndex = ControllingService.PreferenceManager.GetString("NumDevices")
+	
+End Sub
+
+Sub CheckBox1_CheckedChange(checked As Boolean)
+	ControllingService.PreferenceManager.SetBoolean("DebugMode", checked)
+End Sub
+
+Sub Spinner1_ItemClick(Pos As Int, Value As Object)
+	ControllingService.PreferenceManager.SetString("NumDevices", Value)
+End Sub 
+
+Sub Button1_click
+	Dim In As Intent
+	In.Initialize("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS", "")
+	StartActivity(In)
+End Sub
+
+Sub Button4_click
+	Dim In As Intent
+	In.Initialize("android.settings.USAGE_ACCESS_SETTINGS", "")
+	StartActivity(In)
+End Sub
+
+
+Sub Button2_Click
+	CallSub3(ControllingService, "BroadcastReceiver_onReceive", "android.intent.action.ACTION_POWER_CONNECTED", Null)
+End Sub
+
+Sub Button3_Click
+	CallSub3(ControllingService, "BroadcastReceiver_onReceive", "android.intent.action.ACTION_POWER_DISCONNECTED", Null)
+End Sub
+Sub Activity_Resume
+
+End Sub
+
+Sub Activity_Pause (UserClosed As Boolean)
+
+End Sub
+
+
