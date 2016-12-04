@@ -92,7 +92,6 @@ public anywheresoftware.b4a.keywords.Common __c = null;
 public static anywheresoftware.b4a.objects.NotificationListenerWrapper.NotificationListener _notificationlistener = null;
 public com.freshollie.headunitcontroller.main _main = null;
 public com.freshollie.headunitcontroller.controllingservice _controllingservice = null;
-public com.freshollie.headunitcontroller.receiverservice _receiverservice = null;
 public static String  _notificationlistener_notificationposted(anywheresoftware.b4a.objects.NotificationListenerWrapper.StatusBarNotificationWrapper _notification) throws Exception{
  //BA.debugLineNum = 22;BA.debugLine="Sub NotificationListener_NotificationPosted(Notifi";
  //BA.debugLineNum = 24;BA.debugLine="If Notification.IsInitialized = False Then";
@@ -100,99 +99,90 @@ if (_notification.IsInitialized()==anywheresoftware.b4a.keywords.Common.False) {
  //BA.debugLineNum = 25;BA.debugLine="Return";
 if (true) return "";
  };
- //BA.debugLineNum = 28;BA.debugLine="Log(Notification.PackageName)";
-anywheresoftware.b4a.keywords.Common.Log(_notification.getPackageName());
- //BA.debugLineNum = 29;BA.debugLine="If ControllingService.ServiceRunning = False Then";
+ //BA.debugLineNum = 28;BA.debugLine="If ControllingService.ServiceRunning = False Then";
 if (mostCurrent._controllingservice._servicerunning==anywheresoftware.b4a.keywords.Common.False) { 
 if (true) return "";};
- //BA.debugLineNum = 30;BA.debugLine="If ControllingService.UsbManager.GetDevices().Len";
-if (mostCurrent._controllingservice._usbmanager.GetDevices().length==0 && mostCurrent._controllingservice._preferencemanager.GetBoolean("DebugMode")==anywheresoftware.b4a.keywords.Common.False) { 
-if (true) return "";};
- //BA.debugLineNum = 31;BA.debugLine="If ControllingService.PowerOn = False Then";
+ //BA.debugLineNum = 29;BA.debugLine="If ControllingService.PowerOn = False Then Return";
 if (mostCurrent._controllingservice._poweron==anywheresoftware.b4a.keywords.Common.False) { 
- //BA.debugLineNum = 32;BA.debugLine="Return";
-if (true) return "";
- };
- //BA.debugLineNum = 35;BA.debugLine="Select(Notification.PackageName)";
+if (true) return "";};
+ //BA.debugLineNum = 31;BA.debugLine="Select(Notification.PackageName)";
 switch (BA.switchObjectToInt((_notification.getPackageName()),"au.com.shiftyjelly.pocketcasts","com.apple.android.music","com.google.android.apps.maps")) {
 case 0:
- //BA.debugLineNum = 38;BA.debugLine="Log(\"Podcasts playing\")";
+ //BA.debugLineNum = 34;BA.debugLine="Log(\"Podcasts playing\")";
 anywheresoftware.b4a.keywords.Common.Log("Podcasts playing");
- //BA.debugLineNum = 39;BA.debugLine="ControllingService.PreferenceManager.SetBoolean(";
+ //BA.debugLineNum = 35;BA.debugLine="ControllingService.PreferenceManager.SetBoolean(";
 mostCurrent._controllingservice._preferencemanager.SetBoolean("PlayPodcast",anywheresoftware.b4a.keywords.Common.True);
- //BA.debugLineNum = 40;BA.debugLine="ControllingService.PreferenceManager.SetBoolean(";
+ //BA.debugLineNum = 36;BA.debugLine="ControllingService.PreferenceManager.SetBoolean(";
 mostCurrent._controllingservice._preferencemanager.SetBoolean("PlayMusic",anywheresoftware.b4a.keywords.Common.False);
- //BA.debugLineNum = 41;BA.debugLine="ControllingService.PreferenceManager.SetBoolean(";
+ //BA.debugLineNum = 37;BA.debugLine="ControllingService.PreferenceManager.SetBoolean(";
 mostCurrent._controllingservice._preferencemanager.SetBoolean("PlayRadio",anywheresoftware.b4a.keywords.Common.False);
  break;
 case 1:
- //BA.debugLineNum = 44;BA.debugLine="If ControllingService.AudioFocusListener.isMusic";
+ //BA.debugLineNum = 40;BA.debugLine="If ControllingService.AudioFocusListener.isMusic";
 if (mostCurrent._controllingservice._audiofocuslistener.isMusicActive()) { 
- //BA.debugLineNum = 45;BA.debugLine="Log(\"Apple music playing\")";
+ //BA.debugLineNum = 41;BA.debugLine="Log(\"Apple music playing\")";
 anywheresoftware.b4a.keywords.Common.Log("Apple music playing");
- //BA.debugLineNum = 46;BA.debugLine="ControllingService.PreferenceManager.SetBoolean";
+ //BA.debugLineNum = 42;BA.debugLine="ControllingService.PreferenceManager.SetBoolean";
 mostCurrent._controllingservice._preferencemanager.SetBoolean("PlayMusic",anywheresoftware.b4a.keywords.Common.True);
  }else {
- //BA.debugLineNum = 48;BA.debugLine="Log(\"Apple music stopped\")";
+ //BA.debugLineNum = 44;BA.debugLine="Log(\"Apple music stopped\")";
 anywheresoftware.b4a.keywords.Common.Log("Apple music stopped");
- //BA.debugLineNum = 49;BA.debugLine="ControllingService.PreferenceManager.SetBoolean";
+ //BA.debugLineNum = 45;BA.debugLine="ControllingService.PreferenceManager.SetBoolean";
 mostCurrent._controllingservice._preferencemanager.SetBoolean("PlayMusic",anywheresoftware.b4a.keywords.Common.False);
  };
  break;
 case 2:
- //BA.debugLineNum = 53;BA.debugLine="If ControllingService.PreferenceManager.GetBoole";
+ //BA.debugLineNum = 49;BA.debugLine="If ControllingService.PreferenceManager.GetBoole";
 if (mostCurrent._controllingservice._preferencemanager.GetBoolean("DrivingMode")==anywheresoftware.b4a.keywords.Common.False) { 
- //BA.debugLineNum = 54;BA.debugLine="Log(\"Driving Mode started\")";
+ //BA.debugLineNum = 50;BA.debugLine="Log(\"Driving Mode started\")";
 anywheresoftware.b4a.keywords.Common.Log("Driving Mode started");
- //BA.debugLineNum = 55;BA.debugLine="ControllingService.PreferenceManager.SetBoolean";
+ //BA.debugLineNum = 51;BA.debugLine="ControllingService.PreferenceManager.SetBoolean";
 mostCurrent._controllingservice._preferencemanager.SetBoolean("DrivingMode",anywheresoftware.b4a.keywords.Common.True);
  };
  break;
 }
 ;
- //BA.debugLineNum = 59;BA.debugLine="End Sub";
+ //BA.debugLineNum = 55;BA.debugLine="End Sub";
 return "";
 }
 public static String  _notificationlistener_notificationremoved(anywheresoftware.b4a.objects.NotificationListenerWrapper.StatusBarNotificationWrapper _notification) throws Exception{
- //BA.debugLineNum = 69;BA.debugLine="Sub NotificationListener_NotificationRemoved(Notif";
- //BA.debugLineNum = 70;BA.debugLine="If Notification.IsInitialized = False Then";
+ //BA.debugLineNum = 65;BA.debugLine="Sub NotificationListener_NotificationRemoved(Notif";
+ //BA.debugLineNum = 66;BA.debugLine="If Notification.IsInitialized = False Then";
 if (_notification.IsInitialized()==anywheresoftware.b4a.keywords.Common.False) { 
+ //BA.debugLineNum = 67;BA.debugLine="Return";
+if (true) return "";
+ };
+ //BA.debugLineNum = 70;BA.debugLine="If ControllingService.PowerOn = False Or Controll";
+if (mostCurrent._controllingservice._poweron==anywheresoftware.b4a.keywords.Common.False || mostCurrent._controllingservice._usbmanager.GetDevices().length==0) { 
  //BA.debugLineNum = 71;BA.debugLine="Return";
 if (true) return "";
  };
- //BA.debugLineNum = 74;BA.debugLine="Log(Notification.PackageName)";
-anywheresoftware.b4a.keywords.Common.Log(_notification.getPackageName());
- //BA.debugLineNum = 76;BA.debugLine="If ControllingService.PowerOn = False Then";
-if (mostCurrent._controllingservice._poweron==anywheresoftware.b4a.keywords.Common.False) { 
- //BA.debugLineNum = 77;BA.debugLine="Return";
-if (true) return "";
- };
- //BA.debugLineNum = 80;BA.debugLine="Select(Notification.PackageName)";
+ //BA.debugLineNum = 74;BA.debugLine="Select(Notification.PackageName)";
 switch (BA.switchObjectToInt((_notification.getPackageName()),"au.com.shiftyjelly.pocketcasts","com.apple.android.music","com.google.android.apps.maps")) {
 case 0:
- //BA.debugLineNum = 83;BA.debugLine="Log(\"Podcasts stopped\")";
+ //BA.debugLineNum = 77;BA.debugLine="Log(\"Podcasts stopped\")";
 anywheresoftware.b4a.keywords.Common.Log("Podcasts stopped");
- //BA.debugLineNum = 84;BA.debugLine="ControllingService.PreferenceManager.SetBoolean(";
+ //BA.debugLineNum = 78;BA.debugLine="ControllingService.PreferenceManager.SetBoolean(";
 mostCurrent._controllingservice._preferencemanager.SetBoolean("PlayPodcast",anywheresoftware.b4a.keywords.Common.False);
  break;
 case 1:
- //BA.debugLineNum = 87;BA.debugLine="If ControllingService.AudioFocusListener.isMusic";
+ //BA.debugLineNum = 81;BA.debugLine="If ControllingService.AudioFocusListener.isMusic";
 if (mostCurrent._controllingservice._audiofocuslistener.isMusicActive()==anywheresoftware.b4a.keywords.Common.False) { 
- //BA.debugLineNum = 88;BA.debugLine="Log(\"Apple music stopped\")";
+ //BA.debugLineNum = 82;BA.debugLine="Log(\"Apple music stopped\")";
 anywheresoftware.b4a.keywords.Common.Log("Apple music stopped");
- //BA.debugLineNum = 89;BA.debugLine="ControllingService.PreferenceManager.SetBoolean";
+ //BA.debugLineNum = 83;BA.debugLine="ControllingService.PreferenceManager.SetBoolean";
 mostCurrent._controllingservice._preferencemanager.SetBoolean("PlayMusic",anywheresoftware.b4a.keywords.Common.False);
  };
  break;
 case 2:
- //BA.debugLineNum = 93;BA.debugLine="Log(\"Driving Mode stopped\")";
+ //BA.debugLineNum = 87;BA.debugLine="Log(\"Driving Mode stopped\")";
 anywheresoftware.b4a.keywords.Common.Log("Driving Mode stopped");
- //BA.debugLineNum = 94;BA.debugLine="ControllingService.PreferenceManager.SetBoolean(";
+ //BA.debugLineNum = 88;BA.debugLine="ControllingService.PreferenceManager.SetBoolean(";
 mostCurrent._controllingservice._preferencemanager.SetBoolean("DrivingMode",anywheresoftware.b4a.keywords.Common.False);
  break;
 }
 ;
- //BA.debugLineNum = 99;BA.debugLine="End Sub";
+ //BA.debugLineNum = 93;BA.debugLine="End Sub";
 return "";
 }
 public static String  _process_globals() throws Exception{
@@ -210,8 +200,8 @@ _notificationlistener.Initialize(processBA,"NotificationListener");
 return "";
 }
 public static String  _service_destroy() throws Exception{
- //BA.debugLineNum = 101;BA.debugLine="Sub Service_Destroy";
- //BA.debugLineNum = 103;BA.debugLine="End Sub";
+ //BA.debugLineNum = 95;BA.debugLine="Sub Service_Destroy";
+ //BA.debugLineNum = 97;BA.debugLine="End Sub";
 return "";
 }
 public static String  _service_start(anywheresoftware.b4a.objects.IntentWrapper _startingintent) throws Exception{
@@ -224,18 +214,18 @@ return "";
 }
 public static String  _wait(int _seconds) throws Exception{
 long _ti = 0L;
- //BA.debugLineNum = 61;BA.debugLine="Sub Wait(Seconds As Int)";
- //BA.debugLineNum = 62;BA.debugLine="Dim Ti As Long";
+ //BA.debugLineNum = 57;BA.debugLine="Sub Wait(Seconds As Int)";
+ //BA.debugLineNum = 58;BA.debugLine="Dim Ti As Long";
 _ti = 0L;
- //BA.debugLineNum = 63;BA.debugLine="Ti = DateTime.Now + (Seconds * 1000)";
+ //BA.debugLineNum = 59;BA.debugLine="Ti = DateTime.Now + (Seconds * 1000)";
 _ti = (long) (anywheresoftware.b4a.keywords.Common.DateTime.getNow()+(_seconds*1000));
- //BA.debugLineNum = 64;BA.debugLine="Do While DateTime.Now < Ti";
+ //BA.debugLineNum = 60;BA.debugLine="Do While DateTime.Now < Ti";
 while (anywheresoftware.b4a.keywords.Common.DateTime.getNow()<_ti) {
- //BA.debugLineNum = 65;BA.debugLine="DoEvents";
+ //BA.debugLineNum = 61;BA.debugLine="DoEvents";
 anywheresoftware.b4a.keywords.Common.DoEvents();
  }
 ;
- //BA.debugLineNum = 67;BA.debugLine="End Sub";
+ //BA.debugLineNum = 63;BA.debugLine="End Sub";
 return "";
 }
 }

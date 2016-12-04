@@ -58,9 +58,5 @@
 		</service>
 		<receiver android:name=".notificationservice$notificationservice_BR">
 		</receiver>
-		<service android:name=".receiverservice">
-		</service>
-		<receiver android:name=".receiverservice$receiverservice_BR">
-		</receiver>
 	</application>
 </manifest>

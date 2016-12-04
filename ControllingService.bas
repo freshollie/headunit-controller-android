@@ -104,7 +104,9 @@ Sub StartApps
 		
 	Else If PreferenceManager.GetBoolean("PlayRadio") Then
 		Log("Playing radio")
-		Do While UsbManager.GetDevices().Length < 3 And PreferenceManager.GetBoolean("DebugMode") = False
+		Dim loopTime As Int = DateTime.Now
+		
+		Do While UsbManager.GetDevices().Length < 3 And PreferenceManager.GetBoolean("DebugMode") = False And (DateTime.Now - loopTime < 10)
 			DoEvents
 		Loop
 		Su.SuCommand("am startservice -a android.intent.action.MAIN -n com.freshollie.radioapp/.radioservice")
@@ -153,7 +155,11 @@ Sub StartRoutine
 	
 	Log("Started apps")
 	
-	Do While UsbManager.GetDevices().Length < 3 And PreferenceManager.GetBoolean("DebugMode") = False
+	Dim numDevices = PreferenceManager.GetString("NumDevices") As Int
+	
+	Dim loopTime As Int = DateTime.Now
+	
+	Do While UsbManager.GetDevices().Length < numDevices And PreferenceManager.GetBoolean("DebugMode") = False And (DateTime.Now - loopTime < 10)
 		DoEvents
 	Loop
 	If PowerOn Then

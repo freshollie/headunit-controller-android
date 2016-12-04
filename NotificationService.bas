@@ -29,13 +29,9 @@ Sub NotificationListener_NotificationPosted(Notification As StatusBarNotificatio
 	If Notification.IsInitialized = False Then
 		Return
 	End If
-	
-	Log(Notification.PackageName)
+
 	If ControllingService.ServiceRunning = False Then Return
-	If ControllingService.UsbManager.GetDevices().Length = 0  And ControllingService.PreferenceManager.GetBoolean("DebugMode") = False Then Return
-	If ControllingService.PowerOn = False Then
-		Return
-	End If
+	If ControllingService.PowerOn = False Then Return
 		
 	Select(Notification.PackageName)
 
@@ -76,9 +72,7 @@ Sub NotificationListener_NotificationRemoved(Notification As StatusBarNotificati
 		Return
 	End If
 	
-	Log(Notification.PackageName)
-	
-	If ControllingService.PowerOn = False Then
+	If ControllingService.PowerOn = False Or ControllingService.UsbManager.GetDevices().Length = 0 Then
 		Return
 	End If
 	

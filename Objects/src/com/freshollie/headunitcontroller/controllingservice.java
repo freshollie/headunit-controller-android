@@ -116,96 +116,95 @@ public static corsaro.sucommand.library.SuCommand _su = null;
 public static anywheresoftware.b4a.objects.NotificationWrapper _notification = null;
 public com.freshollie.headunitcontroller.main _main = null;
 public com.freshollie.headunitcontroller.notificationservice _notificationservice = null;
-public com.freshollie.headunitcontroller.receiverservice _receiverservice = null;
 public static String  _broadcastreceiver_onreceive(String _action,Object _i) throws Exception{
 anywheresoftware.b4a.objects.IntentWrapper _intent = null;
- //BA.debugLineNum = 170;BA.debugLine="Sub BroadcastReceiver_onReceive(Action As String,";
- //BA.debugLineNum = 171;BA.debugLine="If I <> Null Then";
+ //BA.debugLineNum = 172;BA.debugLine="Sub BroadcastReceiver_onReceive(Action As String,";
+ //BA.debugLineNum = 173;BA.debugLine="If I <> Null Then";
 if (_i!= null) { 
- //BA.debugLineNum = 172;BA.debugLine="Dim intent As Intent = i";
+ //BA.debugLineNum = 174;BA.debugLine="Dim intent As Intent = i";
 _intent = new anywheresoftware.b4a.objects.IntentWrapper();
 _intent.setObject((android.content.Intent)(_i));
  };
- //BA.debugLineNum = 175;BA.debugLine="Log(Action)";
+ //BA.debugLineNum = 177;BA.debugLine="Log(Action)";
 anywheresoftware.b4a.keywords.Common.Log(_action);
- //BA.debugLineNum = 176;BA.debugLine="Select(Action)";
+ //BA.debugLineNum = 178;BA.debugLine="Select(Action)";
 switch (BA.switchObjectToInt((_action),"android.intent.action.ACTION_POWER_CONNECTED","android.intent.action.ACTION_POWER_DISCONNECTED","com.apple.music.client.player.play")) {
 case 0:
- //BA.debugLineNum = 179;BA.debugLine="Log(\"Power connected\")";
+ //BA.debugLineNum = 181;BA.debugLine="Log(\"Power connected\")";
 anywheresoftware.b4a.keywords.Common.Log("Power connected");
- //BA.debugLineNum = 180;BA.debugLine="PowerOn = True";
+ //BA.debugLineNum = 182;BA.debugLine="PowerOn = True";
 _poweron = anywheresoftware.b4a.keywords.Common.True;
- //BA.debugLineNum = 181;BA.debugLine="StartRoutine";
+ //BA.debugLineNum = 183;BA.debugLine="StartRoutine";
 _startroutine();
  break;
 case 1:
- //BA.debugLineNum = 184;BA.debugLine="Log(\"Power disconnected\")";
+ //BA.debugLineNum = 186;BA.debugLine="Log(\"Power disconnected\")";
 anywheresoftware.b4a.keywords.Common.Log("Power disconnected");
- //BA.debugLineNum = 185;BA.debugLine="Log(mediaplay.RunMethod(\"getForegroundPackageNam";
+ //BA.debugLineNum = 187;BA.debugLine="Log(mediaplay.RunMethod(\"getForegroundPackageNam";
 anywheresoftware.b4a.keywords.Common.Log(BA.ObjectToString(_mediaplay.RunMethod("getForegroundPackageName",(Object[])(anywheresoftware.b4a.keywords.Common.Null))));
- //BA.debugLineNum = 186;BA.debugLine="If mediaplay.RunMethod(\"getForegroundPackageName";
+ //BA.debugLineNum = 188;BA.debugLine="If mediaplay.RunMethod(\"getForegroundPackageName";
 if ((_mediaplay.RunMethod("getForegroundPackageName",(Object[])(anywheresoftware.b4a.keywords.Common.Null))).equals((Object)("com.google.android.apps.maps"))) { 
- //BA.debugLineNum = 187;BA.debugLine="Log(\"Maps last application on top\")";
+ //BA.debugLineNum = 189;BA.debugLine="Log(\"Maps last application on top\")";
 anywheresoftware.b4a.keywords.Common.Log("Maps last application on top");
- //BA.debugLineNum = 188;BA.debugLine="PreferenceManager.SetBoolean(\"LaunchMaps\", True";
+ //BA.debugLineNum = 190;BA.debugLine="PreferenceManager.SetBoolean(\"LaunchMaps\", True";
 _preferencemanager.SetBoolean("LaunchMaps",anywheresoftware.b4a.keywords.Common.True);
  }else {
- //BA.debugLineNum = 190;BA.debugLine="PreferenceManager.SetBoolean(\"LaunchMaps\", Fals";
+ //BA.debugLineNum = 192;BA.debugLine="PreferenceManager.SetBoolean(\"LaunchMaps\", Fals";
 _preferencemanager.SetBoolean("LaunchMaps",anywheresoftware.b4a.keywords.Common.False);
  };
- //BA.debugLineNum = 193;BA.debugLine="PowerOn = False";
+ //BA.debugLineNum = 195;BA.debugLine="PowerOn = False";
 _poweron = anywheresoftware.b4a.keywords.Common.False;
- //BA.debugLineNum = 194;BA.debugLine="StopRoutine";
+ //BA.debugLineNum = 196;BA.debugLine="StopRoutine";
 _stoproutine();
  break;
 case 2:
- //BA.debugLineNum = 197;BA.debugLine="Log(\"Wat\")";
+ //BA.debugLineNum = 199;BA.debugLine="Log(\"Wat\")";
 anywheresoftware.b4a.keywords.Common.Log("Wat");
  break;
 }
 ;
- //BA.debugLineNum = 202;BA.debugLine="If UsbManager.GetDevices().Length < 3 Then Return";
+ //BA.debugLineNum = 204;BA.debugLine="If UsbManager.GetDevices().Length < 3 Then Return";
 if (_usbmanager.GetDevices().length<3) { 
 if (true) return "";};
- //BA.debugLineNum = 204;BA.debugLine="If PowerOn = False Then Return 'Only check for th";
+ //BA.debugLineNum = 206;BA.debugLine="If PowerOn = False Then Return 'Only check for th";
 if (_poweron==anywheresoftware.b4a.keywords.Common.False) { 
 if (true) return "";};
- //BA.debugLineNum = 206;BA.debugLine="Select(Action)";
+ //BA.debugLineNum = 208;BA.debugLine="Select(Action)";
 switch (BA.switchObjectToInt((_action),"com.freshollie.radioapp.RUNNING","com.freshollie.radioapp.STOPPED")) {
 case 0:
- //BA.debugLineNum = 209;BA.debugLine="Log(\"Radio Player started\")";
+ //BA.debugLineNum = 211;BA.debugLine="Log(\"Radio Player started\")";
 anywheresoftware.b4a.keywords.Common.Log("Radio Player started");
- //BA.debugLineNum = 210;BA.debugLine="PreferenceManager.SetBoolean(\"PlayRadio\", True)";
+ //BA.debugLineNum = 212;BA.debugLine="PreferenceManager.SetBoolean(\"PlayRadio\", True)";
 _preferencemanager.SetBoolean("PlayRadio",anywheresoftware.b4a.keywords.Common.True);
- //BA.debugLineNum = 211;BA.debugLine="PreferenceManager.SetBoolean(\"PlayPodcast\", Fals";
+ //BA.debugLineNum = 213;BA.debugLine="PreferenceManager.SetBoolean(\"PlayPodcast\", Fals";
 _preferencemanager.SetBoolean("PlayPodcast",anywheresoftware.b4a.keywords.Common.False);
- //BA.debugLineNum = 212;BA.debugLine="PreferenceManager.SetBoolean(\"PlayMusic\", False)";
+ //BA.debugLineNum = 214;BA.debugLine="PreferenceManager.SetBoolean(\"PlayMusic\", False)";
 _preferencemanager.SetBoolean("PlayMusic",anywheresoftware.b4a.keywords.Common.False);
  break;
 case 1:
- //BA.debugLineNum = 215;BA.debugLine="Log(\"Radio player stopped\")";
+ //BA.debugLineNum = 217;BA.debugLine="Log(\"Radio player stopped\")";
 anywheresoftware.b4a.keywords.Common.Log("Radio player stopped");
- //BA.debugLineNum = 216;BA.debugLine="PreferenceManager.SetBoolean(\"PlayRadio\", False)";
+ //BA.debugLineNum = 218;BA.debugLine="PreferenceManager.SetBoolean(\"PlayRadio\", False)";
 _preferencemanager.SetBoolean("PlayRadio",anywheresoftware.b4a.keywords.Common.False);
  break;
 }
 ;
- //BA.debugLineNum = 221;BA.debugLine="End Sub";
+ //BA.debugLineNum = 223;BA.debugLine="End Sub";
 return "";
 }
 public static String  _killmaps() throws Exception{
- //BA.debugLineNum = 239;BA.debugLine="Private Sub KillMaps";
- //BA.debugLineNum = 240;BA.debugLine="Log(\"Killing maps\")";
+ //BA.debugLineNum = 241;BA.debugLine="Private Sub KillMaps";
+ //BA.debugLineNum = 242;BA.debugLine="Log(\"Killing maps\")";
 anywheresoftware.b4a.keywords.Common.Log("Killing maps");
- //BA.debugLineNum = 241;BA.debugLine="Su.SuCommand(\"am force-stop com.google.android.ap";
+ //BA.debugLineNum = 243;BA.debugLine="Su.SuCommand(\"am force-stop com.google.android.ap";
 _su.SuCommand("am force-stop com.google.android.apps.maps");
- //BA.debugLineNum = 242;BA.debugLine="End Sub";
+ //BA.debugLineNum = 244;BA.debugLine="End Sub";
 return "";
 }
 public static String  _playmusic() throws Exception{
 Object[] _args = null;
- //BA.debugLineNum = 230;BA.debugLine="Sub PlayMusic";
- //BA.debugLineNum = 231;BA.debugLine="Dim args(1) As Object";
+ //BA.debugLineNum = 232;BA.debugLine="Sub PlayMusic";
+ //BA.debugLineNum = 233;BA.debugLine="Dim args(1) As Object";
 _args = new Object[(int) (1)];
 {
 int d0 = _args.length;
@@ -214,15 +213,15 @@ _args[i0] = new Object();
 }
 }
 ;
- //BA.debugLineNum = 232;BA.debugLine="Su.SuCommand(\"am startservice -a 'com.apple.music";
+ //BA.debugLineNum = 234;BA.debugLine="Su.SuCommand(\"am startservice -a 'com.apple.music";
 _su.SuCommand("am startservice -a 'com.apple.music.client.player.play_pause' -n com.apple.android.music/com.apple.android.svmediaplayer.player.MusicService");
- //BA.debugLineNum = 233;BA.debugLine="End Sub";
+ //BA.debugLineNum = 235;BA.debugLine="End Sub";
 return "";
 }
 public static String  _playpodcasts() throws Exception{
 Object[] _args = null;
- //BA.debugLineNum = 224;BA.debugLine="Sub PlayPodcasts";
- //BA.debugLineNum = 225;BA.debugLine="Dim args(1) As Object";
+ //BA.debugLineNum = 226;BA.debugLine="Sub PlayPodcasts";
+ //BA.debugLineNum = 227;BA.debugLine="Dim args(1) As Object";
 _args = new Object[(int) (1)];
 {
 int d0 = _args.length;
@@ -231,11 +230,11 @@ _args[i0] = new Object();
 }
 }
 ;
- //BA.debugLineNum = 226;BA.debugLine="args(0) = \"au.com.shiftyjelly.pocketcasts\"";
+ //BA.debugLineNum = 228;BA.debugLine="args(0) = \"au.com.shiftyjelly.pocketcasts\"";
 _args[(int) (0)] = (Object)("au.com.shiftyjelly.pocketcasts");
- //BA.debugLineNum = 227;BA.debugLine="mediaplay.RunMethod(\"togglePause\", args)";
+ //BA.debugLineNum = 229;BA.debugLine="mediaplay.RunMethod(\"togglePause\", args)";
 _mediaplay.RunMethod("togglePause",_args);
- //BA.debugLineNum = 228;BA.debugLine="End Sub";
+ //BA.debugLineNum = 230;BA.debugLine="End Sub";
 return "";
 }
 public static String  _process_globals() throws Exception{
@@ -310,10 +309,10 @@ _broadcastreceiver.registerReceiver("");
 return "";
 }
 public static String  _service_destroy() throws Exception{
- //BA.debugLineNum = 235;BA.debugLine="Sub Service_Destroy";
- //BA.debugLineNum = 236;BA.debugLine="Service.StopForeground(0)";
+ //BA.debugLineNum = 237;BA.debugLine="Sub Service_Destroy";
+ //BA.debugLineNum = 238;BA.debugLine="Service.StopForeground(0)";
 mostCurrent._service.StopForeground((int) (0));
- //BA.debugLineNum = 237;BA.debugLine="End Sub";
+ //BA.debugLineNum = 239;BA.debugLine="End Sub";
 return "";
 }
 public static String  _service_start(anywheresoftware.b4a.objects.IntentWrapper _startingintent) throws Exception{
@@ -424,6 +423,7 @@ anywheresoftware.b4a.keywords.Common.Log("Starting gps");
 return "";
 }
 public static String  _startroutine() throws Exception{
+int _numdevices = 0;
  //BA.debugLineNum = 133;BA.debugLine="Sub StartRoutine";
  //BA.debugLineNum = 134;BA.debugLine="MediaPlayer.Load(File.DirAssets, \"5sec.mp3\")";
 _mediaplayer.Load(anywheresoftware.b4a.keywords.Common.File.getDirAssets(),"5sec.mp3");
@@ -449,20 +449,22 @@ _wait((int) (4));
  };
  //BA.debugLineNum = 149;BA.debugLine="Log(\"Started apps\")";
 anywheresoftware.b4a.keywords.Common.Log("Started apps");
- //BA.debugLineNum = 151;BA.debugLine="Do While UsbManager.GetDevices().Length < 3 And P";
-while (_usbmanager.GetDevices().length<3 && _preferencemanager.GetBoolean("DebugMode")==anywheresoftware.b4a.keywords.Common.False) {
- //BA.debugLineNum = 152;BA.debugLine="DoEvents";
+ //BA.debugLineNum = 151;BA.debugLine="Dim numDevices = PreferenceManager.GetString(\"Num";
+_numdevices = (int)(Double.parseDouble(_preferencemanager.GetString("NumDevices")));
+ //BA.debugLineNum = 153;BA.debugLine="Do While UsbManager.GetDevices().Length < numDevi";
+while (_usbmanager.GetDevices().length<_numdevices && _preferencemanager.GetBoolean("DebugMode")==anywheresoftware.b4a.keywords.Common.False) {
+ //BA.debugLineNum = 154;BA.debugLine="DoEvents";
 anywheresoftware.b4a.keywords.Common.DoEvents();
  }
 ;
- //BA.debugLineNum = 154;BA.debugLine="If PowerOn Then";
+ //BA.debugLineNum = 156;BA.debugLine="If PowerOn Then";
 if (_poweron) { 
- //BA.debugLineNum = 155;BA.debugLine="StartShuttleXpress";
+ //BA.debugLineNum = 157;BA.debugLine="StartShuttleXpress";
 _startshuttlexpress();
- //BA.debugLineNum = 156;BA.debugLine="StartGPS";
+ //BA.debugLineNum = 158;BA.debugLine="StartGPS";
 _startgps();
  };
- //BA.debugLineNum = 158;BA.debugLine="End Sub";
+ //BA.debugLineNum = 160;BA.debugLine="End Sub";
 return "";
 }
 public static String  _startshuttlexpress() throws Exception{
@@ -485,16 +487,16 @@ return "";
 }
 public static String  _stoproutine() throws Exception{
 anywheresoftware.b4a.agraham.threading.Threading _thread1 = null;
- //BA.debugLineNum = 160;BA.debugLine="Sub StopRoutine";
- //BA.debugLineNum = 161;BA.debugLine="MediaPlayer.Stop";
+ //BA.debugLineNum = 162;BA.debugLine="Sub StopRoutine";
+ //BA.debugLineNum = 163;BA.debugLine="MediaPlayer.Stop";
 _mediaplayer.Stop();
- //BA.debugLineNum = 163;BA.debugLine="Dim thread1 As Thread";
+ //BA.debugLineNum = 165;BA.debugLine="Dim thread1 As Thread";
 _thread1 = new anywheresoftware.b4a.agraham.threading.Threading();
- //BA.debugLineNum = 164;BA.debugLine="thread1.Initialise(\"KillMaps\")";
+ //BA.debugLineNum = 166;BA.debugLine="thread1.Initialise(\"KillMaps\")";
 _thread1.Initialise(processBA,"KillMaps");
- //BA.debugLineNum = 165;BA.debugLine="thread1.Start(\"KillMaps\", Null)";
+ //BA.debugLineNum = 167;BA.debugLine="thread1.Start(\"KillMaps\", Null)";
 _thread1.Start("KillMaps",(Object[])(anywheresoftware.b4a.keywords.Common.Null));
- //BA.debugLineNum = 167;BA.debugLine="End Sub";
+ //BA.debugLineNum = 169;BA.debugLine="End Sub";
 return "";
 }
 public static String  _wait(int _seconds) throws Exception{

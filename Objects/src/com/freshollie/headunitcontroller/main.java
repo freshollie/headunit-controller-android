@@ -315,13 +315,13 @@ public anywheresoftware.b4a.objects.CompoundButtonWrapper.CheckBoxWrapper _check
 public anywheresoftware.b4a.objects.SpinnerWrapper _spinner1 = null;
 public com.freshollie.headunitcontroller.controllingservice _controllingservice = null;
 public com.freshollie.headunitcontroller.notificationservice _notificationservice = null;
-public com.freshollie.headunitcontroller.receiverservice _receiverservice = null;
 
 public static boolean isAnyActivityVisible() {
     boolean vis = false;
 vis = vis | (main.mostCurrent != null);
 return vis;}
 public static String  _activity_create(boolean _firsttime) throws Exception{
+int _numdevices = 0;
  //BA.debugLineNum = 32;BA.debugLine="Sub Activity_Create(FirstTime As Boolean)";
  //BA.debugLineNum = 34;BA.debugLine="Activity.LoadLayout(\"MainLayout\")";
 mostCurrent._activity.LoadLayout("MainLayout",mostCurrent.activityBA);
@@ -347,64 +347,66 @@ mostCurrent._checkbox1.setChecked(anywheresoftware.b4a.keywords.Common.True);
  //BA.debugLineNum = 48;BA.debugLine="CheckBox1.Checked = False";
 mostCurrent._checkbox1.setChecked(anywheresoftware.b4a.keywords.Common.False);
  };
- //BA.debugLineNum = 51;BA.debugLine="Spinner1.SelectedIndex = ControllingService.Prefe";
-mostCurrent._spinner1.setSelectedIndex((int)(Double.parseDouble(mostCurrent._controllingservice._preferencemanager.GetString("NumDevices"))));
- //BA.debugLineNum = 53;BA.debugLine="End Sub";
+ //BA.debugLineNum = 51;BA.debugLine="Dim numDevices = ControllingService.PreferenceMan";
+_numdevices = (int)(Double.parseDouble(mostCurrent._controllingservice._preferencemanager.GetString("NumDevices")));
+ //BA.debugLineNum = 52;BA.debugLine="Spinner1.SelectedIndex = numDevices";
+mostCurrent._spinner1.setSelectedIndex(_numdevices);
+ //BA.debugLineNum = 54;BA.debugLine="End Sub";
 return "";
 }
 public static String  _activity_pause(boolean _userclosed) throws Exception{
- //BA.debugLineNum = 87;BA.debugLine="Sub Activity_Pause (UserClosed As Boolean)";
- //BA.debugLineNum = 89;BA.debugLine="End Sub";
+ //BA.debugLineNum = 88;BA.debugLine="Sub Activity_Pause (UserClosed As Boolean)";
+ //BA.debugLineNum = 90;BA.debugLine="End Sub";
 return "";
 }
 public static String  _activity_resume() throws Exception{
- //BA.debugLineNum = 83;BA.debugLine="Sub Activity_Resume";
- //BA.debugLineNum = 85;BA.debugLine="End Sub";
+ //BA.debugLineNum = 84;BA.debugLine="Sub Activity_Resume";
+ //BA.debugLineNum = 86;BA.debugLine="End Sub";
 return "";
 }
 public static String  _button1_click() throws Exception{
 anywheresoftware.b4a.objects.IntentWrapper _in = null;
- //BA.debugLineNum = 63;BA.debugLine="Sub Button1_click";
- //BA.debugLineNum = 64;BA.debugLine="Dim In As Intent";
+ //BA.debugLineNum = 64;BA.debugLine="Sub Button1_click";
+ //BA.debugLineNum = 65;BA.debugLine="Dim In As Intent";
 _in = new anywheresoftware.b4a.objects.IntentWrapper();
- //BA.debugLineNum = 65;BA.debugLine="In.Initialize(\"android.settings.ACTION_NOTIFICATI";
+ //BA.debugLineNum = 66;BA.debugLine="In.Initialize(\"android.settings.ACTION_NOTIFICATI";
 _in.Initialize("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS","");
- //BA.debugLineNum = 66;BA.debugLine="StartActivity(In)";
+ //BA.debugLineNum = 67;BA.debugLine="StartActivity(In)";
 anywheresoftware.b4a.keywords.Common.StartActivity(mostCurrent.activityBA,(Object)(_in.getObject()));
- //BA.debugLineNum = 67;BA.debugLine="End Sub";
+ //BA.debugLineNum = 68;BA.debugLine="End Sub";
 return "";
 }
 public static String  _button2_click() throws Exception{
- //BA.debugLineNum = 76;BA.debugLine="Sub Button2_Click";
- //BA.debugLineNum = 77;BA.debugLine="CallSub3(ControllingService, \"BroadcastReceiver_o";
+ //BA.debugLineNum = 77;BA.debugLine="Sub Button2_Click";
+ //BA.debugLineNum = 78;BA.debugLine="CallSub3(ControllingService, \"BroadcastReceiver_o";
 anywheresoftware.b4a.keywords.Common.CallSubNew3(mostCurrent.activityBA,(Object)(mostCurrent._controllingservice.getObject()),"BroadcastReceiver_onReceive",(Object)("android.intent.action.ACTION_POWER_CONNECTED"),anywheresoftware.b4a.keywords.Common.Null);
- //BA.debugLineNum = 78;BA.debugLine="End Sub";
+ //BA.debugLineNum = 79;BA.debugLine="End Sub";
 return "";
 }
 public static String  _button3_click() throws Exception{
- //BA.debugLineNum = 80;BA.debugLine="Sub Button3_Click";
- //BA.debugLineNum = 81;BA.debugLine="CallSub3(ControllingService, \"BroadcastReceiver_o";
+ //BA.debugLineNum = 81;BA.debugLine="Sub Button3_Click";
+ //BA.debugLineNum = 82;BA.debugLine="CallSub3(ControllingService, \"BroadcastReceiver_o";
 anywheresoftware.b4a.keywords.Common.CallSubNew3(mostCurrent.activityBA,(Object)(mostCurrent._controllingservice.getObject()),"BroadcastReceiver_onReceive",(Object)("android.intent.action.ACTION_POWER_DISCONNECTED"),anywheresoftware.b4a.keywords.Common.Null);
- //BA.debugLineNum = 82;BA.debugLine="End Sub";
+ //BA.debugLineNum = 83;BA.debugLine="End Sub";
 return "";
 }
 public static String  _button4_click() throws Exception{
 anywheresoftware.b4a.objects.IntentWrapper _in = null;
- //BA.debugLineNum = 69;BA.debugLine="Sub Button4_click";
- //BA.debugLineNum = 70;BA.debugLine="Dim In As Intent";
+ //BA.debugLineNum = 70;BA.debugLine="Sub Button4_click";
+ //BA.debugLineNum = 71;BA.debugLine="Dim In As Intent";
 _in = new anywheresoftware.b4a.objects.IntentWrapper();
- //BA.debugLineNum = 71;BA.debugLine="In.Initialize(\"android.settings.USAGE_ACCESS_SETT";
+ //BA.debugLineNum = 72;BA.debugLine="In.Initialize(\"android.settings.USAGE_ACCESS_SETT";
 _in.Initialize("android.settings.USAGE_ACCESS_SETTINGS","");
- //BA.debugLineNum = 72;BA.debugLine="StartActivity(In)";
+ //BA.debugLineNum = 73;BA.debugLine="StartActivity(In)";
 anywheresoftware.b4a.keywords.Common.StartActivity(mostCurrent.activityBA,(Object)(_in.getObject()));
- //BA.debugLineNum = 73;BA.debugLine="End Sub";
+ //BA.debugLineNum = 74;BA.debugLine="End Sub";
 return "";
 }
 public static String  _checkbox1_checkedchange(boolean _checked) throws Exception{
- //BA.debugLineNum = 55;BA.debugLine="Sub CheckBox1_CheckedChange(checked As Boolean)";
- //BA.debugLineNum = 56;BA.debugLine="ControllingService.PreferenceManager.SetBoolean(\"";
+ //BA.debugLineNum = 56;BA.debugLine="Sub CheckBox1_CheckedChange(checked As Boolean)";
+ //BA.debugLineNum = 57;BA.debugLine="ControllingService.PreferenceManager.SetBoolean(\"";
 mostCurrent._controllingservice._preferencemanager.SetBoolean("DebugMode",_checked);
- //BA.debugLineNum = 57;BA.debugLine="End Sub";
+ //BA.debugLineNum = 58;BA.debugLine="End Sub";
 return "";
 }
 public static String  _globals() throws Exception{
@@ -433,7 +435,6 @@ public static void initializeProcessGlobals() {
 		        main._process_globals();
 controllingservice._process_globals();
 notificationservice._process_globals();
-receiverservice._process_globals();
 		
         } catch (Exception e) {
 			throw new RuntimeException(e);
@@ -445,10 +446,10 @@ receiverservice._process_globals();
 return "";
 }
 public static String  _spinner1_itemclick(int _pos,Object _value) throws Exception{
- //BA.debugLineNum = 59;BA.debugLine="Sub Spinner1_ItemClick(Pos As Int, Value As Object";
- //BA.debugLineNum = 60;BA.debugLine="ControllingService.PreferenceManager.SetString(\"N";
+ //BA.debugLineNum = 60;BA.debugLine="Sub Spinner1_ItemClick(Pos As Int, Value As Object";
+ //BA.debugLineNum = 61;BA.debugLine="ControllingService.PreferenceManager.SetString(\"N";
 mostCurrent._controllingservice._preferencemanager.SetString("NumDevices",BA.ObjectToString(_value));
- //BA.debugLineNum = 61;BA.debugLine="End Sub";
+ //BA.debugLineNum = 62;BA.debugLine="End Sub";
 return "";
 }
 }

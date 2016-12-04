@@ -1,16 +1,14 @@
 ﻿Version=5.02
-NumberOfModules=3
+NumberOfModules=2
 Module1=ControllingService
 Module2=NotificationService
-Module3=ReceiverService
 Build1=Default,com.freshollie.headunitcontroller
 ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: http://www.b4x.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="21"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>~\n~<uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL"/>~\n~<uses-permission android:name="android.permission.GET_TASKS" /> ~\n~<uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"/>)~\n~AddApplicationText(~\n~<service android:name="anywheresoftware.b4a.objects.NotificationListenerWrapper"~\n~   android:label="Notification Listener"~\n~  android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">~\n~  <intent-filter>~\n~  <action android:name="android.service.notification.NotificationListenerService" />~\n~  </intent-filter>~\n~</service>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~SetApplicationAttribute(android:theme, "@android:style/Theme.Material.Light")~\n~'End of default text.~\n~
 IconFile=
-NumberOfFiles=4
+NumberOfFiles=3
 File1=5sec.mp3
 File2=ic_tablet_black_48dp.png
-File3=landscape.bal
-File4=MainLayout.bal
+File3=MainLayout.bal
 NumberOfLibraries=10
 Library1=core
 Library2=broadcastreceiver
@@ -73,7 +71,8 @@ Sub Activity_Create(FirstTime As Boolean)
 		CheckBox1.Checked = False
 	End If
 	
-	Spinner1.SelectedIndex = ControllingService.PreferenceManager.GetString("NumDevices")
+	Dim numDevices = ControllingService.PreferenceManager.GetString("NumDevices") As Int
+	Spinner1.SelectedIndex = numDevices
 	
 End Sub
 
