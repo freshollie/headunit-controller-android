@@ -19,7 +19,7 @@ Apps compatible
 ---------
 
 * AutoBright
-* My own build of USB GPS (https://github.com/HvB/UsbGps4Droid)
+* My own build of USB GPS (https://github.com/freshollie/UsbGps4Droid)
 * Apple Music
 * Pocket Casts
 * DAB Radio (https://github.com/freshollie/MonkeyboardAndroidRadioApp)
