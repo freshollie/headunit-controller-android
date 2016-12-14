@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Headunit Controller</string>
+
+    <string name="PREFERENCES_KEY">9asdy9a8fnas9hf9qwm9</string>
+
+    <string name="PLAYING_MUSIC_APP_KEY">last_action</string>
+    <string name="PLAYING_RADIO_KEY">playing_radio</string>
+    <string name="DRIVING_MODE_KEY">driving_mode</string>
+    <string name="LAUNCH_MAPS_KEY">launch_maps</string>
+
+    <string name="notify_su_not_granted_closing">Super user not granted, stopping controller</string>
+    <string name="notify_running">Running</string>
+
+
+</resources>
