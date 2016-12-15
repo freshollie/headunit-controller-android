@@ -30,7 +30,7 @@ public class NotificationHandler {
         notificationBuilder = new NotificationCompat.Builder(context.getApplicationContext())
                 .setContentTitle(context.getString(R.string.app_name))
                 .setOngoing(true)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_tablet_black_24dp)
                 .setContentIntent(
                         PendingIntent.getActivity(
                                 context,

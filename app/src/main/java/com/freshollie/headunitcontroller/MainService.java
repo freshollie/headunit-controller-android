@@ -45,7 +45,7 @@ public class MainService extends Service {
 
         // Start monitoring media
         Log.v(TAG, "Started");
-        startService(new Intent(getApplicationContext(), MediaService.class));
+        startService(new Intent(getApplicationContext(), MediaMonitoringService.class));
     }
 
     @Override
@@ -98,7 +98,7 @@ public class MainService extends Service {
 
     @Override
     public void onDestroy(){
-        stopService(new Intent(this, MediaService.class));
+        stopService(new Intent(this, MediaMonitoringService.class));
         stopService(new Intent(this, RoutineService.class));
 
     }
