@@ -7,12 +7,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-public class NLService extends NotificationListenerService {
+public class DrivingModeListener extends NotificationListenerService {
 
     private String TAG = this.getClass().getSimpleName();
     private SharedPreferences sharedPreferences;
@@ -31,17 +32,22 @@ public class NLService extends NotificationListenerService {
     }
 
     @Override
-    public void onNotificationPosted(StatusBarNotification notification) {
-        Log.v(TAG, "Posted " + notification.getPackageName());
-        if (notification.getPackageName() == "com.google.android.apps.maps" &&
+    public void onNotificationPosted(StatusBarNotification statusBarNotification) {
+        Log.v(TAG, "Posted " + statusBarNotification.getPackageName());
+        Bundle extras = statusBarNotification.getNotification().extras;
+        Log.v(TAG, "Extras: " + extras.keySet().toString());
+        if (statusBarNotification.getPackageName().equals("com.google.android.apps.maps") &&
                 !sharedPreferences.getBoolean(getString(R.string.DRIVING_MODE_KEY), false)
                 ) {
             Log.v(TAG, "Driving mode enabled");
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean(getString(R.string.DRIVING_MODE_KEY), true);
-            editor.apply();
+            setDrivingMode(false);
         }
+    }
 
+    public void setDrivingMode(Boolean mode) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(getString(R.string.DRIVING_MODE_KEY), mode);
+        editor.apply();
     }
 
     @Override
@@ -49,9 +55,7 @@ public class NLService extends NotificationListenerService {
         if (PowerUtil.isConnected(getApplicationContext()) &&
                 notification.getPackageName() == "com.google.android.apps.maps") {
             Log.v(TAG, "Driving mode disabled");
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean(getString(R.string.DRIVING_MODE_KEY), false);
-            editor.apply();
+            setDrivingMode(false);
         }
     }
 

@@ -20,6 +20,7 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -45,7 +46,7 @@ public class RoutineService extends Service {
     @Override
     public void onCreate() {
         sharedPreferences = getSharedPreferences(
-                getString(R.string.PLAYING_AUDIO_APP_KEY),
+                getString(R.string.PREFERENCES_KEY),
                 Context.MODE_PRIVATE
         );
 
@@ -74,23 +75,53 @@ public class RoutineService extends Service {
                 .setStreamVolume(AudioManager.STREAM_MUSIC, 13, 0);
     }
 
+
+    /**
+     * Run generic play command on given audio app.
+     *
+     * If the app has a specific method to play, then that method will be run
+     * @param packageName
+     */
     public void playAudioApp(String packageName) {
         Log.v(TAG, "Playing " + packageName);
-        long eventTime = SystemClock.uptimeMillis();
 
-        Intent downIntent = new Intent(Intent.ACTION_MEDIA_BUTTON, null);
-        KeyEvent downEvent = new KeyEvent(eventTime, eventTime,
-                KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, 0);
-        downIntent.putExtra(Intent.EXTRA_KEY_EVENT, downEvent);
-        downIntent.setPackage(packageName);
-        sendOrderedBroadcast(downIntent, null);
+        switch (packageName) {
+            case "com.apple.android.music":
+                startService(
+                        new Intent("com.apple.music.client.player.play_pause").setComponent(
+                                new ComponentName(
+                                    "com.apple.android.music",
+                                    "com.apple.android.svmediaplayer.player.MusicService"
+                                )
+                        )
+                );
+                return;
 
-        Intent upIntent = new Intent(Intent.ACTION_MEDIA_BUTTON, null);
-        KeyEvent upEvent = new KeyEvent(eventTime, eventTime,
-                KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, 0);
-        upIntent.putExtra(Intent.EXTRA_KEY_EVENT, upEvent);
-        upIntent.setPackage(packageName);
-        sendOrderedBroadcast(upIntent, null);
+            default:
+                /*
+                 * Default method is to send a playpause key to that app.
+                 * However this does not work on some apps
+                 */
+
+                long eventTime = SystemClock.uptimeMillis();
+
+                Intent downIntent = new Intent(Intent.ACTION_MEDIA_BUTTON, null);
+                KeyEvent downEvent = new KeyEvent(eventTime, eventTime,
+                        KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, 0);
+                downIntent.putExtra(Intent.EXTRA_KEY_EVENT, downEvent);
+                downIntent.setPackage(packageName);
+                sendOrderedBroadcast(downIntent, null);
+
+                Intent upIntent = new Intent(Intent.ACTION_MEDIA_BUTTON, null);
+                KeyEvent upEvent = new KeyEvent(eventTime, eventTime,
+                        KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, 0);
+                upIntent.putExtra(Intent.EXTRA_KEY_EVENT, upEvent);
+                upIntent.setPackage(packageName);
+
+                sendOrderedBroadcast(upIntent, null);
+        }
+
+
     }
 
     public void playLastAudioSource() {
