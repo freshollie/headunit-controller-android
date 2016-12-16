@@ -5,8 +5,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.media.session.MediaController;
 import android.media.session.MediaSessionManager;
 import android.media.session.PlaybackState;
@@ -55,7 +53,7 @@ public class MediaMonitoringService extends Service implements
 
         mediaSessionManager.addOnActiveSessionsChangedListener(
                 this,
-                new ComponentName(getApplicationContext(), NLService.class)
+                new ComponentName(getApplicationContext(), DrivingModeListener.class)
         );
     }
 

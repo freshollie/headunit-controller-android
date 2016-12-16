@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/HeadunitController.iml" filepath="$PROJECT_DIR$/HeadunitController.iml" />
+      <module fileurl="file://$PROJECT_DIR$/AndroidHeadunitController.iml" filepath="$PROJECT_DIR$/AndroidHeadunitController.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

@@ -45,19 +45,47 @@ public class NotificationHandler {
         notificationManager = (NotificationManager) context.getSystemService(Service.NOTIFICATION_SERVICE);
     }
 
+    public void notify(int notificiationId, Notification notification) {
+        notificationManager.notify(notificiationId, notification);
+    }
+
     public Notification notifyStatus(String status) {
         Notification notification = notificationBuilder.setContentText(status).build();
-        notificationManager.notify(SERVICE_NOTIFICATION, notification);
+        notify(SERVICE_NOTIFICATION, notification);
+        return notification;
+    }
+
+    public Notification notifyStatus(String status, PendingIntent intent) {
+        Notification notification =
+                notificationBuilder
+                        .setContentText(status)
+                        .setContentIntent(intent)
+                        .build();
+
+        notify(STATUS_NOTIFICATION, notification);
         return notification;
     }
 
     public void notifyStopWithStatus(String status) {
         Notification notification = notificationBuilder
-                .setContentText(context.getString(R.string.notify_su_not_granted_closing))
+                .setContentText(status)
                 .setOngoing(false)
+                .setAutoCancel(true)
                 .build();
 
-        notificationManager.notify(STATUS_NOTIFICATION, notification);
+        notify(STATUS_NOTIFICATION, notification);
+    }
+
+    public void notifyStopWithStatusAndAction(String status, PendingIntent action) {
+        Notification notification =
+                notificationBuilder
+                        .setContentText(status)
+                        .setContentIntent(action)
+                        .setOngoing(false)
+                        .setAutoCancel(true)
+                        .build();
+
+        notify(STATUS_NOTIFICATION, notification);
     }
 
     public void cancel(int id) {
