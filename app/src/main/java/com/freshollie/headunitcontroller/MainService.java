@@ -17,7 +17,8 @@ import android.widget.Toast;
 
 public class MainService extends Service {
     public static String TAG = "MainService";
-    public static String ACTION_SU_NOT_GRANTED = "com.freshollie.action.su_not_granted";
+    public static String ACTION_SU_NOT_GRANTED =
+            "com.freshollie.headunitcontroller.action.SU_NOT_GRANTED";
 
     private SuperUserManager superUserManager;
     private NotificationHandler notificationHandler;
@@ -66,10 +67,13 @@ public class MainService extends Service {
         stopWithStatus(getString(R.string.notify_no_notification_listen_permission));
     }
 
+    /**
+     * Checks for notification listening permission
+     */
     public boolean hasListeningPermission() {
         String notificationListenerString =
                 Settings.Secure.getString(getContentResolver(),"enabled_notification_listeners");
-        //Check notifications access permission
+
         return !(notificationListenerString == null ||
                 !notificationListenerString.contains(getPackageName()));
     }
@@ -86,7 +90,7 @@ public class MainService extends Service {
             return START_NOT_STICKY;
         }
 
-        if (!superUserManager.hasSuperUserPermission()) {
+        if (!superUserManager.hasPermission()) {
             superUserManager.request(new SuperUserManager.OnPermissionListener() {
                 @Override
                 public void onGranted() {
@@ -104,16 +108,16 @@ public class MainService extends Service {
 
         } else {
             if (intent.getAction() != null) {
-                Intent routineServiceIntent = new Intent(getApplicationContext(), RoutineService.class);
-                routineServiceIntent.setAction(intent.getAction());
-                startService(routineServiceIntent);
+                startService(
+                        new Intent(getApplicationContext(), RoutineService.class)
+                                .setAction(intent.getAction())
+                );
             }
 
         }
 
         return START_NOT_STICKY;
     }
-
 
     @Override
     public IBinder onBind(Intent intent) {

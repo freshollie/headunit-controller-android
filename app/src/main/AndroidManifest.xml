@@ -6,7 +6,7 @@
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"/>
-    <uses-permission
+    <system-permission
         android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
 
@@ -61,6 +61,7 @@
             android:enabled="true"/>
 
         <service
+            android:permission="android.permission.PACKAGE_USAGE_STATS"
             android:name=".RoutineService"
             android:enabled="true"/>
 

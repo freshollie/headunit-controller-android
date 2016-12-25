@@ -10,8 +10,16 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.freshollie.headunitcontroller.MainActivity">
 
-    <TextView
+    <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:text="Power Debug enabled"
+        android:id="@+id/powerDebugEnabled" />
+
+    <ToggleButton
+        android:text="Power"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:id="@+id/powerToggle" />
 </RelativeLayout>

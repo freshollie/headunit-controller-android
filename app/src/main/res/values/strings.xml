@@ -8,6 +8,9 @@
     <string name="DRIVING_MODE_KEY">driving_mode</string>
     <string name="LAUNCH_MAPS_KEY">launch_maps</string>
 
+    <string name="POWER_ON_DEBUG_KEY">power_on_debug</string>
+    <string name="DEBUG_ENABLED_KEY">debug</string>
+
     <string name="notify_su_not_granted_closing">Super user not granted, stopping controller</string>
     <string name="notify_running">Running</string>
     <string name="notify_no_notification_listen_permission">Please enable notification listening in settings</string>
