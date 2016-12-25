@@ -92,7 +92,7 @@ public class SuperUserManager {
         }).start();
     }
 
-    public boolean hasSuperUserPermission() {
+    public boolean hasPermission() {
         return permission;
     }
 

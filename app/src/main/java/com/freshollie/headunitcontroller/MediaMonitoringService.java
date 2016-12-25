@@ -91,7 +91,7 @@ public class MediaMonitoringService extends Service implements
     public void registerLastPlaybackApp(final MediaController appMediaController) {
         if (PowerUtil.isConnected(getApplicationContext())) {
             lastMusicPlaybackController = appMediaController;
-            String packageName = "none";
+            String packageName = null;
 
             if (appMediaController != null) {
                 appMediaController.registerCallback(new MediaController.Callback() {

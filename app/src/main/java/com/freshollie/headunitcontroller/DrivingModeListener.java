@@ -12,6 +12,8 @@ import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.view.View;
+import android.widget.RemoteViews;
 
 public class DrivingModeListener extends NotificationListenerService {
 
@@ -34,13 +36,11 @@ public class DrivingModeListener extends NotificationListenerService {
     @Override
     public void onNotificationPosted(StatusBarNotification statusBarNotification) {
         Log.v(TAG, "Posted " + statusBarNotification.getPackageName());
-        Bundle extras = statusBarNotification.getNotification().extras;
-        Log.v(TAG, "Extras: " + extras.keySet().toString());
+
         if (statusBarNotification.getPackageName().equals("com.google.android.apps.maps") &&
-                !sharedPreferences.getBoolean(getString(R.string.DRIVING_MODE_KEY), false)
-                ) {
+                !sharedPreferences.getBoolean(getString(R.string.DRIVING_MODE_KEY), false) ) {
             Log.v(TAG, "Driving mode enabled");
-            setDrivingMode(false);
+            setDrivingMode(true);
         }
     }
 
@@ -52,8 +52,9 @@ public class DrivingModeListener extends NotificationListenerService {
 
     @Override
     public void onNotificationRemoved(StatusBarNotification notification) {
+        Log.d(TAG, "Power: "+ Boolean.toString(PowerUtil.isConnected(getApplicationContext())));
         if (PowerUtil.isConnected(getApplicationContext()) &&
-                notification.getPackageName() == "com.google.android.apps.maps") {
+                notification.getPackageName().equals("com.google.android.apps.maps")) {
             Log.v(TAG, "Driving mode disabled");
             setDrivingMode(false);
         }
