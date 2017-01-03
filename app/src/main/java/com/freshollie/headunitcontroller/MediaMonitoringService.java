@@ -53,7 +53,7 @@ public class MediaMonitoringService extends Service implements
 
         mediaSessionManager.addOnActiveSessionsChangedListener(
                 this,
-                new ComponentName(getApplicationContext(), DrivingModeListener.class)
+                new ComponentName(getApplicationContext(), DrivingModeListenerService.class)
         );
     }
 
@@ -130,7 +130,7 @@ public class MediaMonitoringService extends Service implements
     @Override
     public void onDestroy() {
         Log.v(TAG, "Stopping");
-        notificationHandler.cancel(notificationHandler.SERVICE_NOTIFICATION);
+        stopForeground(true);
         mediaSessionManager.removeOnActiveSessionsChangedListener(this);
 
     }

@@ -1,13 +1,19 @@
 package com.freshollie.headunitcontroller;
 
+import android.app.AppOpsManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.widget.Toast;
 
 /**
@@ -22,6 +28,8 @@ public class MainService extends Service {
 
     private SuperUserManager superUserManager;
     private NotificationHandler notificationHandler;
+
+    private SharedPreferences sharedPreferences;
 
     public static class PowerAndBootReceiver extends BroadcastReceiver {
         /**
@@ -41,8 +49,36 @@ public class MainService extends Service {
         }
     }
 
+    public void setTestSettings() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        editor.putString(getString(R.string.BUTTON_PRESS_EVENT_KEY, 0),
+                DeviceInputService.ACTION_SEND_KEYEVENT);
+        editor.putInt(getString(R.string.BUTTON_PRESS_EVENT_KEY, 0),
+                KeyEvent.KEYCODE_ENTER);
+
+        editor.putString(getString(R.string.BUTTON_HOLD_EVENT_KEY, 0),
+                DeviceInputService.ACTION_LAUNCH_APP);
+        editor.putString(getString(R.string.BUTTON_HOLD_LAUNCH_APP_PACKAGE_KEY, 0),
+                "com.apple.android.music");
+
+
+        editor.putString(getString(R.string.BUTTON_PRESS_EVENT_KEY, 0),
+                DeviceInputService.ACTION_LAUNCH_APP);
+        editor.putString(getString(R.string.BUTTON_PRESS_LAUNCH_APP_PACKAGE_KEY, 0),
+                "com.freshollie.monkeyboardradio");
+
+        editor.putString(getString(R.string.BUTTON_HOLD_EVENT_KEY, 0),
+                DeviceInputService.ACTION_LAUNCH_APP);
+        editor.putString(getString(R.string.BUTTON_HOLD_LAUNCH_APP_PACKAGE_KEY, 0),
+                "com.apple.android.music");
+    }
+
     @Override
     public void onCreate() {
+        sharedPreferences =
+                getSharedPreferences(getString(R.string.PREFERENCES_KEY), Context.MODE_PRIVATE);
+
         superUserManager = SuperUserManager.getInstance();
         notificationHandler = new NotificationHandler(getApplicationContext());
 
@@ -63,8 +99,11 @@ public class MainService extends Service {
                 new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
                         .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         );
-
         stopWithStatus(getString(R.string.notify_no_notification_listen_permission));
+    }
+
+    public void informNoUsageStatsPermission() {
+        notificationHandler.notifyStatus(getString(R.string.notify_no_usage_stats_permission));
     }
 
     /**
@@ -76,6 +115,23 @@ public class MainService extends Service {
 
         return !(notificationListenerString == null ||
                 !notificationListenerString.contains(getPackageName()));
+    }
+
+    /**
+     * Checks for usage stats permission for this app
+     * @return
+     */
+    public boolean hasUsageStatsPermission() {
+        try {
+            PackageManager packageManager = getPackageManager();
+            ApplicationInfo applicationInfo = packageManager.getApplicationInfo(getPackageName(), 0);
+            AppOpsManager appOpsManager = (AppOpsManager) getSystemService(Context.APP_OPS_SERVICE);
+            int mode = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, applicationInfo.uid, applicationInfo.packageName);
+            return (mode == AppOpsManager.MODE_ALLOWED);
+
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
     }
 
     @Override
@@ -91,6 +147,9 @@ public class MainService extends Service {
         }
 
         if (!superUserManager.hasPermission()) {
+            if (!hasUsageStatsPermission()) {
+                informNoUsageStatsPermission();
+            }
             superUserManager.request(new SuperUserManager.OnPermissionListener() {
                 @Override
                 public void onGranted() {
