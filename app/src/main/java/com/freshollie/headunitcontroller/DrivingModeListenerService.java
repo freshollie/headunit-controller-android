@@ -15,7 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
-public class DrivingModeListener extends NotificationListenerService {
+public class DrivingModeListenerService extends NotificationListenerService {
 
     private String TAG = this.getClass().getSimpleName();
     private SharedPreferences sharedPreferences;

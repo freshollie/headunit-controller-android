@@ -141,7 +141,6 @@ public class RoutineService extends Service {
                         KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, 0);
                 upIntent.putExtra(Intent.EXTRA_KEY_EVENT, upEvent);
                 upIntent.setPackage(packageName);
-
                 sendOrderedBroadcast(upIntent, null);
         }
 
@@ -201,6 +200,7 @@ public class RoutineService extends Service {
             );
         }
     }
+
     public void launchMaps() {
         Intent intent = new Intent(Intent.ACTION_VIEW)
                 .setData(Uri.parse("google.navigation:/?free=1&mode=d&entry=fnls"))
