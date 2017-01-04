@@ -1,4 +1,4 @@
-package com.freshollie.headunitcontroller;
+package com.freshollie.headunitcontroller.services;
 
 import android.app.Service;
 import android.content.ComponentName;
@@ -10,6 +10,10 @@ import android.media.session.MediaSessionManager;
 import android.media.session.PlaybackState;
 import android.os.IBinder;
 import android.util.Log;
+
+import com.freshollie.headunitcontroller.R;
+import com.freshollie.headunitcontroller.utils.NotificationHandler;
+import com.freshollie.headunitcontroller.utils.PowerUtil;
 
 import java.util.List;
 

@@ -6,6 +6,8 @@
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
     <system-permission
         android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
@@ -19,7 +21,7 @@
         
         <receiver
             android:enabled="true"
-            android:name=".MainService$PowerAndBootReceiver"
+            android:name=".services.ControllerStartupService$PowerAndBootReceiver"
             android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
@@ -32,7 +34,7 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".MainActivity"
+        <activity android:name=".activities.MainActivity"
             android:label="@string/app_name">
 
             <intent-filter>
@@ -42,7 +44,7 @@
 
         </activity>
 
-        <service android:name=".DrivingModeListenerService"
+        <service android:name=".services.DrivingModeListenerService"
             android:label="@string/app_name"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
 
@@ -53,16 +55,16 @@
         </service>
 
         <service
-            android:name=".MainService"
+            android:name=".services.ControllerStartupService"
             android:enabled="true"/>
 
         <service
-            android:name=".MediaMonitoringService"
+            android:name=".services.MediaMonitoringService"
             android:enabled="true"/>
 
         <service
             android:permission="android.permission.PACKAGE_USAGE_STATS"
-            android:name=".RoutineService"
+            android:name=".services.RoutineService"
             android:enabled="true"/>
 
     </application>

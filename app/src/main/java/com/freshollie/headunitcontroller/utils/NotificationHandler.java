@@ -1,4 +1,4 @@
-package com.freshollie.headunitcontroller;
+package com.freshollie.headunitcontroller.utils;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -7,6 +7,9 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
+
+import com.freshollie.headunitcontroller.activities.MainActivity;
+import com.freshollie.headunitcontroller.R;
 
 /**
  * Created by Freshollie on 14/12/2016.

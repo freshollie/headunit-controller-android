@@ -28,3 +28,18 @@ dependencies {
     compile project(':ShuttleXpressDriver-Android')
     testCompile 'junit:junit:4.12'
 }
+
+task makeApkDir {
+    doLast{
+        mkdir("/build/app/outputs/apk")
+    }
+}
+
+build.finalizedBy{
+    task copyApks(dependsOn: makeApkDir, type: Copy){
+        if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+            from "C:/tmp/${rootProject.name}/${project.name}/app/outputs/apk"
+            into "/build/app/outputs/apk"
+        }
+    }
+}

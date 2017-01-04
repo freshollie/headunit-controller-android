@@ -1,20 +1,16 @@
-package com.freshollie.headunitcontroller;
+package com.freshollie.headunitcontroller.input;
 
 import android.app.Service;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.SystemClock;
-import android.view.KeyEvent;
 
+import com.freshollie.headunitcontroller.utils.SuperuserManager;
 import com.freshollie.shuttlexpressdriver.Driver;
 import com.freshollie.shuttlexpressdriver.ShuttleXpressDevice;
-
-import java.util.ArrayList;
 
 /**
  * Created by freshollie on 1/1/17.
@@ -24,15 +20,15 @@ public class DeviceInputService extends Service {
 
     public static String TAG = DeviceInputService.class.getSimpleName();
 
-    public static String ACTION_LAUNCH_APP =
+    public static final String ACTION_LAUNCH_APP =
             "com.freshollie.headunitcontroller.action.LAUNCH_APP";
-    public static String ACTION_SEND_KEYEVENT =
+    public static final String ACTION_SEND_KEYEVENT =
             "com.freshollie.headunitcontroller.action.SEND_KEYEVENT";
-    public static String ACTION_START_DRIVING_MODE =
+    public static final String ACTION_START_DRIVING_MODE =
             "com.freshollie.headunitcontroller.action.START_DRIVING_MODE";
-    public static String ACTION_GO_HOME =
+    public static final String ACTION_GO_HOME =
             "com.freshollie.headunitcontroller.action.GO_HOME";
-    public static String ACTION_LAUNCH_VOICE_ASSIST =
+    public static final String ACTION_LAUNCH_VOICE_ASSIST =
             "com.freshollie.headunitcontroller.action.LAUNCH_VOICE_ASSIST";
 
     private Driver driver;
@@ -84,7 +80,8 @@ public class DeviceInputService extends Service {
                 @Override
                 public void run() {
                     switch(id) {
-                        case 0
+                        case 0:
+                            return;
                     }
                     buttonHoldRunnables[id] = null;
                 }
@@ -211,6 +208,6 @@ public class DeviceInputService extends Service {
     }
 
     public void sendKey(int key) {
-        SuperUserManager.getInstance().execute("input keyevent "+ String.valueOf(key));
+        SuperuserManager.getInstance().execute("input keyevent "+ String.valueOf(key));
     }
 }

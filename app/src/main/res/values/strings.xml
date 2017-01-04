@@ -11,45 +11,31 @@
     <string name="POWER_ON_DEBUG_KEY">power_on_debug</string>
     <string name="DEBUG_ENABLED_KEY">debug</string>
 
-    <string name="BUTTON_PRESS_EVENT_KEY">button_%i_press_event_key</string>
-    <string name="BUTTON_PRESS_LAUNCH_APP_PACKAGE_KEY">
-        button%i_press_launch_app_package_key</string>
-    <string name="BUTTON_PRESS_SEND_KEYEVENT_KEY">
-        button%i_press_send_keyevent_key</string>
+    <string name="BUTTON_PRESS_EVENT_KEY">button%i_press_event_key</string>
+    <string name="BUTTON_PRESS_EXTRA_DATA_KEY">
+        button%i_press_extra_data_key</string>
 
-    <string name="BUTTON_HOLD_EVENT_KEY">button_%i_hold_event_key</string>
-    <string name="BUTTON_HOLD_LAUNCH_APP_PACKAGE_KEY">
-        button%i_hold_launch_app_package_key</string>
-    <string name="BUTTON_HOLD_SEND_KEYEVENT_KEY">
-        button%i_hold_send_keyevent_key</string>
+    <string name="BUTTON_HOLD_EVENT_KEY">button%i_hold_event_key</string>
+    <string name="BUTTON_HOLD_EXTRA_DATA_KEY">
+        button%i_hold_extra_data_key</string>
 
-    <string name="BUTTON_HOLD_LENGTH_KEY">button_%i_hold_length_key</string>
+    <string name="BUTTON_HOLD_LENGTH_KEY">button%i_hold_length_key</string>
 
-    <string name="RING_PRESS_RIGHT_EVENT_KEY">ring_press_ring_event_key</string>
-    <string name="RING_PRESS_LEFT_EVENT_KEY">ring_press_left_event_key</string>
-    <string name="RING_HOLD_RIGHT_EVENT_KEY">ring_hold_ring_event_key</string>
-    <string name="RING_HOLD_LEFT_EVENT_KEY">ring_hold_left_event_key</string>
+    <string name="RING_PRESS_EVENT_KEY">ring_press_%i_event_key</string>
+    <string name="RING_HOLD_EVENT_KEY">ring_hold_%i_event_key</string>
 
-    <string name="RING_HOLD_RIGHT_LENGTH_KEY">ring_hold_right_length_key</string>
-    <string name="RING_HOLD_LEFT_LENGTH_KEY">ring_hold_leff_length_key</string>
+    <string name="RING_PRESS_LENGTH_KEY">ring_hold_%i_length_key</string>
+    <string name="RING_HOLD_LENGTH_KEY">ring_hold_%i_length_key</string>
 
-    <string name="RING_PRESS_RIGHT_SEND_KEYEVENT_KEY">ring_press_right_send_keyevent_key</string>
-    <string name="RING_PRESS_LEFT_SEND_KEYEVENT_KEY">ring_press_left_send_keyevent_key</string>
-    <string name="RING_HOLD_RIGHT_SEND_KEYEVENT_KEY">ring_hold_ring_send_keyevent_key</string>
-    <string name="RING_HOLD_LEFT_SEND_KEYEVENT_KEY">ring_hold_left_send_keyevent_key</string>
+    <string name="RING_PRESS_EXTRA_DATA_KEY">ring_press_%i_extra_data_key</string>
+    <string name="RING_HOLD_EXTRA_DATA_KEY">ring_hold_%i_extra_data_key</string>
 
-    <string name="RING_PRESS_RIGHT_LAUNCH_APP_PACKAGE_KEY">ring_press_right_launch_app_package_key</string>
-    <string name="RING_PRESS_LEFT_LAUNCH_APP_PACKAGE_KEY">ring_press_left_launch_app_package_key</string>
-    <string name="RING_HOLD_RIGHT_LAUNCH_APP_PACKAGE_KEY">ring_hold_right_launch_app_package_key</string>
-    <string name="RING_HOLD_LEFT_LAUNCH_APP_PACKAGE_KEY">ring_hold_left_launch_app_package_key</string>
+    <string name="WHEEL_RIGHT_EVENT_KEY">wheel_%1_event_key</string>
 
-    <string name="WHEEL_RIGHT_EVENT_KEY">wheel_right_event_key</string>
-    <string name="WHEEL_LEFT_EVENT_KEY">wheel_left_event_key</string>
+    <string name="WHEEL_RIGHT_EXTRA_DATA_KEY">wheel_right_extra_data_key</string>
+    <string name="WHEEL_LEFT_EXTRA_DATA_KEY">wheel_left_extra_data_key</string>
 
-    <string name="WHEEL_RIGHT_LAUNCH_APP_PACKAGE_KEY">wheel_right_launch_app_package_key</string>
-    <string name="WHEEL_LEFT_LAUNCH_APP_PACKAGE_KEY">wheel_left_launch_app_package_key</string>
-
-    <string name="notify_su_not_granted_closing">Superwuser not granted, stopping controller</string>
+    <string name="notify_su_not_granted_closing">Superuser not granted, stopping controller</string>
     <string name="notify_running">Running</string>
     <string name="notify_no_notification_listen_permission">Please enable notification listening in settings</string>
 
