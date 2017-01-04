@@ -1,4 +1,4 @@
-package com.freshollie.headunitcontroller;
+package com.freshollie.headunitcontroller.services;
 
 import android.app.Service;
 import android.app.usage.UsageStats;
@@ -12,11 +12,15 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.KeyEvent;
 
-import java.util.Date;
+import com.freshollie.headunitcontroller.R;
+import com.freshollie.headunitcontroller.utils.PowerUtil;
+import com.freshollie.headunitcontroller.utils.SuperuserManager;
+
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -39,11 +43,13 @@ public class RoutineService extends Service {
     private SharedPreferences sharedPreferences;
     private MediaPlayer mediaPlayer;
 
-    private interface OnAllDevicesAttachedListener {
+    private PowerManager.WakeLock wakeLock;
+
+    private interface AllDevicesAttachedListener {
         void onAllAttached();
     }
 
-    public void registerOnAllAttachedListener(final OnAllDevicesAttachedListener listener) {
+    public void registerOnAllAttachedListener(final AllDevicesAttachedListener listener) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -71,6 +77,18 @@ public class RoutineService extends Service {
         );
         lastState = STOP_ROUTINE_RUN;
 
+    }
+
+    public void acquireWakeLock() {
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "Headunit Controller");
+        wakeLock.acquire();
+    }
+
+    public void releaseWakeLock() {
+        if (wakeLock != null) {
+            wakeLock.release();
+        }
     }
 
     public void startBlankAudio() {
@@ -108,18 +126,16 @@ public class RoutineService extends Service {
 
         switch (packageName) {
             case "com.apple.android.music":
-                SuperUserManager superUserManager =
-                        SuperUserManager.getInstance();
+                SuperuserManager superuserManager =
+                        SuperuserManager.getInstance();
 
-                if (superUserManager.hasPermission()) {
-                    superUserManager.execute(
+                if (superuserManager.hasPermission()) {
+                    superuserManager.execute(
                             "am startservice " +
                                     "-a 'com.apple.music.client.player.play_pause' " +
                                     "-n com.apple.android.music" +
                                     "/com.apple.android.svmediaplayer.player.MusicService");
                 }
-
-                return;
 
             default:
                 /*
@@ -157,11 +173,11 @@ public class RoutineService extends Service {
     }
 
     public void launchGpsService() {
-        SuperUserManager superUserManager =
-                SuperUserManager.getInstance();
+        SuperuserManager superuserManager =
+                SuperuserManager.getInstance();
 
-        if (superUserManager.hasPermission()) {
-            superUserManager.execute(
+        if (superuserManager.hasPermission()) {
+            superuserManager.execute(
                     "am startservice " +
                             "-a org.broeuschmeul.android.gps" +
                             ".usb.provider.nmea.intent.action.START_GPS_PROVIDER"
@@ -170,17 +186,17 @@ public class RoutineService extends Service {
     }
 
     public void launchBrightnessControllerService() {
-        SuperUserManager superUserManager =
-                SuperUserManager.getInstance();
+        SuperuserManager superuserManager =
+                SuperuserManager.getInstance();
 
-        if (superUserManager.hasPermission()) {
-            superUserManager.execute(
+        if (superuserManager.hasPermission()) {
+            superuserManager.execute(
                     "am startservice " +
                             "-a android.intent.action.MAIN " +
                             "-n com.autobright.kevinforeman.autobright/.AutoBrightService"
             );
 
-            superUserManager.execute(
+            superuserManager.execute(
                     "am start " +
                             "-a android.intent.action.MAIN " +
                             "-n com.autobright.kevinforeman.autobright/.AutoBright"
@@ -189,11 +205,11 @@ public class RoutineService extends Service {
     }
 
     public void launchShuttleXpressService() {
-        SuperUserManager superUserManager =
-                SuperUserManager.getInstance();
+        SuperuserManager superuserManager =
+                SuperuserManager.getInstance();
 
-        if (superUserManager.hasPermission()) {
-            superUserManager.execute(
+        if (superuserManager.hasPermission()) {
+            superuserManager.execute(
                     "am startservice " +
                             "-a android.intent.action.MAIN " +
                             "-n com.freshollie.shuttlexpress/.shuttlexpressservice"
@@ -227,7 +243,7 @@ public class RoutineService extends Service {
                 lastState = START_ROUTINE_RUN;
                 playLastAudioSource();
 
-                registerOnAllAttachedListener(new OnAllDevicesAttachedListener() {
+                registerOnAllAttachedListener(new AllDevicesAttachedListener() {
                     @Override
                     public void onAllAttached() {
                         launchGpsService();
@@ -274,6 +290,7 @@ public class RoutineService extends Service {
         switch (intent.getAction()) {
             case Intent.ACTION_POWER_CONNECTED:
                 startBlankAudio();
+                acquireWakeLock();
 
                 int delay = 1000; //milliseconds
                 new Handler(getMainLooper()).postDelayed(new Runnable() {
@@ -286,7 +303,9 @@ public class RoutineService extends Service {
 
             case Intent.ACTION_POWER_DISCONNECTED:
                 stopBlankAudio();
+                releaseWakeLock();
                 runStopSequence();
+
                 return START_NOT_STICKY;
         }
         return START_NOT_STICKY;

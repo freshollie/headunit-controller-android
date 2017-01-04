@@ -1,10 +1,12 @@
-package com.freshollie.headunitcontroller;
+package com.freshollie.headunitcontroller.utils;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.BatteryManager;
+
+import com.freshollie.headunitcontroller.R;
 
 /**
  * Created by Freshollie on 14/12/2016.

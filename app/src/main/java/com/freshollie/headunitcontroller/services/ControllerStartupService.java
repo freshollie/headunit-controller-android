@@ -1,4 +1,4 @@
-package com.freshollie.headunitcontroller;
+package com.freshollie.headunitcontroller.services;
 
 import android.app.AppOpsManager;
 import android.app.PendingIntent;
@@ -10,23 +10,29 @@ import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
+import com.freshollie.headunitcontroller.R;
+import com.freshollie.headunitcontroller.input.DeviceInputService;
+import com.freshollie.headunitcontroller.input.DeviceKeyMapper;
+import com.freshollie.headunitcontroller.utils.NotificationHandler;
+import com.freshollie.headunitcontroller.utils.SuperuserManager;
+import com.freshollie.shuttlexpressdriver.ShuttleXpressDevice;
+
 /**
- * MainService handles main power intents
+ * ControllerStartupService handles main power intents
  * and requesting superuser
  */
 
-public class MainService extends Service {
-    public static String TAG = "MainService";
+public class ControllerStartupService extends Service {
+    public static String TAG = "CntrllerStarupService";
     public static String ACTION_SU_NOT_GRANTED =
             "com.freshollie.headunitcontroller.action.SU_NOT_GRANTED";
 
-    private SuperUserManager superUserManager;
+    private SuperuserManager superuserManager;
     private NotificationHandler notificationHandler;
 
     private SharedPreferences sharedPreferences;
@@ -41,7 +47,7 @@ public class MainService extends Service {
          */
         @Override
         public void onReceive(Context context, Intent intent) {
-            Intent startIntent = new Intent(context, MainService.class);
+            Intent startIntent = new Intent(context, ControllerStartupService.class);
             startIntent.setAction(intent.getAction());
             // Let the service know why it was started
 
@@ -49,40 +55,107 @@ public class MainService extends Service {
         }
     }
 
-    public void setTestSettings() {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
+    /**
+     * Set the test bindings for the input device
+     */
+    public void setTestKeybindings() {
+        DeviceKeyMapper keyMapper = new DeviceKeyMapper(getApplicationContext());
 
-        editor.putString(getString(R.string.BUTTON_PRESS_EVENT_KEY, 0),
-                DeviceInputService.ACTION_SEND_KEYEVENT);
-        editor.putInt(getString(R.string.BUTTON_PRESS_EVENT_KEY, 0),
-                KeyEvent.KEYCODE_ENTER);
+        // Wheel binds
 
-        editor.putString(getString(R.string.BUTTON_HOLD_EVENT_KEY, 0),
-                DeviceInputService.ACTION_LAUNCH_APP);
-        editor.putString(getString(R.string.BUTTON_HOLD_LAUNCH_APP_PACKAGE_KEY, 0),
-                "com.apple.android.music");
+        keyMapper.setButtonAction(
+                0,
+                DeviceInputService.ACTION_LAUNCH_APP,
+                "com.apple.android.music",
+                true,
+                2000);
+        keyMapper.setButtonAction(
+                0,
+                DeviceInputService.ACTION_SEND_KEYEVENT,
+                String.valueOf(KeyEvent.KEYCODE_ENTER)
+        );
 
+        keyMapper.setButtonAction(
+                1,
+                DeviceInputService.ACTION_LAUNCH_APP,
+                "com.freshollie.radioapp"
+        );
 
-        editor.putString(getString(R.string.BUTTON_PRESS_EVENT_KEY, 0),
-                DeviceInputService.ACTION_LAUNCH_APP);
-        editor.putString(getString(R.string.BUTTON_PRESS_LAUNCH_APP_PACKAGE_KEY, 0),
-                "com.freshollie.monkeyboardradio");
+        keyMapper.setButtonAction(
+                2,
+                DeviceInputService.ACTION_LAUNCH_APP,
+                "au.com.shiftyjelly.pocketcasts"
+        );
 
-        editor.putString(getString(R.string.BUTTON_HOLD_EVENT_KEY, 0),
-                DeviceInputService.ACTION_LAUNCH_APP);
-        editor.putString(getString(R.string.BUTTON_HOLD_LAUNCH_APP_PACKAGE_KEY, 0),
-                "com.apple.android.music");
+        keyMapper.setButtonAction(
+                3,
+                DeviceInputService.ACTION_LAUNCH_APP,
+                "com.google.android.apps.maps"
+        );
+        keyMapper.setButtonAction(
+                3,
+                DeviceInputService.ACTION_START_DRIVING_MODE,
+                true,
+                2000
+        );
+
+        keyMapper.setButtonAction(
+                4,
+                DeviceInputService.ACTION_GO_HOME
+        );
+        keyMapper.setButtonAction(
+                4,
+                DeviceInputService.ACTION_LAUNCH_VOICE_ASSIST,
+                true,
+                2000
+        );
+
+        // Ring Binds
+
+        keyMapper.setRingAction(
+                ShuttleXpressDevice.POSITION_LEFT,
+                DeviceInputService.ACTION_SEND_KEYEVENT,
+                String.valueOf(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
+        );
+        keyMapper.setRingAction(
+                ShuttleXpressDevice.POSITION_LEFT,
+                DeviceInputService.ACTION_SEND_KEYEVENT,
+                String.valueOf(KeyEvent.KEYCODE_BACK),
+                true,
+                1000
+        );
+
+        keyMapper.setRingAction(
+                ShuttleXpressDevice.POSITION_RIGHT,
+                DeviceInputService.ACTION_SEND_KEYEVENT,
+                String.valueOf(KeyEvent.KEYCODE_MEDIA_NEXT)
+        );
+
+        // Wheel Binds
+
+        keyMapper.setWheelAction(
+                ShuttleXpressDevice.ACTION_LEFT,
+                DeviceInputService.ACTION_SEND_KEYEVENT,
+                String.valueOf(KeyEvent.KEYCODE_DPAD_UP)
+        );
+
+        keyMapper.setWheelAction(
+                ShuttleXpressDevice.ACTION_RIGHT,
+                DeviceInputService.ACTION_SEND_KEYEVENT,
+                String.valueOf(KeyEvent.KEYCODE_TAB)
+        );
     }
 
     @Override
     public void onCreate() {
         sharedPreferences =
                 getSharedPreferences(getString(R.string.PREFERENCES_KEY), Context.MODE_PRIVATE);
-
-        superUserManager = SuperUserManager.getInstance();
+        superuserManager = SuperuserManager.getInstance();
         notificationHandler = new NotificationHandler(getApplicationContext());
 
         Log.v(TAG, "Started");
+
+        setTestKeybindings();
 
         if (hasListeningPermission()) {
             startMediaMonitor();
@@ -146,11 +219,11 @@ public class MainService extends Service {
             return START_NOT_STICKY;
         }
 
-        if (!superUserManager.hasPermission()) {
+        if (!superuserManager.hasPermission()) {
             if (!hasUsageStatsPermission()) {
                 informNoUsageStatsPermission();
             }
-            superUserManager.request(new SuperUserManager.OnPermissionListener() {
+            superuserManager.request(new SuperuserManager.permissionListener() {
                 @Override
                 public void onGranted() {
                     Log.v(TAG, "SU permission granted");
@@ -200,7 +273,6 @@ public class MainService extends Service {
 
     @Override
     public void onDestroy(){
-        stopService(new Intent(this, MediaMonitoringService.class));
         stopService(new Intent(this, RoutineService.class));
 
     }

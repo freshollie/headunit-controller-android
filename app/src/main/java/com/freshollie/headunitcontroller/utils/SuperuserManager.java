@@ -1,36 +1,33 @@
-package com.freshollie.headunitcontroller;
+package com.freshollie.headunitcontroller.utils;
 
-import android.content.Context;
 import android.util.Log;
 
 import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 
 /**
  * Created by Freshollie on 14/12/2016.
  */
 
-public class SuperUserManager {
+public class SuperuserManager {
     private DataOutputStream shellInput;
     private Boolean permission = false;
 
-    public static String TAG = "SuperUserManager";
+    public static String TAG = "SuperuserManager";
 
-    private static SuperUserManager INSTANCE = new SuperUserManager();
+    private static SuperuserManager INSTANCE = new SuperuserManager();
 
-    public interface OnPermissionListener {
+    public interface permissionListener {
         void onGranted();
         void onDenied();
     }
 
-    private SuperUserManager() {
+    private SuperuserManager() {
     }
 
-    public static SuperUserManager getInstance() {
+    public static SuperuserManager getInstance() {
         return INSTANCE;
     }
 
@@ -75,7 +72,7 @@ public class SuperUserManager {
         return false;
     }
 
-    public void request(final OnPermissionListener permissionListener) {
+    public void request(final permissionListener permissionListener) {
 
         new Thread(new Runnable() {
             @Override

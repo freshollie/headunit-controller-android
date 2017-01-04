@@ -1,4 +1,4 @@
-package com.freshollie.headunitcontroller;
+package com.freshollie.headunitcontroller.activities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +9,9 @@ import android.util.Log;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ToggleButton;
+
+import com.freshollie.headunitcontroller.R;
+import com.freshollie.headunitcontroller.services.ControllerStartupService;
 
 public class MainActivity extends AppCompatActivity {
     public static String TAG = "MainActivity";
@@ -26,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startMainService(String action) {
-        startService(new Intent(getApplicationContext(), MainService.class).setAction(action));
+        startService(new Intent(getApplicationContext(), ControllerStartupService.class).setAction(action));
     }
 
     public void setupToggles() {

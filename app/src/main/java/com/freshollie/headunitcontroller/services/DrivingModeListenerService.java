@@ -1,19 +1,14 @@
-package com.freshollie.headunitcontroller;
+package com.freshollie.headunitcontroller.services;
 
 
-import android.app.Notification;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.view.View;
-import android.widget.RemoteViews;
+
+import com.freshollie.headunitcontroller.R;
+import com.freshollie.headunitcontroller.utils.PowerUtil;
 
 public class DrivingModeListenerService extends NotificationListenerService {
 
