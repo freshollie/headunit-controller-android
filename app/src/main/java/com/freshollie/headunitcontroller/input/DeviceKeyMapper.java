@@ -40,6 +40,10 @@ public class DeviceKeyMapper {
 
             editor.putString(context.getString(R.string.BUTTON_HOLD_EXTRA_DATA_KEY, id),
                     extra);
+
+            editor.putLong(
+                    context.getString(R.string.BUTTON_HOLD_LENGTH_KEY, id),
+                    holdLength);
         }
         editor.apply();
     }
@@ -71,6 +75,10 @@ public class DeviceKeyMapper {
 
             editor.putString(context.getString(R.string.RING_HOLD_EXTRA_DATA_KEY, position),
                     extra);
+
+            editor.putLong(
+                    context.getString(R.string.RING_HOLD_LENGTH_KEY, position),
+                    holdLength);
         }
 
         editor.apply();
@@ -80,7 +88,7 @@ public class DeviceKeyMapper {
         setButtonAction(position, action, extra, false, 0);
     }
 
-    public void setRingAction(int position, String action, boolean hold, long holdLength) {
+    public void setRingAction(int position, String action, boolean hold, int holdLength) {
         setButtonAction(position, action, null, hold, holdLength);
     }
 
@@ -194,5 +202,17 @@ public class DeviceKeyMapper {
                     )
             };
         }
+    }
+
+    public long getButtonHoldDelay(int id) {
+        return sharedPreferences.getLong(
+                context.getString(R.string.BUTTON_HOLD_LENGTH_KEY, id),
+                0);
+    }
+
+    public long getRingHoldDelay(int position) {
+        return sharedPreferences.getLong(
+                context.getString(R.string.RING_HOLD_LENGTH_KEY, position),
+                0);
     }
 }
