@@ -18,19 +18,17 @@
     <string name="BUTTON_HOLD_EVENT_KEY">button%i_hold_event_key</string>
     <string name="BUTTON_HOLD_EXTRA_DATA_KEY">
         button%i_hold_extra_data_key</string>
-
     <string name="BUTTON_HOLD_LENGTH_KEY">button%i_hold_length_key</string>
 
     <string name="RING_PRESS_EVENT_KEY">ring_press_%i_event_key</string>
     <string name="RING_HOLD_EVENT_KEY">ring_hold_%i_event_key</string>
-
-    <string name="RING_PRESS_LENGTH_KEY">ring_hold_%i_length_key</string>
     <string name="RING_HOLD_LENGTH_KEY">ring_hold_%i_length_key</string>
 
     <string name="RING_PRESS_EXTRA_DATA_KEY">ring_press_%i_extra_data_key</string>
     <string name="RING_HOLD_EXTRA_DATA_KEY">ring_hold_%i_extra_data_key</string>
 
-    <string name="WHEEL_RIGHT_EVENT_KEY">wheel_%1_event_key</string>
+    <string name="WHEEL_RIGHT_EVENT_KEY">wheel_right_event_key</string>
+    <string name="WHEEL_LEFT_EVENT_KEY">wheel_left_event_key</string>
 
     <string name="WHEEL_RIGHT_EXTRA_DATA_KEY">wheel_right_extra_data_key</string>
     <string name="WHEEL_LEFT_EXTRA_DATA_KEY">wheel_left_extra_data_key</string>
