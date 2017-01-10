@@ -17,16 +17,18 @@ import com.freshollie.headunitcontroller.R;
 
 public class NotificationHandler {
     private Context context;
-    public static int STATUS_NOTIFICATION = 0;
-    public static int SERVICE_NOTIFICATION = 1;
+    public static int STATUS_NOTIFICATION_ID = 0;
+    public static int SERVICE_NOTIFICATION_ID = 1;
 
     private NotificationCompat.Builder notificationBuilder;
     private NotificationManager notificationManager;
 
+    private static Notification SERVICE_NOTIFICATION;
+
     public NotificationHandler(Context appContext) {
         context = appContext;
         buildNotification();
-        setNotificationManager();
+        notificationManager = (NotificationManager) context.getSystemService(Service.NOTIFICATION_SERVICE);
     }
 
     public void buildNotification() {
@@ -44,42 +46,44 @@ public class NotificationHandler {
                 );
     }
 
-    public void setNotificationManager() {
-        notificationManager = (NotificationManager) context.getSystemService(Service.NOTIFICATION_SERVICE);
+    public Notification getServiceNotification() {
+        if (SERVICE_NOTIFICATION == null) {
+            SERVICE_NOTIFICATION = notificationBuilder.build();
+        }
+        return SERVICE_NOTIFICATION;
     }
 
     public void notify(int notificiationId, Notification notification) {
         notificationManager.notify(notificiationId, notification);
     }
 
-    public Notification notifyStatus(String status) {
-        Notification notification = notificationBuilder.setContentText(status).build();
-        notify(SERVICE_NOTIFICATION, notification);
-        return notification;
+    public Notification notifyServiceStatus(String status) {
+        SERVICE_NOTIFICATION = notificationBuilder.setContentText(status).build();
+        notify(SERVICE_NOTIFICATION_ID, SERVICE_NOTIFICATION);
+        return SERVICE_NOTIFICATION;
     }
 
-    public Notification notifyStatus(String status, PendingIntent intent) {
-        Notification notification =
-                notificationBuilder
+    public Notification notifyServiceStatus(String status, PendingIntent intent) {
+        SERVICE_NOTIFICATION = notificationBuilder
                         .setContentText(status)
                         .setContentIntent(intent)
                         .build();
 
-        notify(STATUS_NOTIFICATION, notification);
-        return notification;
+        notify(SERVICE_NOTIFICATION_ID, SERVICE_NOTIFICATION);
+        return SERVICE_NOTIFICATION;
     }
 
-    public void notifyStopWithStatus(String status) {
+    public void notifyStatus(String status) {
         Notification notification = notificationBuilder
                 .setContentText(status)
                 .setOngoing(false)
                 .setAutoCancel(true)
                 .build();
 
-        notify(STATUS_NOTIFICATION, notification);
+        notify(STATUS_NOTIFICATION_ID, notification);
     }
 
-    public void notifyStopWithStatusAndAction(String status, PendingIntent action) {
+    public void notifyStatus(String status, PendingIntent action) {
         Notification notification =
                 notificationBuilder
                         .setContentText(status)
@@ -88,7 +92,7 @@ public class NotificationHandler {
                         .setAutoCancel(true)
                         .build();
 
-        notify(STATUS_NOTIFICATION, notification);
+        notify(STATUS_NOTIFICATION_ID, notification);
     }
 
     public void cancel(int id) {

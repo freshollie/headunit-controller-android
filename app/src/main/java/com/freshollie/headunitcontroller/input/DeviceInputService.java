@@ -7,10 +7,14 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
+import android.util.Log;
+import android.util.SparseArray;
 
 import com.freshollie.headunitcontroller.utils.SuperuserManager;
 import com.freshollie.shuttlexpressdriver.Driver;
 import com.freshollie.shuttlexpressdriver.ShuttleXpressDevice;
+
+import java.util.HashMap;
 
 /**
  * Created by freshollie on 1/1/17.
@@ -40,9 +44,7 @@ public class DeviceInputService extends Service {
 
     private Handler mainLoopHandler;
 
-    private Runnable[] buttonHoldRunnables = new Runnable[5];
-    private Runnable ringRightHoldRunnable;
-    private Runnable ringLeftHoldRunnable;
+    private SparseArray<Runnable> keyHoldRunnables = new SparseArray<>();
 
     private ShuttleXpressDevice.ConnectedListener connectedListener =
             new ShuttleXpressDevice.ConnectedListener() {
@@ -56,127 +58,42 @@ public class DeviceInputService extends Service {
                  */
                 @Override
                 public void onDisconnected() {
-
+                    stopSelf();
                 }
             };
 
-    private ShuttleXpressDevice.ButtonListener deviceButtonListener = new ShuttleXpressDevice.ButtonListener() {
+    private ShuttleXpressDevice.KeyListener deviceKeyListener = new ShuttleXpressDevice.KeyListener() {
         @Override
         public void onDown(final int id) {
-            if (buttonHoldRunnables[id] != null) {
-                mainLoopHandler.removeCallbacks(buttonHoldRunnables[id]);
+            if (keyHoldRunnables.get(id, null) != null) {
+                mainLoopHandler.removeCallbacks(keyHoldRunnables.get(id));
             }
 
-            buttonHoldRunnables[id] = new Runnable() {
+            keyHoldRunnables.append(id, new Runnable() {
                 @Override
                 public void run() {
-                    buttonHoldRunnables[id] = null;
-                    String[] actions = keyMapper.getButtonHoldAction(id);
+                    keyHoldRunnables.append(id, null);
+                    String[] actions = keyMapper.getKeyHoldAction(id);
                     handleActionRequest(actions[0], actions[1]);
                 }
-            };
-            mainLoopHandler.postDelayed(buttonHoldRunnables[id], keyMapper.getButtonHoldDelay(id));
+            });
+            mainLoopHandler.postDelayed(keyHoldRunnables.get(id), keyMapper.getKeyHoldDelay(id));
         }
 
         @Override
         public void onUp(int id) {
-            if (buttonHoldRunnables[id] != null) {
-                mainLoopHandler.removeCallbacks(buttonHoldRunnables[id]);
-                buttonHoldRunnables[id] = null;
+            if (keyHoldRunnables.get(id, null) != null) {
+                mainLoopHandler.removeCallbacks(keyHoldRunnables.get(id));
+                keyHoldRunnables.append(id, null);
 
-                String[] actions = keyMapper.getButtonPressAction(id);
+                String[] actions = keyMapper.getKeyPressAction(id);
                 handleActionRequest(actions[0], actions[1]);
-            }
-
-        }
-    };
-
-    private ShuttleXpressDevice.ClickWheelListener clickWheelListener = new ShuttleXpressDevice.ClickWheelListener() {
-        @Override
-        public void onRight() {
-            String[] actions = keyMapper.getWheelAction(ShuttleXpressDevice.ACTION_RIGHT);
-            handleActionRequest(actions[0], actions[1]);
-        }
-
-        @Override
-        public void onLeft() {
-            String[] actions = keyMapper.getWheelAction(ShuttleXpressDevice.ACTION_LEFT);
-            handleActionRequest(actions[0], actions[1]);
-        }
-    };
-
-    private ShuttleXpressDevice.RingListener ringListener = new ShuttleXpressDevice.RingListener() {
-        @Override
-        public void onRight() {
-            if (ringRightHoldRunnable != null) {
-                mainLoopHandler.removeCallbacks(ringRightHoldRunnable);
-            }
-
-            // This function will run if the button is held for the
-            // correct amount of time
-            ringRightHoldRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    ringRightHoldRunnable = null;
-
-                    String[] actions =
-                            keyMapper.getRingHoldAction(ShuttleXpressDevice.POSITION_RIGHT);
-                    handleActionRequest(actions[0], actions[1]);
-
-                }
-            };
-
-            mainLoopHandler.postDelayed(ringRightHoldRunnable,
-                    keyMapper.getRingHoldDelay(ShuttleXpressDevice.POSITION_RIGHT));
-
-        }
-
-        @Override
-        public void onLeft() {
-            if (ringLeftHoldRunnable != null) {
-                mainLoopHandler.removeCallbacks(ringLeftHoldRunnable);
-            }
-
-            ringLeftHoldRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    ringLeftHoldRunnable = null;
-                    
-                    String[] actions =
-                            keyMapper.getRingHoldAction(ShuttleXpressDevice.POSITION_LEFT);
-                    handleActionRequest(actions[0], actions[1]);
-                }
-            };
-
-            mainLoopHandler.postDelayed(ringLeftHoldRunnable,
-                    keyMapper.getRingHoldDelay(ShuttleXpressDevice.POSITION_LEFT));
-
-        }
-
-        @Override
-        public void onMiddle() {
-            // If either of these runables are not null, then it means the hold
-            // function did not complete, so run a press function for that side
-            if (ringLeftHoldRunnable != null) {
-                mainLoopHandler.removeCallbacks(ringLeftHoldRunnable);
-                ringLeftHoldRunnable = null;
-
-                String[] actions = keyMapper.getRingPressAction(ShuttleXpressDevice.POSITION_LEFT);
-                handleActionRequest(actions[0], actions[1]);
-
-            } else if (ringRightHoldRunnable != null){
-                mainLoopHandler.removeCallbacks(ringRightHoldRunnable);
-                ringRightHoldRunnable = null;
-
-                String[] actions = keyMapper.getRingPressAction(ShuttleXpressDevice.POSITION_RIGHT);
-                handleActionRequest(actions[0], actions[1]);
-            } else {
-                // If we every have an action for middle.
             }
         }
     };
 
     public void onCreate() {
+        Log.v(TAG, "Started");
         packageManager = getPackageManager();
         mainLoopHandler = new Handler(getMainLooper());
         keyMapper = new DeviceKeyMapper(getApplicationContext());
@@ -185,12 +102,11 @@ public class DeviceInputService extends Service {
         inputDevice = driver.getDevice();
 
         if (!inputDevice.isConnected()) {
+            Log.v(TAG, "Starting driver");
             driver.start();
         }
 
-        inputDevice.registerButtonListener(deviceButtonListener);
-        inputDevice.registerClickWheelListener(clickWheelListener);
-        inputDevice.registerRingListener(ringListener);
+        inputDevice.registerKeyListener(deviceKeyListener);
         inputDevice.registerConnectedListener(connectedListener);
 
     }
@@ -211,33 +127,45 @@ public class DeviceInputService extends Service {
     }
 
     public void onDestroy() {
-        inputDevice.unregisterButtonListener(deviceButtonListener);
-        inputDevice.unregisterClickWheelListener(clickWheelListener);
-        inputDevice.unregisterRingListener(ringListener);
+        inputDevice.unregisterKeyListener(deviceKeyListener);
         inputDevice.unregisterConnectedListener(connectedListener);
     }
 
     public void handleActionRequest(String action, String extra) {
-        switch (action) {
-            case ACTION_LAUNCH_APP:
-                launchApp(extra);
+        if (action != null) {
+            switch (action) {
+                case ACTION_LAUNCH_APP:
+                    if (extra != null) {
+                        launchApp(extra);
+                    }
+                    return;
 
-            case ACTION_START_DRIVING_MODE:
-                startGoogleMapsDrivingMode();
+                case ACTION_START_DRIVING_MODE:
+                    startGoogleMapsDrivingMode();
+                    return;
 
-            case ACTION_LAUNCH_VOICE_ASSIST:
-                launchVoiceAssist();
+                case ACTION_LAUNCH_VOICE_ASSIST:
+                    launchVoiceAssist();
+                    return;
 
-            case ACTION_GO_HOME:
-                goHome();
+                case ACTION_GO_HOME:
+                    goHome();
+                    return;
 
-            case ACTION_SEND_KEYEVENT:
-                if (extra != null) {
-                    sendKeyEvent(Integer.valueOf(extra));
-                }
+                case ACTION_SEND_KEYEVENT:
+                    if (extra != null) {
+                        try {
+                            sendKeyEvent(Integer.valueOf(extra));
+                        } catch (NumberFormatException e) {
+                            Log.v(TAG, "Somehow app launch got interpretted as a key press event");
+                        }
+                    }
+                    return;
+            }
         }
     }
     public void launchApp(String packageName) {
+        Log.v(TAG, "Launching: " + packageName);
         Intent i = packageManager.getLaunchIntentForPackage(packageName);
 
         if (i != null) {
@@ -247,6 +175,7 @@ public class DeviceInputService extends Service {
     }
 
     public void startGoogleMapsDrivingMode() {
+        Log.v(TAG, "Launching driving mode");
         startActivity(
                 new Intent(Intent.ACTION_VIEW)
                         .setData(Uri.parse("google.navigation:/?free=1&mode=d&entry=fnls"))
@@ -256,6 +185,7 @@ public class DeviceInputService extends Service {
                                         "com.google.android.maps.MapsActivity"
                                 )
                         )
+                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         );
     }
 
@@ -269,11 +199,13 @@ public class DeviceInputService extends Service {
 
     public void launchVoiceAssist() {
         startActivity(
-                new Intent(Intent.ACTION_VOICE_COMMAND)
+                new Intent("android.intent.action.VOICE_ASSIST")
+                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         );
     }
 
     public void sendKeyEvent(int key) {
-        SuperuserManager.getInstance().execute("input keyevent "+ String.valueOf(key));
+        Log.v(TAG, "Sending key, " + String.valueOf(key));
+        SuperuserManager.getInstance().asyncExecute("input keyevent "+ String.valueOf(key));
     }
 }

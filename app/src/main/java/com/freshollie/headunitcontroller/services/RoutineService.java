@@ -3,11 +3,11 @@ package com.freshollie.headunitcontroller.services;
 import android.app.Service;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.usb.UsbManager;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 import com.freshollie.headunitcontroller.R;
+import com.freshollie.headunitcontroller.input.DeviceInputService;
 import com.freshollie.headunitcontroller.utils.PowerUtil;
 import com.freshollie.headunitcontroller.utils.SuperuserManager;
 
@@ -30,8 +31,8 @@ import java.util.TreeMap;
  */
 
 public class RoutineService extends Service {
-    public String TAG = "RoutineService";
-    public static int ALL_DEVICES = 0;
+    public String TAG = this.getClass().getSimpleName();
+    public static int ALL_DEVICES = 1;
     public static int ATTACH_TIMEOUT = 3000; // Milliseconds
 
     public static String CONTEXT_USAGE_STATS_MANAGER = "usagestats";
@@ -47,6 +48,7 @@ public class RoutineService extends Service {
 
     private interface AllDevicesAttachedListener {
         void onAllAttached();
+        void onTimedOut();
     }
 
     public void registerOnAllAttachedListener(final AllDevicesAttachedListener listener) {
@@ -58,10 +60,21 @@ public class RoutineService extends Service {
 
                 while (usbManager.getDeviceList().size() < ALL_DEVICES
                     && (startTime - SystemClock.currentThreadTimeMillis()) < ATTACH_TIMEOUT) {
+
+                }
+
+                if (usbManager.getDeviceList().size() >= ALL_DEVICES) {
                     new Handler(getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
                             listener.onAllAttached();
+                        }
+                    });
+                } else {
+                    new Handler(getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onTimedOut();
                         }
                     });
                 }
@@ -71,6 +84,7 @@ public class RoutineService extends Service {
 
     @Override
     public void onCreate() {
+        Log.v(TAG, "Routine service created");
         sharedPreferences = getSharedPreferences(
                 getString(R.string.PREFERENCES_KEY),
                 Context.MODE_PRIVATE
@@ -87,7 +101,11 @@ public class RoutineService extends Service {
 
     public void releaseWakeLock() {
         if (wakeLock != null) {
-            wakeLock.release();
+            try {
+                wakeLock.release();
+            } catch (RuntimeException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -110,8 +128,8 @@ public class RoutineService extends Service {
 
     public void raiseVolume() {
         Log.v(TAG, "Raising system volume");
-        ((AudioManager) getSystemService(Context.AUDIO_SERVICE))
-                .setStreamVolume(AudioManager.STREAM_MUSIC, 13, 0);
+        //((AudioManager) getSystemService(Context.AUDIO_SERVICE))
+          //      .setStreamVolume(AudioManager.STREAM_MUSIC, 13, 0);
     }
 
 
@@ -130,7 +148,7 @@ public class RoutineService extends Service {
                         SuperuserManager.getInstance();
 
                 if (superuserManager.hasPermission()) {
-                    superuserManager.execute(
+                    superuserManager.asyncExecute(
                             "am startservice " +
                                     "-a 'com.apple.music.client.player.play_pause' " +
                                     "-n com.apple.android.music" +
@@ -159,8 +177,6 @@ public class RoutineService extends Service {
                 upIntent.setPackage(packageName);
                 sendOrderedBroadcast(upIntent, null);
         }
-
-
     }
 
     public void playLastAudioSource() {
@@ -177,7 +193,7 @@ public class RoutineService extends Service {
                 SuperuserManager.getInstance();
 
         if (superuserManager.hasPermission()) {
-            superuserManager.execute(
+            superuserManager.asyncExecute(
                     "am startservice " +
                             "-a org.broeuschmeul.android.gps" +
                             ".usb.provider.nmea.intent.action.START_GPS_PROVIDER"
@@ -190,13 +206,13 @@ public class RoutineService extends Service {
                 SuperuserManager.getInstance();
 
         if (superuserManager.hasPermission()) {
-            superuserManager.execute(
+            superuserManager.asyncExecute(
                     "am startservice " +
                             "-a android.intent.action.MAIN " +
                             "-n com.autobright.kevinforeman.autobright/.AutoBrightService"
             );
 
-            superuserManager.execute(
+            superuserManager.asyncExecute(
                     "am start " +
                             "-a android.intent.action.MAIN " +
                             "-n com.autobright.kevinforeman.autobright/.AutoBright"
@@ -204,24 +220,23 @@ public class RoutineService extends Service {
         }
     }
 
-    public void launchShuttleXpressService() {
-        SuperuserManager superuserManager =
-                SuperuserManager.getInstance();
-
-        if (superuserManager.hasPermission()) {
-            superuserManager.execute(
-                    "am startservice " +
-                            "-a android.intent.action.MAIN " +
-                            "-n com.freshollie.shuttlexpress/.shuttlexpressservice"
-            );
-        }
+    public void startInputService() {
+        Log.v(TAG, "Starting input service");
+        startService(new Intent(getApplicationContext(), DeviceInputService.class));
     }
 
     public void launchMaps() {
-        Intent intent = new Intent(Intent.ACTION_VIEW)
-                .setData(Uri.parse("google.navigation:/?free=1&mode=d&entry=fnls"))
-                .setPackage("come.google.android.apps.maps");
-        startActivity(intent);
+        startActivity(
+                new Intent(Intent.ACTION_VIEW)
+                    .setData(Uri.parse("google.navigation:/?free=1&mode=d&entry=fnls"))
+                    .setComponent(
+                            new ComponentName(
+                                    "com.google.android.apps.maps",
+                                    "com.google.android.maps.MapsActivity"
+                            )
+                    )
+                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        );
     }
 
     public void checkMapsForeground() {
@@ -242,13 +257,19 @@ public class RoutineService extends Service {
             if (lastState != START_ROUTINE_RUN) {
                 lastState = START_ROUTINE_RUN;
                 playLastAudioSource();
+                launchBrightnessControllerService();
 
                 registerOnAllAttachedListener(new AllDevicesAttachedListener() {
                     @Override
                     public void onAllAttached() {
+                        Log.v(TAG, "All devices attached");
                         launchGpsService();
-                        launchBrightnessControllerService();
-                        launchShuttleXpressService();
+                        startInputService();
+                    }
+
+                    @Override
+                    public void onTimedOut() {
+                        Log.v(TAG, "Timed out waiting for devices to connect");
                     }
                 });
 

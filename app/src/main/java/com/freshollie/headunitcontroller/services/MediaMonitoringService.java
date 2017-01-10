@@ -24,7 +24,7 @@ import java.util.List;
 public class MediaMonitoringService extends Service implements
         MediaSessionManager.OnActiveSessionsChangedListener{
 
-    public static String TAG = "MediaMonitoringService";
+    public String TAG = this.getClass().getSimpleName();
     private MediaController lastMusicPlaybackController;
     private MediaSessionManager mediaSessionManager;
 
@@ -46,9 +46,8 @@ public class MediaMonitoringService extends Service implements
                 );
 
         startForeground(
-                NotificationHandler.SERVICE_NOTIFICATION,
-                notificationHandler.notifyStatus(getString(R.string.notify_running)
-                )
+                NotificationHandler.SERVICE_NOTIFICATION_ID,
+                notificationHandler.notifyServiceStatus(getString(R.string.notify_running))
         );
     }
 

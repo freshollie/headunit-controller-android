@@ -23,12 +23,12 @@ import com.freshollie.headunitcontroller.utils.SuperuserManager;
 import com.freshollie.shuttlexpressdriver.ShuttleXpressDevice;
 
 /**
- * ControllerStartupService handles main power intents
+ * StartupService handles main power intents
  * and requesting superuser
  */
 
-public class ControllerStartupService extends Service {
-    public static String TAG = "CntrllerStarupService";
+public class StartupService extends Service {
+    public String TAG = this.getClass().getSimpleName();
     public static String ACTION_SU_NOT_GRANTED =
             "com.freshollie.headunitcontroller.action.SU_NOT_GRANTED";
 
@@ -47,9 +47,8 @@ public class ControllerStartupService extends Service {
          */
         @Override
         public void onReceive(Context context, Intent intent) {
-            Intent startIntent = new Intent(context, ControllerStartupService.class);
-            startIntent.setAction(intent.getAction());
-            // Let the service know why it was started
+            Intent startIntent = new Intent(context, StartupService.class);
+            startIntent.setAction(intent.getAction()); // Let the service know why it was started
 
             context.startService(startIntent);
         }
@@ -63,84 +62,84 @@ public class ControllerStartupService extends Service {
 
         // Wheel binds
 
-        keyMapper.setButtonAction(
-                0,
+        keyMapper.setKeyAction(
+                ShuttleXpressDevice.KeyCodes.BUTTON_0,
                 DeviceInputService.ACTION_LAUNCH_APP,
                 "com.apple.android.music",
                 true,
-                2000);
-        keyMapper.setButtonAction(
-                0,
+                500);
+        keyMapper.setKeyAction(
+                ShuttleXpressDevice.KeyCodes.BUTTON_0,
                 DeviceInputService.ACTION_SEND_KEYEVENT,
                 String.valueOf(KeyEvent.KEYCODE_ENTER)
         );
 
-        keyMapper.setButtonAction(
-                1,
+        keyMapper.setKeyAction(
+                ShuttleXpressDevice.KeyCodes.BUTTON_1,
                 DeviceInputService.ACTION_LAUNCH_APP,
                 "com.freshollie.radioapp"
         );
 
-        keyMapper.setButtonAction(
-                2,
+        keyMapper.setKeyAction(
+                ShuttleXpressDevice.KeyCodes.BUTTON_2,
                 DeviceInputService.ACTION_LAUNCH_APP,
                 "au.com.shiftyjelly.pocketcasts"
         );
 
-        keyMapper.setButtonAction(
-                3,
+        keyMapper.setKeyAction(
+                ShuttleXpressDevice.KeyCodes.BUTTON_3,
                 DeviceInputService.ACTION_LAUNCH_APP,
                 "com.google.android.apps.maps"
         );
-        keyMapper.setButtonAction(
-                3,
+        keyMapper.setKeyAction(
+                ShuttleXpressDevice.KeyCodes.BUTTON_3,
                 DeviceInputService.ACTION_START_DRIVING_MODE,
-                true,
-                2000
-        );
-
-        keyMapper.setButtonAction(
-                4,
-                DeviceInputService.ACTION_GO_HOME
-        );
-        keyMapper.setButtonAction(
-                4,
-                DeviceInputService.ACTION_LAUNCH_VOICE_ASSIST,
-                true,
-                2000
-        );
-
-        // Ring Binds
-
-        keyMapper.setRingAction(
-                ShuttleXpressDevice.POSITION_LEFT,
-                DeviceInputService.ACTION_SEND_KEYEVENT,
-                String.valueOf(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
-        );
-        keyMapper.setRingAction(
-                ShuttleXpressDevice.POSITION_LEFT,
-                DeviceInputService.ACTION_SEND_KEYEVENT,
-                String.valueOf(KeyEvent.KEYCODE_BACK),
                 true,
                 1000
         );
 
-        keyMapper.setRingAction(
-                ShuttleXpressDevice.POSITION_RIGHT,
+        keyMapper.setKeyAction(
+                ShuttleXpressDevice.KeyCodes.BUTTON_4,
+                DeviceInputService.ACTION_GO_HOME
+        );
+        keyMapper.setKeyAction(
+                ShuttleXpressDevice.KeyCodes.BUTTON_4,
+                DeviceInputService.ACTION_LAUNCH_VOICE_ASSIST,
+                true,
+                1000
+        );
+
+        // Ring Binds
+
+        keyMapper.setKeyAction(
+                ShuttleXpressDevice.KeyCodes.RING_LEFT,
+                DeviceInputService.ACTION_SEND_KEYEVENT,
+                String.valueOf(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
+        );
+        keyMapper.setKeyAction(
+                ShuttleXpressDevice.KeyCodes.RING_LEFT,
+                DeviceInputService.ACTION_SEND_KEYEVENT,
+                String.valueOf(KeyEvent.KEYCODE_BACK),
+                true,
+                500
+        );
+
+        keyMapper.setKeyAction(
+                ShuttleXpressDevice.KeyCodes.RING_RIGHT,
                 DeviceInputService.ACTION_SEND_KEYEVENT,
                 String.valueOf(KeyEvent.KEYCODE_MEDIA_NEXT)
         );
 
         // Wheel Binds
 
-        keyMapper.setWheelAction(
-                ShuttleXpressDevice.ACTION_LEFT,
+        keyMapper.setKeyAction(
+                ShuttleXpressDevice.KeyCodes.WHEEL_LEFT,
                 DeviceInputService.ACTION_SEND_KEYEVENT,
                 String.valueOf(KeyEvent.KEYCODE_DPAD_UP)
         );
 
-        keyMapper.setWheelAction(
-                ShuttleXpressDevice.ACTION_RIGHT,
+        keyMapper.setKeyAction(
+                ShuttleXpressDevice.KeyCodes.WHEEL_RIGHT,
                 DeviceInputService.ACTION_SEND_KEYEVENT,
                 String.valueOf(KeyEvent.KEYCODE_TAB)
         );
@@ -176,7 +175,17 @@ public class ControllerStartupService extends Service {
     }
 
     public void informNoUsageStatsPermission() {
-        notificationHandler.notifyStatus(getString(R.string.notify_no_usage_stats_permission));
+        notificationHandler.notifyStatus(
+                getString(R.string.notify_no_usage_stats_permission),
+
+                PendingIntent.getActivity(
+                        getApplicationContext(),
+                        0,
+                        new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+                                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                )
+        );
     }
 
     /**
@@ -209,18 +218,22 @@ public class ControllerStartupService extends Service {
 
     @Override
     public int onStartCommand(final Intent intent, final int flags, final int startId) {
+        Log.v(TAG, "Received start intent: " + intent.getAction());
         if (intent.getAction().equals(ACTION_SU_NOT_GRANTED)) {
             stopWithStatus(getString(R.string.notify_su_not_granted_closing));
             return START_NOT_STICKY;
         }
 
         if (!hasListeningPermission()) {
+            Log.v(TAG, "No listening permission");
             informNoListeningPermission();
             return START_NOT_STICKY;
         }
 
         if (!superuserManager.hasPermission()) {
+            Log.v(TAG, "No superuser permission, requesting");
             if (!hasUsageStatsPermission()) {
+                Log.v(TAG, "Notifiying no usage permission");
                 informNoUsageStatsPermission();
             }
             superuserManager.request(new SuperuserManager.permissionListener() {
@@ -240,6 +253,7 @@ public class ControllerStartupService extends Service {
 
         } else {
             if (intent.getAction() != null) {
+                Log.v(TAG, "Has all permissions, launching");
                 startService(
                         new Intent(getApplicationContext(), RoutineService.class)
                                 .setAction(intent.getAction())
@@ -260,14 +274,14 @@ public class ControllerStartupService extends Service {
     public void stopWithStatus(String status){
         Log.v(TAG, "Stopping with status '" + status + "'");
         Toast.makeText(getApplicationContext(), status, Toast.LENGTH_LONG).show();
-        notificationHandler.notifyStopWithStatus(status);
+        notificationHandler.notifyStatus(status);
         stopSelf();
     }
 
     public void stopWithStatusAndAction(String status, PendingIntent action) {
         Log.v(TAG, "Stopping with status '" + status + "'");
         Toast.makeText(getApplicationContext(), status, Toast.LENGTH_LONG).show();
-        notificationHandler.notifyStopWithStatusAndAction(status, action);
+        notificationHandler.notifyStatus(status, action);
         stopSelf();
     }
 
