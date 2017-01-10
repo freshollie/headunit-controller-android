@@ -11,27 +11,14 @@
     <string name="POWER_ON_DEBUG_KEY">power_on_debug</string>
     <string name="DEBUG_ENABLED_KEY">debug</string>
 
-    <string name="BUTTON_PRESS_EVENT_KEY">button%i_press_event_key</string>
-    <string name="BUTTON_PRESS_EXTRA_DATA_KEY">
-        button%i_press_extra_data_key</string>
+    <string name="KEY_PRESS_EVENT_KEY">key%1$d_press_event_key</string>
+    <string name="KEY_PRESS_EXTRA_DATA_KEY">
+        key%1$d_press_extra_data_key</string>
 
-    <string name="BUTTON_HOLD_EVENT_KEY">button%i_hold_event_key</string>
-    <string name="BUTTON_HOLD_EXTRA_DATA_KEY">
-        button%i_hold_extra_data_key</string>
-    <string name="BUTTON_HOLD_LENGTH_KEY">button%i_hold_length_key</string>
-
-    <string name="RING_PRESS_EVENT_KEY">ring_press_%i_event_key</string>
-    <string name="RING_HOLD_EVENT_KEY">ring_hold_%i_event_key</string>
-    <string name="RING_HOLD_LENGTH_KEY">ring_hold_%i_length_key</string>
-
-    <string name="RING_PRESS_EXTRA_DATA_KEY">ring_press_%i_extra_data_key</string>
-    <string name="RING_HOLD_EXTRA_DATA_KEY">ring_hold_%i_extra_data_key</string>
-
-    <string name="WHEEL_RIGHT_EVENT_KEY">wheel_right_event_key</string>
-    <string name="WHEEL_LEFT_EVENT_KEY">wheel_left_event_key</string>
-
-    <string name="WHEEL_RIGHT_EXTRA_DATA_KEY">wheel_right_extra_data_key</string>
-    <string name="WHEEL_LEFT_EXTRA_DATA_KEY">wheel_left_extra_data_key</string>
+    <string name="KEY_HOLD_EVENT_KEY">key%1$d_hold_event_key</string>
+    <string name="KEY_HOLD_EXTRA_DATA_KEY">
+        key%1$d_hold_extra_data_key</string>
+    <string name="KEY_HOLD_LENGTH_KEY">key%1$d_hold_length_key</string>
 
     <string name="notify_su_not_granted_closing">Superuser not granted, stopping controller</string>
     <string name="notify_running">Running</string>

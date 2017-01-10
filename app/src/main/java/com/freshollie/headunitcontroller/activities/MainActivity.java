@@ -11,7 +11,8 @@ import android.widget.CompoundButton;
 import android.widget.ToggleButton;
 
 import com.freshollie.headunitcontroller.R;
-import com.freshollie.headunitcontroller.services.ControllerStartupService;
+import com.freshollie.headunitcontroller.services.StartupService;
+import com.freshollie.headunitcontroller.utils.PowerUtil;
 
 public class MainActivity extends AppCompatActivity {
     public static String TAG = "MainActivity";
@@ -26,10 +27,15 @@ public class MainActivity extends AppCompatActivity {
                 getSharedPreferences(getString(R.string.PREFERENCES_KEY), Context.MODE_PRIVATE);
         setupToggles();
 
+        if (!sharedPreferences.getBoolean(getString(R.string.DEBUG_ENABLED_KEY), false)) {
+            if (PowerUtil.isConnected(getApplicationContext())) {
+                startMainService(Intent.ACTION_POWER_CONNECTED);
+            }
+        }
     }
 
     public void startMainService(String action) {
-        startService(new Intent(getApplicationContext(), ControllerStartupService.class).setAction(action));
+        startService(new Intent(getApplicationContext(), StartupService.class).setAction(action));
     }
 
     public void setupToggles() {

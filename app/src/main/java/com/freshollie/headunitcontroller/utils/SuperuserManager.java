@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 /**
  * Created by Freshollie on 14/12/2016.
@@ -15,7 +16,11 @@ public class SuperuserManager {
     private DataOutputStream shellInput;
     private Boolean permission = false;
 
+    public static int MAX_THREADS = 20;
+
     public static String TAG = "SuperuserManager";
+
+    private int numThreads = 0;
 
     private static SuperuserManager INSTANCE = new SuperuserManager();
 
@@ -70,6 +75,29 @@ public class SuperuserManager {
         }
 
         return false;
+    }
+
+    /**
+     * Attempts to execute the command in a thread. If there is a thread available.
+     * Returns false if no threads available
+     * @param command
+     * @return
+     */
+    public boolean asyncExecute(final String command) {
+        if (numThreads < MAX_THREADS) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    execute(command);
+                    numThreads--;
+                }
+            }).start();
+
+            numThreads++;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void request(final permissionListener permissionListener) {
