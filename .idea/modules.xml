@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/AndroidHeadunitController.iml" filepath="$PROJECT_DIR$/AndroidHeadunitController.iml" />
       <module fileurl="file://$PROJECT_DIR$/ShuttleXpressDriver-Android/ShuttleXpressDriver-Android.iml" filepath="$PROJECT_DIR$/ShuttleXpressDriver-Android/ShuttleXpressDriver-Android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/androidEventInjector/androidEventInjector.iml" filepath="$PROJECT_DIR$/androidEventInjector/androidEventInjector.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

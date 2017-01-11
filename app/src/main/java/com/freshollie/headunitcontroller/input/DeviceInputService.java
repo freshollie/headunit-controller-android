@@ -4,15 +4,23 @@ import android.app.Service;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.hardware.input.InputManager;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.InputDevice;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
 
+import com.abpconsult.inputinjector.InjectionManager;
 import com.freshollie.headunitcontroller.utils.SuperuserManager;
 import com.freshollie.shuttlexpressdriver.Driver;
 import com.freshollie.shuttlexpressdriver.ShuttleXpressDevice;
+
+import net.pocketmagic.android.eventinjector.Events;
 
 import java.util.HashMap;
 
@@ -45,6 +53,9 @@ public class DeviceInputService extends Service {
     private Handler mainLoopHandler;
 
     private SparseArray<Runnable> keyHoldRunnables = new SparseArray<>();
+
+    private Events inputEventsManager = new Events();
+    private Events.InputDevice inputInjectDevice;
 
     private ShuttleXpressDevice.ConnectedListener connectedListener =
             new ShuttleXpressDevice.ConnectedListener() {
@@ -97,6 +108,9 @@ public class DeviceInputService extends Service {
         packageManager = getPackageManager();
         mainLoopHandler = new Handler(getMainLooper());
         keyMapper = new DeviceKeyMapper(getApplicationContext());
+        inputEventsManager.Init();
+        inputInjectDevice = inputEventsManager.m_Devs.get(3);
+        inputInjectDevice.Open(true);
 
         driver = new Driver(getApplicationContext());
         inputDevice = driver.getDevice();
@@ -204,8 +218,10 @@ public class DeviceInputService extends Service {
         );
     }
 
-    public void sendKeyEvent(int key) {
-        Log.v(TAG, "Sending key, " + String.valueOf(key));
-        SuperuserManager.getInstance().asyncExecute("input keyevent "+ String.valueOf(key));
+    public void sendKeyEvent(int keyCode) {
+        Log.v(TAG, "Sending key, " + String.valueOf(keyCode));
+        inputInjectDevice.SendKey(keyCode, true);
+        inputInjectDevice.SendKey(keyCode, false);
+        //SuperuserManager.getInstance().asyncExecute("input keyevent "+ );
     }
 }

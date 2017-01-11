@@ -1,0 +1,26 @@
+[
+    {
+        "outputFile": "/home/freshollie/Documents/Repos/AndroidHeadunitController/androidEventInjector/build/intermediates/incremental/mergeDebugResources/merged.dir/values/values.xml",
+        "map": [
+            {
+                "to": {
+                    "startLine": 2,
+                    "startColumn": 4,
+                    "startOffset": 55,
+                    "endColumn": 59,
+                    "endOffset": 110
+                },
+                "from": {
+                    "file": "/home/freshollie/Documents/Repos/AndroidHeadunitController/androidEventInjector/src/main/res/values/strings.xml",
+                    "position": {
+                        "startLine": 2,
+                        "startColumn": 4,
+                        "startOffset": 17,
+                        "endColumn": 59,
+                        "endOffset": 72
+                    }
+                }
+            }
+        ]
+    }
+]
