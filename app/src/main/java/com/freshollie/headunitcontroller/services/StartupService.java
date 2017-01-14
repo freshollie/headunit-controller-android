@@ -19,6 +19,7 @@ import com.freshollie.headunitcontroller.R;
 import com.freshollie.headunitcontroller.input.DeviceInputService;
 import com.freshollie.headunitcontroller.input.DeviceKeyMapper;
 import com.freshollie.headunitcontroller.utils.NotificationHandler;
+import com.freshollie.headunitcontroller.utils.PowerUtil;
 import com.freshollie.headunitcontroller.utils.SuperuserManager;
 import com.freshollie.shuttlexpressdriver.ShuttleXpressDevice;
 
@@ -50,7 +51,10 @@ public class StartupService extends Service {
             Intent startIntent = new Intent(context, StartupService.class);
             startIntent.setAction(intent.getAction()); // Let the service know why it was started
 
-            context.startService(startIntent);
+            if (intent.getAction().equals(Intent.ACTION_POWER_CONNECTED) && !PowerUtil.isConnected(context)) {
+            } else {
+                context.startService(startIntent);
+            }
         }
     }
 
@@ -233,7 +237,7 @@ public class StartupService extends Service {
         if (!superuserManager.hasPermission()) {
             Log.v(TAG, "No superuser permission, requesting");
             if (!hasUsageStatsPermission()) {
-                Log.v(TAG, "Notifiying no usage permission");
+                Log.v(TAG, "Notifying no usage permission");
                 informNoUsageStatsPermission();
             }
             superuserManager.request(new SuperuserManager.permissionListener() {
@@ -253,7 +257,7 @@ public class StartupService extends Service {
 
         } else {
             if (intent.getAction() != null) {
-                Log.v(TAG, "Has all permissions, launching");
+                Log.v(TAG, "Has all permissions, passing to routine service");
                 startService(
                         new Intent(getApplicationContext(), RoutineService.class)
                                 .setAction(intent.getAction())
