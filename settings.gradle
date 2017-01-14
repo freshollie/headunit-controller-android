@@ -1,2 +1,1 @@
 include ':app', ':ShuttleXpressDriver-Android'
-include ':androidEventInjector'

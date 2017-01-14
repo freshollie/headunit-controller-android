@@ -10,7 +10,6 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/ShuttleXpressDriver-Android" />
-            <option value="$PROJECT_DIR$/androidEventInjector" />
             <option value="$PROJECT_DIR$/app" />
           </set>
         </option>

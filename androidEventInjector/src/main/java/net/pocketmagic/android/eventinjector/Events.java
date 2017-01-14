@@ -195,6 +195,7 @@ public class Events {
 
     public int Init() {
         m_Devs.clear();
+        Log.v(LT, "Initialising manger");
         int n = ScanFiles(); // return number of devs
 
         for (int i = 0; i < n; i++)
