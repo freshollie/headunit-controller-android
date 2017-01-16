@@ -5,13 +5,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ToggleButton;
 
 import com.freshollie.headunitcontroller.R;
-import com.freshollie.headunitcontroller.services.StartupService;
+import com.freshollie.headunitcontroller.services.MainService;
 import com.freshollie.headunitcontroller.utils.PowerUtil;
 
 public class MainActivity extends AppCompatActivity {
@@ -25,7 +28,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         sharedPreferences =
                 getSharedPreferences(getString(R.string.PREFERENCES_KEY), Context.MODE_PRIVATE);
+
         setupToggles();
+        setupMaxDevicesInput();
 
         if (!sharedPreferences.getBoolean(getString(R.string.DEBUG_ENABLED_KEY), false)) {
             if (PowerUtil.isConnected(getApplicationContext())) {
@@ -35,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startMainService(String action) {
-        startService(new Intent(getApplicationContext(), StartupService.class).setAction(action));
+        startService(new Intent(getApplicationContext(), MainService.class).setAction(action));
     }
 
     public void setupToggles() {
@@ -91,8 +96,35 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
 
+    public void setupMaxDevicesInput(){
+        EditText maxDevicesInput = (EditText) findViewById(R.id.num_devices_input);
+        maxDevicesInput.setText(
+                String.valueOf(
+                        sharedPreferences.getInt(
+                                getString(R.string.NUM_DEVICES_KEY), 0)
+                )
+        );
+        maxDevicesInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
+            }
 
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (!charSequence.toString().equals("")) {
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putInt(getString(R.string.NUM_DEVICES_KEY), Integer.valueOf(charSequence.toString()));
+                    editor.apply();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
     }
 }

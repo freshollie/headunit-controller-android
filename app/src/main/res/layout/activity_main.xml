@@ -22,4 +22,21 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:id="@+id/powerToggle" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/num_devices_input_label"
+        android:id="@+id/num_input_label"
+        android:layout_below="@id/powerToggle"
+        android:layout_alignParentStart="true"/>
+
+    <EditText
+        android:layout_width="50dp"
+        android:layout_height="40dp"
+        android:inputType="number"
+        android:id="@+id/num_devices_input"
+        android:layout_below="@id/powerToggle"
+        android:layout_toEndOf="@id/num_input_label" />
+
 </RelativeLayout>

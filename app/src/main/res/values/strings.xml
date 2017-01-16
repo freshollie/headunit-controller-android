@@ -10,6 +10,7 @@
 
     <string name="POWER_ON_DEBUG_KEY">power_on_debug</string>
     <string name="DEBUG_ENABLED_KEY">debug</string>
+    <string name="NUM_DEVICES_KEY">max_devices_key</string>
 
     <string name="KEY_PRESS_EVENT_KEY">key%1$d_press_event_key</string>
     <string name="KEY_PRESS_EXTRA_DATA_KEY">
@@ -25,6 +26,8 @@
     <string name="notify_no_notification_listen_permission">Please enable notification listening in settings</string>
 
     <string name="notify_no_usage_stats_permission">Click here to enable usage monitoring in settings</string>
+
+    <string name="num_devices_input_label">num USB Devices</string>
 
 
 

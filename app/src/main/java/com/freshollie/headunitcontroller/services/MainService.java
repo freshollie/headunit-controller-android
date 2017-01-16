@@ -16,7 +16,7 @@ import android.view.KeyEvent;
 import android.widget.Toast;
 
 import com.freshollie.headunitcontroller.R;
-import com.freshollie.headunitcontroller.input.DeviceInputService;
+import com.freshollie.headunitcontroller.input.DeviceInputManager;
 import com.freshollie.headunitcontroller.input.DeviceKeyMapper;
 import com.freshollie.headunitcontroller.utils.NotificationHandler;
 import com.freshollie.headunitcontroller.utils.PowerUtil;
@@ -24,17 +24,20 @@ import com.freshollie.headunitcontroller.utils.SuperuserManager;
 import com.freshollie.shuttlexpressdriver.ShuttleXpressDevice;
 
 /**
- * StartupService handles main power intents
+ * MainService handles main power intents
  * and requesting superuser
  */
 
-public class StartupService extends Service {
+public class MainService extends Service {
     public String TAG = this.getClass().getSimpleName();
     public static String ACTION_SU_NOT_GRANTED =
             "com.freshollie.headunitcontroller.action.SU_NOT_GRANTED";
 
     private SuperuserManager superuserManager;
     private NotificationHandler notificationHandler;
+
+    private MediaMonitor mediaMonitor;
+    private RoutineManager routineManager;
 
     private SharedPreferences sharedPreferences;
 
@@ -48,7 +51,7 @@ public class StartupService extends Service {
          */
         @Override
         public void onReceive(Context context, Intent intent) {
-            Intent startIntent = new Intent(context, StartupService.class);
+            Intent startIntent = new Intent(context, MainService.class);
             startIntent.setAction(intent.getAction()); // Let the service know why it was started
 
             if (intent.getAction().equals(Intent.ACTION_POWER_CONNECTED) && !PowerUtil.isConnected(context)) {
@@ -61,68 +64,66 @@ public class StartupService extends Service {
     /**
      * Set the test bindings for the input device
      */
-    public void setTestKeybindings() {
+    public void setTestKeyBindings() {
         DeviceKeyMapper keyMapper = new DeviceKeyMapper(getApplicationContext());
 
-        // Wheel binds
+        keyMapper.clearAll();
 
         keyMapper.setKeyAction(
                 ShuttleXpressDevice.KeyCodes.BUTTON_0,
-                DeviceInputService.ACTION_LAUNCH_APP,
+                DeviceInputManager.ACTION_LAUNCH_APP,
                 "com.apple.android.music",
                 true,
                 500);
         keyMapper.setKeyAction(
                 ShuttleXpressDevice.KeyCodes.BUTTON_0,
-                DeviceInputService.ACTION_SEND_KEYEVENT,
+                DeviceInputManager.ACTION_SEND_KEYEVENT,
                 String.valueOf(KeyEvent.KEYCODE_ENTER)
         );
 
         keyMapper.setKeyAction(
                 ShuttleXpressDevice.KeyCodes.BUTTON_1,
-                DeviceInputService.ACTION_LAUNCH_APP,
+                DeviceInputManager.ACTION_LAUNCH_APP,
                 "com.freshollie.radioapp"
         );
 
         keyMapper.setKeyAction(
                 ShuttleXpressDevice.KeyCodes.BUTTON_2,
-                DeviceInputService.ACTION_LAUNCH_APP,
+                DeviceInputManager.ACTION_LAUNCH_APP,
                 "au.com.shiftyjelly.pocketcasts"
         );
 
         keyMapper.setKeyAction(
                 ShuttleXpressDevice.KeyCodes.BUTTON_3,
-                DeviceInputService.ACTION_LAUNCH_APP,
+                DeviceInputManager.ACTION_LAUNCH_APP,
                 "com.google.android.apps.maps"
         );
         keyMapper.setKeyAction(
                 ShuttleXpressDevice.KeyCodes.BUTTON_3,
-                DeviceInputService.ACTION_START_DRIVING_MODE,
+                DeviceInputManager.ACTION_START_DRIVING_MODE,
                 true,
                 1000
         );
 
         keyMapper.setKeyAction(
                 ShuttleXpressDevice.KeyCodes.BUTTON_4,
-                DeviceInputService.ACTION_GO_HOME
+                DeviceInputManager.ACTION_GO_HOME
         );
         keyMapper.setKeyAction(
                 ShuttleXpressDevice.KeyCodes.BUTTON_4,
-                DeviceInputService.ACTION_LAUNCH_VOICE_ASSIST,
+                DeviceInputManager.ACTION_LAUNCH_VOICE_ASSIST,
                 true,
                 1000
         );
-
-        // Ring Binds
 
         keyMapper.setKeyAction(
                 ShuttleXpressDevice.KeyCodes.RING_LEFT,
-                DeviceInputService.ACTION_SEND_KEYEVENT,
+                DeviceInputManager.ACTION_SEND_KEYEVENT,
                 String.valueOf(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
         );
         keyMapper.setKeyAction(
                 ShuttleXpressDevice.KeyCodes.RING_LEFT,
-                DeviceInputService.ACTION_SEND_KEYEVENT,
+                DeviceInputManager.ACTION_SEND_KEYEVENT,
                 String.valueOf(KeyEvent.KEYCODE_BACK),
                 true,
                 500
@@ -130,44 +131,53 @@ public class StartupService extends Service {
 
         keyMapper.setKeyAction(
                 ShuttleXpressDevice.KeyCodes.RING_RIGHT,
-                DeviceInputService.ACTION_SEND_KEYEVENT,
+                DeviceInputManager.ACTION_SEND_KEYEVENT,
                 String.valueOf(KeyEvent.KEYCODE_MEDIA_NEXT)
         );
 
-        // Wheel Binds
-
         keyMapper.setKeyAction(
                 ShuttleXpressDevice.KeyCodes.WHEEL_LEFT,
-                DeviceInputService.ACTION_SEND_KEYEVENT,
+                DeviceInputManager.ACTION_SEND_KEYEVENT,
                 String.valueOf(KeyEvent.KEYCODE_DPAD_UP)
         );
 
         keyMapper.setKeyAction(
                 ShuttleXpressDevice.KeyCodes.WHEEL_RIGHT,
-                DeviceInputService.ACTION_SEND_KEYEVENT,
+                DeviceInputManager.ACTION_SEND_KEYEVENT,
                 String.valueOf(KeyEvent.KEYCODE_TAB)
         );
     }
 
     @Override
     public void onCreate() {
+        Log.v(TAG, "Started");
+
         sharedPreferences =
                 getSharedPreferences(getString(R.string.PREFERENCES_KEY), Context.MODE_PRIVATE);
+
         superuserManager = SuperuserManager.getInstance();
         notificationHandler = new NotificationHandler(getApplicationContext());
 
-        Log.v(TAG, "Started");
+        mediaMonitor = new MediaMonitor(getApplicationContext());
+        mediaMonitor.start();
 
-        setTestKeybindings();
+        routineManager = new RoutineManager(getApplicationContext());
+
+        setTestKeyBindings();
 
         if (hasListeningPermission()) {
             startMediaMonitor();
         }
 
+        startForeground(
+                NotificationHandler.SERVICE_NOTIFICATION_ID,
+                notificationHandler.notifyServiceStatus(getString(R.string.notify_running))
+        );
+
     }
 
     public void startMediaMonitor() {
-        startService(new Intent(getApplicationContext(), MediaMonitoringService.class));
+        startService(new Intent(getApplicationContext(), MediaMonitor.class));
     }
 
     public void informNoListeningPermission() {
@@ -257,13 +267,16 @@ public class StartupService extends Service {
 
         } else {
             if (intent.getAction() != null) {
-                Log.v(TAG, "Has all permissions, passing to routine service");
-                startService(
-                        new Intent(getApplicationContext(), RoutineService.class)
-                                .setAction(intent.getAction())
-                );
+                Log.v(TAG, "Has all permissions, running routine");
+                switch(intent.getAction()) {
+                    case Intent.ACTION_POWER_CONNECTED:
+                        routineManager.onPowerConnected();
+                        break;
+                    case Intent.ACTION_POWER_DISCONNECTED:
+                        routineManager.onPowerDisconnected();
+                        break;
+                }
             }
-
         }
 
         return START_NOT_STICKY;
@@ -291,8 +304,10 @@ public class StartupService extends Service {
 
     @Override
     public void onDestroy(){
-        stopService(new Intent(this, RoutineService.class));
-
+        Log.v(TAG, "Stopping");
+        mediaMonitor.stop();
+        routineManager.stop();
+        stopForeground(true);
     }
 
 
