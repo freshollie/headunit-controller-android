@@ -89,6 +89,17 @@ public class DeviceKeyMapper {
     }
 
     public long getKeyHoldDelay(int id) {
-        return sharedPreferences.getLong(context.getString(R.string.KEY_HOLD_LENGTH_KEY, id), 2000);
+        return sharedPreferences.getLong(context.getString(R.string.KEY_HOLD_LENGTH_KEY, id), 0);
+    }
+
+    public void clear(int key) {
+        setKeyAction(key, null, null);
+        setKeyAction(key, null, null, true, 0);
+    }
+
+    public void clearAll() {
+        for (int i = 0; i < ShuttleXpressDevice.KeyCodes.NUM_KEYS; i++) {
+            clear(ShuttleXpressDevice.KeyCodes.BUTTON_0 + i);
+        }
     }
 }

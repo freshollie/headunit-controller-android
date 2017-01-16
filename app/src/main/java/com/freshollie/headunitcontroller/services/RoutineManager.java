@@ -1,6 +1,5 @@
 package com.freshollie.headunitcontroller.services;
 
-import android.app.Service;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.ComponentName;
@@ -8,17 +7,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.usb.UsbManager;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.KeyEvent;
 
 import com.freshollie.headunitcontroller.R;
-import com.freshollie.headunitcontroller.input.DeviceInputService;
+import com.freshollie.headunitcontroller.input.DeviceInputManager;
 import com.freshollie.headunitcontroller.utils.PowerUtil;
 import com.freshollie.headunitcontroller.utils.SuperuserManager;
 
@@ -30,9 +29,8 @@ import java.util.TreeMap;
  * Created by Freshollie on 14/12/2016.
  */
 
-public class RoutineService extends Service {
+public class RoutineManager {
     public String TAG = this.getClass().getSimpleName();
-    public static int ALL_DEVICES = 1;
     public static int ATTACH_TIMEOUT = 3000; // Milliseconds
 
     public static String CONTEXT_USAGE_STATS_MANAGER = "usagestats";
@@ -41,10 +39,14 @@ public class RoutineService extends Service {
     public static int STOP_ROUTINE_RUN = 1;
     private int lastState;
 
+    private Context context;
+
     private SharedPreferences sharedPreferences;
     private MediaPlayer mediaPlayer;
 
     private PowerManager.WakeLock wakeLock;
+
+    private DeviceInputManager deviceInputManager;
 
     private interface AllDevicesAttachedListener {
         void onAllAttached();
@@ -55,46 +57,51 @@ public class RoutineService extends Service {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                UsbManager usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
+                UsbManager usbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
                 long startTime = SystemClock.currentThreadTimeMillis();
 
-                while (usbManager.getDeviceList().size() < ALL_DEVICES
-                    && (startTime - SystemClock.currentThreadTimeMillis()) < ATTACH_TIMEOUT) {
+                int allDevices = sharedPreferences.getInt(
+                        context.getString(R.string.NUM_DEVICES_KEY),
+                        0
+                );
+
+                while (usbManager.getDeviceList().size() < allDevices
+                    && (SystemClock.currentThreadTimeMillis() - startTime) < ATTACH_TIMEOUT) {
 
                 }
 
-                if (usbManager.getDeviceList().size() >= ALL_DEVICES) {
-                    new Handler(getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            listener.onAllAttached();
-                        }
-                    });
-                } else {
-                    new Handler(getMainLooper()).post(new Runnable() {
+                if (usbManager.getDeviceList().size() < allDevices) {
+                    new Handler(context.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
                             listener.onTimedOut();
                         }
                     });
                 }
+
+                new Handler(context.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.onAllAttached();
+                    }
+                });
             }
         }).start();
     }
 
-    @Override
-    public void onCreate() {
+    public RoutineManager(Context serviceContext) {
+        context = serviceContext;
         Log.v(TAG, "Routine service created");
-        sharedPreferences = getSharedPreferences(
-                getString(R.string.PREFERENCES_KEY),
+        sharedPreferences = context.getSharedPreferences(
+                context.getString(R.string.PREFERENCES_KEY),
                 Context.MODE_PRIVATE
         );
         lastState = STOP_ROUTINE_RUN;
-
+        deviceInputManager = new DeviceInputManager(context);
     }
 
     public void acquireWakeLock() {
-        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         wakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "Headunit Controller");
         wakeLock.acquire();
     }
@@ -111,7 +118,7 @@ public class RoutineService extends Service {
 
     public void startBlankAudio() {
         stopBlankAudio();
-        mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.blank);
+        mediaPlayer = MediaPlayer.create(context, R.raw.blank);
         mediaPlayer.setLooping(true);
         mediaPlayer.start();
         Log.v(TAG, "Blank audio started");
@@ -128,8 +135,8 @@ public class RoutineService extends Service {
 
     public void raiseVolume() {
         Log.v(TAG, "Raising system volume");
-        //((AudioManager) getSystemService(Context.AUDIO_SERVICE))
-          //      .setStreamVolume(AudioManager.STREAM_MUSIC, 13, 0);
+        ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE))
+                .setStreamVolume(AudioManager.STREAM_MUSIC, 13, 0);
     }
 
 
@@ -168,20 +175,20 @@ public class RoutineService extends Service {
                         KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, 0);
                 downIntent.putExtra(Intent.EXTRA_KEY_EVENT, downEvent);
                 downIntent.setPackage(packageName);
-                sendOrderedBroadcast(downIntent, null);
+                context.sendOrderedBroadcast(downIntent, null);
 
                 Intent upIntent = new Intent(Intent.ACTION_MEDIA_BUTTON, null);
                 KeyEvent upEvent = new KeyEvent(eventTime, eventTime,
                         KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, 0);
                 upIntent.putExtra(Intent.EXTRA_KEY_EVENT, upEvent);
                 upIntent.setPackage(packageName);
-                sendOrderedBroadcast(upIntent, null);
+                context.sendOrderedBroadcast(upIntent, null);
         }
     }
 
     public void playLastAudioSource() {
         String lastPlayingAudioApp =
-                sharedPreferences.getString(getString(R.string.PLAYING_AUDIO_APP_KEY), null);
+                sharedPreferences.getString(context.getString(R.string.PLAYING_AUDIO_APP_KEY), null);
 
         if (lastPlayingAudioApp != null) {
             playAudioApp(lastPlayingAudioApp);
@@ -222,11 +229,11 @@ public class RoutineService extends Service {
 
     public void startInputService() {
         Log.v(TAG, "Starting input service");
-        startService(new Intent(getApplicationContext(), DeviceInputService.class));
+        deviceInputManager.start();
     }
 
     public void launchMaps() {
-        startActivity(
+        context.startActivity(
                 new Intent(Intent.ACTION_VIEW)
                     .setData(Uri.parse("google.navigation:/?free=1&mode=d&entry=fnls"))
                     .setComponent(
@@ -244,16 +251,16 @@ public class RoutineService extends Service {
         Log.v(TAG, "Checked foreground and found: " + getForegroundPackageName());
         if (getForegroundPackageName().equals("com.google.android.apps.maps")) {
             Log.v(TAG, "Maps in foreground");
-            editor.putBoolean(getString(R.string.LAUNCH_MAPS_KEY), true);
+            editor.putBoolean(context.getString(R.string.LAUNCH_MAPS_KEY), true);
         } else {
-            editor.putBoolean(getString(R.string.LAUNCH_MAPS_KEY), false);
+            editor.putBoolean(context.getString(R.string.LAUNCH_MAPS_KEY), false);
         }
         editor.apply();
     }
 
     public void runStartRoutine() {
         Log.v(TAG, "Running start routine");
-        if (PowerUtil.isConnected(getApplicationContext())) {
+        if (PowerUtil.isConnected(context)) {
             if (lastState != START_ROUTINE_RUN) {
                 lastState = START_ROUTINE_RUN;
                 playLastAudioSource();
@@ -273,12 +280,16 @@ public class RoutineService extends Service {
                     }
                 });
 
-                if (!sharedPreferences.getBoolean(getString(R.string.DEBUG_ENABLED_KEY), true)) {
+                if (!sharedPreferences.getBoolean(
+                        context.getString(R.string.DEBUG_ENABLED_KEY), true)) {
                     raiseVolume();
                 }
 
-                if (sharedPreferences.getBoolean(getString(R.string.LAUNCH_MAPS_KEY), false) &&
-                        sharedPreferences.getBoolean(getString(R.string.DRIVING_MODE_KEY), false)) {
+                if (sharedPreferences.getBoolean(
+                        context.getString(R.string.LAUNCH_MAPS_KEY), false) &&
+                        sharedPreferences.getBoolean(
+                                context.getString(R.string.DRIVING_MODE_KEY), false)) {
+
                     Log.v(TAG, "Launching maps");
                     launchMaps();
                 }
@@ -304,50 +315,29 @@ public class RoutineService extends Service {
 
     }
 
-    @Override
-    public int onStartCommand(final Intent intent, final int flags, final int startId) {
-        Log.v(TAG, intent.getAction());
+    public void onPowerConnected() {
+        startBlankAudio();
+        acquireWakeLock();
 
-        switch (intent.getAction()) {
-            case Intent.ACTION_POWER_CONNECTED:
-                startBlankAudio();
-                acquireWakeLock();
-
-                int delay = 1000; //milliseconds
-                new Handler(getMainLooper()).postDelayed(new Runnable() {
-                    public void run() {
-                        runStartRoutine();
-                    }
-                }, delay);
-
-                return START_NOT_STICKY;
-
-            case Intent.ACTION_POWER_DISCONNECTED:
-                stopBlankAudio();
-                releaseWakeLock();
-                runStopSequence();
-
-                return START_NOT_STICKY;
-        }
-        return START_NOT_STICKY;
+        int delay = 1000; //milliseconds
+        new Handler(context.getMainLooper()).postDelayed(new Runnable() {
+            public void run() {
+                runStartRoutine();
+            }
+        }, delay);
     }
 
-    @Override
-    public void onDestroy() {
-
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
+    public void onPowerDisconnected() {
+        stopBlankAudio();
+        releaseWakeLock();
+        runStopSequence();
     }
 
     public String getForegroundPackageName(){
         String currentApp = "";
 
         //noinspection ResourceType
-        UsageStatsManager usm = (UsageStatsManager) getSystemService(CONTEXT_USAGE_STATS_MANAGER);
+        UsageStatsManager usm = (UsageStatsManager) context.getSystemService(CONTEXT_USAGE_STATS_MANAGER);
 
         long time = System.currentTimeMillis();
         List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY,
@@ -374,4 +364,7 @@ public class RoutineService extends Service {
         return currentApp;
     };
 
+    public void stop() {
+        deviceInputManager.stop();
+    }
 }

@@ -21,8 +21,7 @@ import java.util.List;
  * Created by Freshollie on 13/12/2016.
  */
 
-public class MediaMonitoringService extends Service implements
-        MediaSessionManager.OnActiveSessionsChangedListener{
+public class MediaMonitor implements MediaSessionManager.OnActiveSessionsChangedListener{
 
     public String TAG = this.getClass().getSimpleName();
     private MediaController lastMusicPlaybackController;
@@ -32,38 +31,34 @@ public class MediaMonitoringService extends Service implements
 
     private SharedPreferences sharedPreferences;
 
-    @Override
-    public void onCreate() {
-        Log.v(TAG, "Started");
-        bindActiveSessionsChangedListener();
+    private Context context;
 
-        notificationHandler = new NotificationHandler(getApplicationContext());
+    public MediaMonitor(Context serviceContext) {
+        Log.v(TAG, "Initialised");
 
-        sharedPreferences = getApplicationContext()
+        context = serviceContext;
+        sharedPreferences = context.getApplicationContext()
                 .getSharedPreferences(
-                        getString(R.string.PREFERENCES_KEY),
+                        context.getString(R.string.PREFERENCES_KEY),
                         Context.MODE_PRIVATE
                 );
 
-        startForeground(
-                NotificationHandler.SERVICE_NOTIFICATION_ID,
-                notificationHandler.notifyServiceStatus(getString(R.string.notify_running))
-        );
+        mediaSessionManager = (MediaSessionManager) context.getSystemService(Context.MEDIA_SESSION_SERVICE);
+    }
+
+    public void start() {
+        bindActiveSessionsChangedListener();
+    }
+
+    public void stop() {
+        mediaSessionManager.removeOnActiveSessionsChangedListener(this);
     }
 
     public void bindActiveSessionsChangedListener() {
-        mediaSessionManager = (MediaSessionManager) getSystemService(Context.MEDIA_SESSION_SERVICE);
-
         mediaSessionManager.addOnActiveSessionsChangedListener(
                 this,
-                new ComponentName(getApplicationContext(), DrivingModeListenerService.class)
+                new ComponentName(context, DrivingModeListenerService.class)
         );
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     /**
@@ -80,7 +75,7 @@ public class MediaMonitoringService extends Service implements
 
     public void checkMediaControllerList(List<MediaController> mediaControllers) {
         for (MediaController mediaController: mediaControllers) {
-            if (!(mediaController.getPackageName().equals(getPackageName()))) {
+            if (!(mediaController.getPackageName().equals(context.getPackageName()))) {
                 PlaybackState playbackState = mediaController.getPlaybackState();
                 if (playbackState != null) {
                     if (playbackState.getState() == PlaybackState.STATE_PLAYING) {
@@ -92,7 +87,7 @@ public class MediaMonitoringService extends Service implements
     }
 
     public void registerLastPlaybackApp(final MediaController appMediaController) {
-        if (PowerUtil.isConnected(getApplicationContext())) {
+        if (PowerUtil.isConnected(context.getApplicationContext())) {
             lastMusicPlaybackController = appMediaController;
             String packageName = null;
 
@@ -125,17 +120,9 @@ public class MediaMonitoringService extends Service implements
             Log.v(TAG, "Registering last playback app " + String.valueOf(packageName));
 
             SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString(getString(R.string.PLAYING_AUDIO_APP_KEY), packageName);
+            editor.putString(context.getString(R.string.PLAYING_AUDIO_APP_KEY), packageName);
             editor.apply();
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        Log.v(TAG, "Stopping");
-        stopForeground(true);
-        mediaSessionManager.removeOnActiveSessionsChangedListener(this);
-
     }
 
 }

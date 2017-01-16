@@ -1,33 +1,26 @@
 package com.freshollie.headunitcontroller.input;
 
-import android.app.Service;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.hardware.input.InputManager;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.SystemClock;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.InputDevice;
-import android.view.KeyCharacterMap;
-import android.view.KeyEvent;
 
 import com.freshollie.headunitcontroller.utils.SuperuserManager;
 import com.freshollie.shuttlexpressdriver.Driver;
 import com.freshollie.shuttlexpressdriver.ShuttleXpressDevice;
 
-import java.util.HashMap;
-
 /**
  * Created by freshollie on 1/1/17.
  */
 
-public class DeviceInputService extends Service {
+public class DeviceInputManager {
 
-    public static String TAG = DeviceInputService.class.getSimpleName();
+    public static String TAG = DeviceInputManager.class.getSimpleName();
 
     public static final String ACTION_LAUNCH_APP =
             "com.freshollie.headunitcontroller.action.LAUNCH_APP";
@@ -51,6 +44,8 @@ public class DeviceInputService extends Service {
 
     private SparseArray<Runnable> keyHoldRunnables = new SparseArray<>();
 
+    private Context context;
+
     private ShuttleXpressDevice.ConnectedListener connectedListener =
             new ShuttleXpressDevice.ConnectedListener() {
                 @Override
@@ -64,7 +59,7 @@ public class DeviceInputService extends Service {
                 @Override
                 public void onDisconnected() {
 
-                    stopSelf();
+                    stop();
                 }
             };
 
@@ -80,7 +75,12 @@ public class DeviceInputService extends Service {
                 public void run() {
                     keyHoldRunnables.append(id, null);
                     String[] actions = keyMapper.getKeyHoldAction(id);
-                    handleActionRequest(actions[0], actions[1]);
+                    if (actions[0] != null) {
+                        handleActionRequest(actions[0], actions[1]);
+                    } else {
+                        actions = keyMapper.getKeyPressAction(id);
+                        handleActionRequest(actions[0], actions[1]);
+                    }
                 }
             });
             mainLoopHandler.postDelayed(keyHoldRunnables.get(id), keyMapper.getKeyHoldDelay(id));
@@ -98,15 +98,19 @@ public class DeviceInputService extends Service {
         }
     };
 
-    public void onCreate() {
-        Log.v(TAG, "Started");
-        packageManager = getPackageManager();
-        mainLoopHandler = new Handler(getMainLooper());
-        keyMapper = new DeviceKeyMapper(getApplicationContext());
+    public DeviceInputManager(Context serviceContext) {
+        Log.v(TAG, "Created");
+        context = serviceContext;
 
-        driver = new Driver(getApplicationContext());
+        packageManager = context.getPackageManager();
+        mainLoopHandler = new Handler(context.getMainLooper());
+        keyMapper = new DeviceKeyMapper(context);
+
+        driver = new Driver(context);
         inputDevice = driver.getDevice();
+    }
 
+    public void start() {
         if (!inputDevice.isConnected()) {
             Log.v(TAG, "Starting driver");
             driver.start();
@@ -117,22 +121,9 @@ public class DeviceInputService extends Service {
 
     }
 
-    /**
-     * Makes sure that when the service is killed it is restarted
-     * when killed by the system.
-     */
-    @Override
-    public int onStartCommand(Intent intent, int flag, int startId) {
-        return START_STICKY;
-    }
+    public void stop() {
+        driver.stop();
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    public void onDestroy() {
         inputDevice.unregisterKeyListener(deviceKeyListener);
         inputDevice.unregisterConnectedListener(connectedListener);
     }
@@ -144,29 +135,29 @@ public class DeviceInputService extends Service {
                     if (extra != null) {
                         launchApp(extra);
                     }
-                    return;
+                    break;
 
                 case ACTION_START_DRIVING_MODE:
                     startGoogleMapsDrivingMode();
-                    return;
+                    break;
 
                 case ACTION_LAUNCH_VOICE_ASSIST:
                     launchVoiceAssist();
-                    return;
+                    break;
 
                 case ACTION_GO_HOME:
                     goHome();
-                    return;
+                    break;
 
                 case ACTION_SEND_KEYEVENT:
                     if (extra != null) {
                         try {
                             sendKeyEvent(Integer.valueOf(extra));
                         } catch (NumberFormatException e) {
-                            Log.v(TAG, "Somehow app launch got interpretted as a key press event");
+                            Log.v(TAG, "Somehow app launch got interpreted as a key press event");
                         }
                     }
-                    return;
+                    break;
             }
         }
     }
@@ -175,14 +166,14 @@ public class DeviceInputService extends Service {
         Intent i = packageManager.getLaunchIntentForPackage(packageName);
 
         if (i != null) {
-            startActivity(i);
+            context.startActivity(i);
         }
 
     }
 
     public void startGoogleMapsDrivingMode() {
         Log.v(TAG, "Launching driving mode");
-        startActivity(
+        context.startActivity(
                 new Intent(Intent.ACTION_VIEW)
                         .setData(Uri.parse("google.navigation:/?free=1&mode=d&entry=fnls"))
                         .setComponent(
@@ -196,7 +187,7 @@ public class DeviceInputService extends Service {
     }
 
     public void goHome() {
-        startActivity(
+        context.startActivity(
                 new Intent(Intent.ACTION_MAIN)
                         .addCategory(Intent.CATEGORY_HOME)
                         .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -204,7 +195,7 @@ public class DeviceInputService extends Service {
     }
 
     public void launchVoiceAssist() {
-        startActivity(
+        context.startActivity(
                 new Intent("android.intent.action.VOICE_ASSIST")
                         .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         );
@@ -213,7 +204,7 @@ public class DeviceInputService extends Service {
     public void sendKeyEvent(int keyCode) {
         Log.v(TAG, "Sending key, " + String.valueOf(keyCode));
         SuperuserManager.getInstance().asyncExecute("input keyevent "+ String.valueOf(keyCode));
-        sendBroadcast(new Intent(ACTION_SEND_KEYEVENT).putExtra("keyCode", keyCode));
+        context.sendBroadcast(new Intent(ACTION_SEND_KEYEVENT).putExtra("keyCode", keyCode));
 
     }
 }
