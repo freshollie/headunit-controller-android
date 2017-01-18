@@ -47,7 +47,7 @@ public class MainService extends Service {
          * and sends the action to the service
          *
          * @param context application context
-         * @param intent the intent to start
+         * @param intent the intent to run
          */
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -74,7 +74,7 @@ public class MainService extends Service {
                 DeviceInputManager.ACTION_LAUNCH_APP,
                 "com.apple.android.music",
                 true,
-                500);
+                300);
         keyMapper.setKeyAction(
                 ShuttleXpressDevice.KeyCodes.BUTTON_0,
                 DeviceInputManager.ACTION_SEND_KEYEVENT,
@@ -98,6 +98,7 @@ public class MainService extends Service {
                 DeviceInputManager.ACTION_LAUNCH_APP,
                 "com.google.android.apps.maps"
         );
+
         keyMapper.setKeyAction(
                 ShuttleXpressDevice.KeyCodes.BUTTON_3,
                 DeviceInputManager.ACTION_START_DRIVING_MODE,
@@ -126,7 +127,7 @@ public class MainService extends Service {
                 DeviceInputManager.ACTION_SEND_KEYEVENT,
                 String.valueOf(KeyEvent.KEYCODE_BACK),
                 true,
-                500
+                1000
         );
 
         keyMapper.setKeyAction(
@@ -159,25 +160,19 @@ public class MainService extends Service {
         notificationHandler = new NotificationHandler(getApplicationContext());
 
         mediaMonitor = new MediaMonitor(getApplicationContext());
-        mediaMonitor.start();
+        if (hasListeningPermission()) {
+            mediaMonitor.start();
+        }
 
         routineManager = new RoutineManager(getApplicationContext());
 
         setTestKeyBindings();
-
-        if (hasListeningPermission()) {
-            startMediaMonitor();
-        }
 
         startForeground(
                 NotificationHandler.SERVICE_NOTIFICATION_ID,
                 notificationHandler.notifyServiceStatus(getString(R.string.notify_running))
         );
 
-    }
-
-    public void startMediaMonitor() {
-        startService(new Intent(getApplicationContext(), MediaMonitor.class));
     }
 
     public void informNoListeningPermission() {
@@ -203,7 +198,7 @@ public class MainService extends Service {
     }
 
     /**
-     * Checks for notification listening permission
+     * Checks for notification listening permission for this app
      */
     public boolean hasListeningPermission() {
         String notificationListenerString =
@@ -232,7 +227,7 @@ public class MainService extends Service {
 
     @Override
     public int onStartCommand(final Intent intent, final int flags, final int startId) {
-        Log.v(TAG, "Received start intent: " + intent.getAction());
+        Log.v(TAG, "Received run intent: " + intent.getAction());
         if (intent.getAction().equals(ACTION_SU_NOT_GRANTED)) {
             stopWithStatus(getString(R.string.notify_su_not_granted_closing));
             return START_NOT_STICKY;
@@ -244,12 +239,13 @@ public class MainService extends Service {
             return START_NOT_STICKY;
         }
 
-        if (!superuserManager.hasPermission()) {
+        if (!hasUsageStatsPermission()) {
+            Log.v(TAG, "Notifying no usage permission");
+            informNoUsageStatsPermission();
+
+        } else if (!superuserManager.hasPermission()) {
             Log.v(TAG, "No superuser permission, requesting");
-            if (!hasUsageStatsPermission()) {
-                Log.v(TAG, "Notifying no usage permission");
-                informNoUsageStatsPermission();
-            }
+
             superuserManager.request(new SuperuserManager.permissionListener() {
                 @Override
                 public void onGranted() {

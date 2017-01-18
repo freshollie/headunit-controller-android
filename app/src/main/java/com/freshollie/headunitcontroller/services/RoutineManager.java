@@ -40,6 +40,7 @@ public class RoutineManager {
     private int lastState;
 
     private Context context;
+    private SuperuserManager superuserManager;
 
     private SharedPreferences sharedPreferences;
     private MediaPlayer mediaPlayer;
@@ -48,12 +49,12 @@ public class RoutineManager {
 
     private DeviceInputManager deviceInputManager;
 
-    private interface AllDevicesAttachedListener {
+    private interface OnAllDevicesAttachedListener {
         void onAllAttached();
         void onTimedOut();
     }
 
-    public void registerOnAllAttachedListener(final AllDevicesAttachedListener listener) {
+    public void registerOnAllAttachedListener(final OnAllDevicesAttachedListener listener) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -91,6 +92,7 @@ public class RoutineManager {
 
     public RoutineManager(Context serviceContext) {
         context = serviceContext;
+        superuserManager = SuperuserManager.getInstance();
         Log.v(TAG, "Routine service created");
         sharedPreferences = context.getSharedPreferences(
                 context.getString(R.string.PREFERENCES_KEY),
@@ -151,9 +153,6 @@ public class RoutineManager {
 
         switch (packageName) {
             case "com.apple.android.music":
-                SuperuserManager superuserManager =
-                        SuperuserManager.getInstance();
-
                 if (superuserManager.hasPermission()) {
                     superuserManager.asyncExecute(
                             "am startservice " +
@@ -161,7 +160,23 @@ public class RoutineManager {
                                     "-n com.apple.android.music" +
                                     "/com.apple.android.svmediaplayer.player.MusicService");
                 }
+                break;
 
+            case "com.freshollie.radioapp":
+                if (superuserManager.hasPermission()) {
+                    registerOnAllAttachedListener(new OnAllDevicesAttachedListener() {
+                        @Override
+                        public void onAllAttached() {
+                            superuserManager.asyncExecute(
+                                    "am startservice -n com.freshollie.radioapp/.radioservice");
+                        }
+
+                        @Override
+                        public void onTimedOut() {
+
+                        }
+                    });
+                }
             default:
                 /*
                  * Default method is to send a playpause key to that app.
@@ -188,17 +203,14 @@ public class RoutineManager {
 
     public void playLastAudioSource() {
         String lastPlayingAudioApp =
-                sharedPreferences.getString(context.getString(R.string.PLAYING_AUDIO_APP_KEY), null);
+                sharedPreferences.getString(context.getString(R.string.PLAYING_AUDIO_APP_KEY), "");
 
-        if (lastPlayingAudioApp != null) {
+        if (!lastPlayingAudioApp.isEmpty()) {
             playAudioApp(lastPlayingAudioApp);
         }
     }
 
     public void launchGpsService() {
-        SuperuserManager superuserManager =
-                SuperuserManager.getInstance();
-
         if (superuserManager.hasPermission()) {
             superuserManager.asyncExecute(
                     "am startservice " +
@@ -209,9 +221,6 @@ public class RoutineManager {
     }
 
     public void launchBrightnessControllerService() {
-        SuperuserManager superuserManager =
-                SuperuserManager.getInstance();
-
         if (superuserManager.hasPermission()) {
             superuserManager.asyncExecute(
                     "am startservice " +
@@ -220,7 +229,7 @@ public class RoutineManager {
             );
 
             superuserManager.asyncExecute(
-                    "am start " +
+                    "am run " +
                             "-a android.intent.action.MAIN " +
                             "-n com.autobright.kevinforeman.autobright/.AutoBright"
             );
@@ -229,7 +238,7 @@ public class RoutineManager {
 
     public void startInputService() {
         Log.v(TAG, "Starting input service");
-        deviceInputManager.start();
+        deviceInputManager.run();
     }
 
     public void launchMaps() {
@@ -246,10 +255,14 @@ public class RoutineManager {
         );
     }
 
+    public boolean isMapsForeground() {
+        return getForegroundPackageName().equals("com.google.android.apps.maps");
+    }
+
     public void checkMapsForeground() {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         Log.v(TAG, "Checked foreground and found: " + getForegroundPackageName());
-        if (getForegroundPackageName().equals("com.google.android.apps.maps")) {
+        if (isMapsForeground()) {
             Log.v(TAG, "Maps in foreground");
             editor.putBoolean(context.getString(R.string.LAUNCH_MAPS_KEY), true);
         } else {
@@ -258,15 +271,22 @@ public class RoutineManager {
         editor.apply();
     }
 
+    public void stopMapsNavigation() {
+        superuserManager.asyncExecute(
+                "am stopservice " +
+                "-n com.google.android.apps.maps/" +
+                        "com.google.android.apps.gmm.navigation.service.base.NavigationService");
+    }
+
     public void runStartRoutine() {
-        Log.v(TAG, "Running start routine");
+        Log.v(TAG, "Running run routine");
         if (PowerUtil.isConnected(context)) {
             if (lastState != START_ROUTINE_RUN) {
                 lastState = START_ROUTINE_RUN;
                 playLastAudioSource();
                 launchBrightnessControllerService();
 
-                registerOnAllAttachedListener(new AllDevicesAttachedListener() {
+                registerOnAllAttachedListener(new OnAllDevicesAttachedListener() {
                     @Override
                     public void onAllAttached() {
                         Log.v(TAG, "All devices attached");
@@ -294,7 +314,7 @@ public class RoutineManager {
                     launchMaps();
                 }
             } else {
-                Log.v(TAG, "Aborting start routine as it has " +
+                Log.v(TAG, "Aborting run routine as it has " +
                         "already been run once while power is connected");
             }
         } else {
@@ -306,9 +326,8 @@ public class RoutineManager {
         Log.v(TAG, "Running stop routine");
         if (lastState == START_ROUTINE_RUN) {
             lastState = STOP_ROUTINE_RUN;
-            stopBlankAudio();
             checkMapsForeground();
-
+            stopMapsNavigation();
         } else {
             Log.v(TAG, "Aborting, stop routine already run");
         }
@@ -343,8 +362,6 @@ public class RoutineManager {
         List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY,
                 time - 1000 * 1000, time);
         // Gets the apps used in the last second
-
-        Log.d(TAG, String.valueOf(appList.size()));
 
         if (appList != null && appList.size() > 0) {
             SortedMap<Long, UsageStats> mySortedMap = new TreeMap<>();
