@@ -1,14 +1,12 @@
 package com.freshollie.headunitcontroller.services;
 
-import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.session.MediaController;
+import android.media.session.MediaSession;
 import android.media.session.MediaSessionManager;
 import android.media.session.PlaybackState;
-import android.os.IBinder;
 import android.util.Log;
 
 import com.freshollie.headunitcontroller.R;
@@ -57,7 +55,7 @@ public class MediaMonitor implements MediaSessionManager.OnActiveSessionsChanged
     public void bindActiveSessionsChangedListener() {
         mediaSessionManager.addOnActiveSessionsChangedListener(
                 this,
-                new ComponentName(context, DrivingModeListenerService.class)
+                new ComponentName(context, MapsListenerService.class)
         );
     }
 
@@ -69,33 +67,36 @@ public class MediaMonitor implements MediaSessionManager.OnActiveSessionsChanged
      */
     @Override
     public void onActiveSessionsChanged(List<MediaController> list) {
-        Log.i(TAG, "found " + list.size() + " controllers");
+        Log.i(TAG, list.size() + " active media controllers");
         checkMediaControllerList(list);
     }
 
     public void checkMediaControllerList(List<MediaController> mediaControllers) {
         for (MediaController mediaController: mediaControllers) {
+            Log.v(TAG, mediaController.getPackageName());
             if (!(mediaController.getPackageName().equals(context.getPackageName()))) {
                 PlaybackState playbackState = mediaController.getPlaybackState();
                 if (playbackState != null) {
                     if (playbackState.getState() == PlaybackState.STATE_PLAYING) {
-                        registerLastPlaybackApp(mediaController);
+                        recordLastPlaybackApp(mediaController);
                     }
+                } else if (mediaController.getPackageName().equals("com.freshollie.radioapp")){
+                    recordLastPlaybackApp(mediaController);
                 }
             }
         }
     }
 
-    public void registerLastPlaybackApp(final MediaController appMediaController) {
+    public void recordLastPlaybackApp(final MediaController appMediaController) {
         if (PowerUtil.isConnected(context.getApplicationContext())) {
             lastMusicPlaybackController = appMediaController;
-            String packageName = null;
+            String packageName = "";
 
             if (appMediaController != null) {
                 appMediaController.registerCallback(new MediaController.Callback() {
                     /**
                      * Register a callback to wait for the music app to stop playing music.
-                     * If it stops playing then we make sure the music app wont be played on start
+                     * If it stops playing then we make sure the music app wont be played on run
                      *
                      * @param state Playback state of the app
                      */
@@ -105,11 +106,11 @@ public class MediaMonitor implements MediaSessionManager.OnActiveSessionsChanged
                         appMediaController.unregisterCallback(this);
 
                         if (state.getState() == PlaybackState.STATE_PLAYING) {
-                            registerLastPlaybackApp(appMediaController);
+                            recordLastPlaybackApp(appMediaController);
                         } else {
                             // Check if the current last playback app is this app
                             if (lastMusicPlaybackController == appMediaController) {
-                                registerLastPlaybackApp(null);
+                                recordLastPlaybackApp(null);
                             }
                         }
                     }
@@ -117,11 +118,24 @@ public class MediaMonitor implements MediaSessionManager.OnActiveSessionsChanged
                 packageName = appMediaController.getPackageName();
             }
 
-            Log.v(TAG, "Registering last playback app " + String.valueOf(packageName));
+            if (!packageName.equals(
+                    sharedPreferences.getString(
+                            context.getString(R.string.PLAYING_AUDIO_APP_KEY),
+                            ""))
+                    ) {
 
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString(context.getString(R.string.PLAYING_AUDIO_APP_KEY), packageName);
-            editor.apply();
+                String outputPackageName = packageName;
+
+                if (outputPackageName.isEmpty()){
+                    outputPackageName = null;
+                }
+
+                Log.v(TAG, "Recording last playback app " + String.valueOf(outputPackageName));
+
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString(context.getString(R.string.PLAYING_AUDIO_APP_KEY), packageName);
+                editor.apply();
+            }
         }
     }
 

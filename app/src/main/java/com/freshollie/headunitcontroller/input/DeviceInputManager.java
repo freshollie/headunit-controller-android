@@ -4,11 +4,14 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.inputmethodservice.Keyboard;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.KeyEvent;
 
 import com.freshollie.headunitcontroller.utils.SuperuserManager;
 import com.freshollie.shuttlexpressdriver.Driver;
@@ -110,7 +113,7 @@ public class DeviceInputManager {
         inputDevice = driver.getDevice();
     }
 
-    public void start() {
+    public void run() {
         if (!inputDevice.isConnected()) {
             Log.v(TAG, "Starting driver");
             driver.start();
@@ -203,8 +206,7 @@ public class DeviceInputManager {
 
     public void sendKeyEvent(int keyCode) {
         Log.v(TAG, "Sending key, " + String.valueOf(keyCode));
-        SuperuserManager.getInstance().asyncExecute("input keyevent "+ String.valueOf(keyCode));
+        SuperuserManager.getInstance().asyncExecute("input keyevent " + String.valueOf(keyCode));
         context.sendBroadcast(new Intent(ACTION_SEND_KEYEVENT).putExtra("keyCode", keyCode));
-
     }
 }

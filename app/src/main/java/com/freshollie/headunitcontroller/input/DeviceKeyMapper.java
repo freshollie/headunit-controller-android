@@ -11,8 +11,8 @@ import com.freshollie.shuttlexpressdriver.ShuttleXpressDevice;
  */
 
 public class DeviceKeyMapper {
-    SharedPreferences sharedPreferences;
-    Context context;
+    private SharedPreferences sharedPreferences;
+    private Context context;
 
     public DeviceKeyMapper(Context appContext) {
         sharedPreferences = appContext.getSharedPreferences(

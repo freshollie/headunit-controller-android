@@ -16,7 +16,7 @@ public class SuperuserManager {
     private DataOutputStream shellInput;
     private Boolean permission = false;
 
-    public static int MAX_THREADS = 20;
+    public static int MAX_THREADS = 10;
 
     public static String TAG = "SuperuserManager";
 
