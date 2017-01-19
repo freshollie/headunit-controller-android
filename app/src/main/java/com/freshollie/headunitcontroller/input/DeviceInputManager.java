@@ -56,9 +56,6 @@ public class DeviceInputManager {
 
                 }
 
-                /**
-                 * When the device disconnects we might as well close this service
-                 */
                 @Override
                 public void onDisconnected() {
 
