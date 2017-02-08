@@ -7,6 +7,7 @@ import android.media.session.MediaController;
 import android.media.session.MediaSession;
 import android.media.session.MediaSessionManager;
 import android.media.session.PlaybackState;
+import android.os.Handler;
 import android.util.Log;
 
 import com.freshollie.headunitcontroller.R;
@@ -29,6 +30,14 @@ public class MediaMonitor implements MediaSessionManager.OnActiveSessionsChanged
 
     private SharedPreferences sharedPreferences;
 
+    private Handler mainHandler;
+    private Runnable setLastPlaybackNullRunnable = new Runnable() {
+        @Override
+        public void run() {
+            recordLastPlaybackApp(null);
+        }
+    };
+
     private Context context;
 
     public MediaMonitor(Context serviceContext) {
@@ -42,6 +51,7 @@ public class MediaMonitor implements MediaSessionManager.OnActiveSessionsChanged
                 );
 
         mediaSessionManager = (MediaSessionManager) context.getSystemService(Context.MEDIA_SESSION_SERVICE);
+        mainHandler = new Handler(context.getMainLooper());
     }
 
     public void start() {
@@ -89,6 +99,8 @@ public class MediaMonitor implements MediaSessionManager.OnActiveSessionsChanged
 
     public void recordLastPlaybackApp(final MediaController appMediaController) {
         if (PowerUtil.isConnected(context.getApplicationContext())) {
+            mainHandler.removeCallbacks(setLastPlaybackNullRunnable);
+
             lastMusicPlaybackController = appMediaController;
             String packageName = "";
 
@@ -105,12 +117,13 @@ public class MediaMonitor implements MediaSessionManager.OnActiveSessionsChanged
                         super.onPlaybackStateChanged(state);
                         appMediaController.unregisterCallback(this);
 
-                        if (state.getState() == PlaybackState.STATE_PLAYING) {
-                            recordLastPlaybackApp(appMediaController);
+                        if (state.getState() != PlaybackState.STATE_PLAYING) {
+                            mainHandler.removeCallbacks(setLastPlaybackNullRunnable);
+                            mainHandler.postDelayed(setLastPlaybackNullRunnable, 2000);
                         } else {
                             // Check if the current last playback app is this app
                             if (lastMusicPlaybackController == appMediaController) {
-                                recordLastPlaybackApp(null);
+
                             }
                         }
                     }
