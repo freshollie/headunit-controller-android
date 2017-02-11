@@ -84,7 +84,7 @@ public class MainService extends Service {
         keyMapper.setKeyAction(
                 ShuttleXpressDevice.KeyCodes.BUTTON_1,
                 DeviceInputManager.ACTION_LAUNCH_APP,
-                "com.freshollie.radioapp"
+                "com.freshollie.monkeyboarddabradio"
         );
 
         keyMapper.setKeyAction(
