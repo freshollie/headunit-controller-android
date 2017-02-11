@@ -177,6 +177,7 @@ public class RoutineManager {
                         }
                     });
                 }
+                break;
             default:
                 /*
                  * Default method is to send a playpause key to that app.

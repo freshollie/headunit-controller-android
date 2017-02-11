@@ -58,7 +58,6 @@ public class DeviceInputManager {
 
                 @Override
                 public void onDisconnected() {
-
                     stop();
                 }
             };
