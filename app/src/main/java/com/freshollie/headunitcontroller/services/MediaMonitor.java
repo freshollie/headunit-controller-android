@@ -4,7 +4,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.session.MediaController;
-import android.media.session.MediaSession;
 import android.media.session.MediaSessionManager;
 import android.media.session.PlaybackState;
 import android.os.Handler;
@@ -14,6 +13,7 @@ import com.freshollie.headunitcontroller.R;
 import com.freshollie.headunitcontroller.utils.NotificationHandler;
 import com.freshollie.headunitcontroller.utils.PowerUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,8 +23,13 @@ import java.util.List;
 public class MediaMonitor implements MediaSessionManager.OnActiveSessionsChangedListener{
 
     public String TAG = this.getClass().getSimpleName();
-    private MediaController lastMusicPlaybackController;
     private MediaSessionManager mediaSessionManager;
+
+    private String mainPlaybackController = "";
+
+    // Used to keep track of the currently playing media controllers
+    // With the aim of the controller at the front being the current controller
+    private ArrayList<String> playingControllersQueue = new ArrayList<>();
 
     private NotificationHandler notificationHandler;
 
@@ -34,7 +39,7 @@ public class MediaMonitor implements MediaSessionManager.OnActiveSessionsChanged
     private Runnable setLastPlaybackNullRunnable = new Runnable() {
         @Override
         public void run() {
-            recordLastPlaybackApp(null);
+            recordActivePlaybackApp(null);
         }
     };
 
@@ -88,48 +93,33 @@ public class MediaMonitor implements MediaSessionManager.OnActiveSessionsChanged
                 PlaybackState playbackState = mediaController.getPlaybackState();
                 if (playbackState != null) {
                     if (playbackState.getState() == PlaybackState.STATE_PLAYING) {
-                        recordLastPlaybackApp(mediaController);
+                        recordActivePlaybackApp(mediaController);
                     }
                 } else if (mediaController.getPackageName().equals("com.freshollie.radioapp")){
-                    recordLastPlaybackApp(mediaController);
+                    recordActivePlaybackApp(mediaController);
                 }
             }
         }
     }
 
-    public void recordLastPlaybackApp(final MediaController appMediaController) {
+    /**
+     * We know that the active media controllers have changed, so
+     * check which ones in the list are still active.
+     *
+     * Then after a delay, record the first to a list
+     */
+    public void onActiveControllerPlaybackStopped(String controllerPackage) {
+        Log.v(TAG, "Playback stopped on: " + controllerPackage);
+        playingControllersQueue.remove(controllerPackage);
+        if (playingControllersQueue.size() < 1) {
+            saveLastPlaybackController("");
+        } else {
+            saveLastPlaybackController(playingControllersQueue.get(0));
+        }
+    }
+
+    public void saveLastPlaybackController(String packageName) {
         if (PowerUtil.isConnected(context.getApplicationContext())) {
-            mainHandler.removeCallbacks(setLastPlaybackNullRunnable);
-
-            lastMusicPlaybackController = appMediaController;
-            String packageName = "";
-
-            if (appMediaController != null) {
-                appMediaController.registerCallback(new MediaController.Callback() {
-                    /**
-                     * Register a callback to wait for the music app to stop playing music.
-                     * If it stops playing then we make sure the music app wont be played on run
-                     *
-                     * @param state Playback state of the app
-                     */
-                    @Override
-                    public void onPlaybackStateChanged(PlaybackState state) {
-                        super.onPlaybackStateChanged(state);
-                        appMediaController.unregisterCallback(this);
-
-                        if (state.getState() != PlaybackState.STATE_PLAYING) {
-                            mainHandler.removeCallbacks(setLastPlaybackNullRunnable);
-                            mainHandler.postDelayed(setLastPlaybackNullRunnable, 2000);
-                        } else {
-                            // Check if the current last playback app is this app
-                            if (lastMusicPlaybackController == appMediaController) {
-
-                            }
-                        }
-                    }
-                });
-                packageName = appMediaController.getPackageName();
-            }
 
             if (!packageName.equals(
                     sharedPreferences.getString(
@@ -139,7 +129,7 @@ public class MediaMonitor implements MediaSessionManager.OnActiveSessionsChanged
 
                 String outputPackageName = packageName;
 
-                if (outputPackageName.isEmpty()){
+                if (outputPackageName.isEmpty()) {
                     outputPackageName = null;
                 }
 
@@ -148,7 +138,54 @@ public class MediaMonitor implements MediaSessionManager.OnActiveSessionsChanged
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString(context.getString(R.string.PLAYING_AUDIO_APP_KEY), packageName);
                 editor.apply();
+
+                mainPlaybackController = packageName;
             }
+        }
+    }
+
+    public void recordActivePlaybackApp(final MediaController playbackMediaController) {
+        if (PowerUtil.isConnected(context.getApplicationContext())) {
+
+            if (!playingControllersQueue.contains(playbackMediaController.getPackageName())) {
+                playingControllersQueue.add(playbackMediaController.getPackageName());
+            }
+            saveLastPlaybackController(playbackMediaController.getPackageName());
+
+            playbackMediaController.registerCallback(new MediaController.Callback() {
+
+                Runnable removeRunnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        onActiveControllerPlaybackStopped(playbackMediaController.getPackageName());
+                    }
+                };
+
+                /**
+                 * Register a callback to wait for the music app to stop playing music.
+                 * If it stops playing then we make sure the music app wont be played on run
+                 *
+                 * @param state Playback state of the app
+                 */
+                @Override
+                public void onPlaybackStateChanged(PlaybackState state) {
+                    super.onPlaybackStateChanged(state);
+
+                    if (state.getState() == PlaybackState.STATE_PLAYING) {
+                        mainHandler.removeCallbacks(removeRunnable);
+                        saveLastPlaybackController(playbackMediaController.getPackageName());
+
+                    } else {
+                        // Because the state is not playing we assume not active
+                        // So remove the callback
+                        playbackMediaController.unregisterCallback(this);
+
+                        // It will be re-added if the active controllers change again
+
+                        mainHandler.postDelayed(removeRunnable, 2000);
+                    }
+                }
+            });
         }
     }
 
