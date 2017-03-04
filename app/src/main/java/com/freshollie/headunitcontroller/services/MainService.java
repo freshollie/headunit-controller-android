@@ -264,6 +264,7 @@ public class MainService extends Service {
         } else {
             if (intent.getAction() != null) {
                 Log.v(TAG, "Has all permissions, running routine");
+                notificationHandler.cancel(NotificationHandler.STATUS_NOTIFICATION_ID);
                 switch(intent.getAction()) {
                     case Intent.ACTION_POWER_CONNECTED:
                         routineManager.onPowerConnected();

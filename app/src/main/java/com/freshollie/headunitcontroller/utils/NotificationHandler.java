@@ -17,8 +17,8 @@ import com.freshollie.headunitcontroller.R;
 
 public class NotificationHandler {
     private Context context;
-    public static int STATUS_NOTIFICATION_ID = 0;
-    public static int SERVICE_NOTIFICATION_ID = 1;
+    public static int STATUS_NOTIFICATION_ID = 1233234;
+    public static int SERVICE_NOTIFICATION_ID = 217234389;
 
     private NotificationCompat.Builder notificationBuilder;
     private NotificationManager notificationManager;
@@ -35,7 +35,7 @@ public class NotificationHandler {
         notificationBuilder = new NotificationCompat.Builder(context.getApplicationContext())
                 .setContentTitle(context.getString(R.string.app_name))
                 .setOngoing(true)
-                .setSmallIcon(R.drawable.ic_tablet_black_24dp)
+                .setSmallIcon(R.drawable.ic_notification)
                 .setContentIntent(
                         PendingIntent.getActivity(
                                 context,
@@ -53,8 +53,8 @@ public class NotificationHandler {
         return SERVICE_NOTIFICATION;
     }
 
-    public void notify(int notificiationId, Notification notification) {
-        notificationManager.notify(notificiationId, notification);
+    public void notify(int notificationId, Notification notification) {
+        notificationManager.notify(notificationId, notification);
     }
 
     public Notification notifyServiceStatus(String status) {
