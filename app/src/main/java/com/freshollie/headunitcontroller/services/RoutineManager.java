@@ -93,7 +93,7 @@ public class RoutineManager {
     public RoutineManager(Context serviceContext) {
         context = serviceContext;
         superuserManager = SuperuserManager.getInstance();
-        Log.v(TAG, "Routine service created");
+        Log.v(TAG, "Created");
         sharedPreferences = context.getSharedPreferences(
                 context.getString(R.string.PREFERENCES_KEY),
                 Context.MODE_PRIVATE
