@@ -24,19 +24,20 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:24.2.1'
     compile project(':ShuttleXpressDriver-Android')
+    compile 'com.android.support:appcompat-v7:24.2.1'
+    compile 'com.android.support:support-v4:24.2.1'
     testCompile 'junit:junit:4.12'
 }
 
 task makeApkDir {
-    doLast{
+    doLast {
         mkdir("/build/app/outputs/apk")
     }
 }
 
-build.finalizedBy{
-    task copyApks(dependsOn: makeApkDir, type: Copy){
+build.finalizedBy {
+    task copyApks(dependsOn: makeApkDir, type: Copy) {
         if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
             from "C:/tmp/${rootProject.name}/${project.name}/app/outputs/apk"
             into "/build/app/outputs/apk"

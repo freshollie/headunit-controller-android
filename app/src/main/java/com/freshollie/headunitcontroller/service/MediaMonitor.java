@@ -1,4 +1,4 @@
-package com.freshollie.headunitcontroller.services;
+package com.freshollie.headunitcontroller.service;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -10,7 +10,6 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.freshollie.headunitcontroller.R;
-import com.freshollie.headunitcontroller.utils.NotificationHandler;
 import com.freshollie.headunitcontroller.utils.PowerUtil;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.freshollie.headunitcontroller.services;
+package com.freshollie.headunitcontroller.service;
 
 import android.app.AppOpsManager;
 import android.app.PendingIntent;
@@ -23,6 +23,8 @@ import com.freshollie.headunitcontroller.utils.PowerUtil;
 import com.freshollie.headunitcontroller.utils.SuperuserManager;
 import com.freshollie.shuttlexpressdriver.ShuttleXpressDevice;
 
+import java.io.IOException;
+
 /**
  * MainService handles main power intents
  * and requesting superuser
@@ -30,6 +32,7 @@ import com.freshollie.shuttlexpressdriver.ShuttleXpressDevice;
 
 public class MainService extends Service {
     public String TAG = this.getClass().getSimpleName();
+
     public static String ACTION_SU_NOT_GRANTED =
             "com.freshollie.headunitcontroller.action.SU_NOT_GRANTED";
 
@@ -54,8 +57,9 @@ public class MainService extends Service {
             Intent startIntent = new Intent(context, MainService.class);
             startIntent.setAction(intent.getAction()); // Let the service know why it was started
 
-            if (intent.getAction().equals(Intent.ACTION_POWER_CONNECTED) && !PowerUtil.isConnected(context)) {
-            } else {
+            // Don't run if power is not actually connected
+            if (!(intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)
+                    && !PowerUtil.isConnected(context))) {
                 context.startService(startIntent);
             }
         }
@@ -167,6 +171,18 @@ public class MainService extends Service {
         routineManager = new RoutineManager(getApplicationContext());
 
         setTestKeyBindings();
+
+
+        String [] args = new String[] {"logcat", "-v", "threadtime",
+                "-f", "/mnt/sdcard/logs/all.log",
+                "-r", Integer.toString(100),
+                "-n", Integer.toString(100)};
+
+        try {
+            Runtime.getRuntime().exec(args);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         startForeground(
                 NotificationHandler.SERVICE_NOTIFICATION_ID,

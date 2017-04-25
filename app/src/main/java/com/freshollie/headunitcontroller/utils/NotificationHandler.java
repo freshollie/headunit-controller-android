@@ -8,8 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 
-import com.freshollie.headunitcontroller.activities.MainActivity;
 import com.freshollie.headunitcontroller.R;
+import com.freshollie.headunitcontroller.activity.SettingsActivity;
 
 /**
  * Created by Freshollie on 14/12/2016.
@@ -40,7 +40,7 @@ public class NotificationHandler {
                         PendingIntent.getActivity(
                                 context,
                                 0,
-                                new Intent(context, MainActivity.class),
+                                new Intent(context, SettingsActivity.class),
                                 PendingIntent.FLAG_UPDATE_CURRENT
                         )
                 );
