@@ -14,11 +14,13 @@ import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.preference.SwitchPreference;
 import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.freshollie.headunitcontroller.R;
@@ -39,6 +41,8 @@ import java.util.List;
  * API Guide</a> for more information on developing a Settings UI.
  */
 public class SettingsActivity extends AppCompatPreferenceActivity {
+
+    private String TAG = SettingsActivity.class.getSimpleName();
 
     private SharedPreferences sharedPreferences;
 
@@ -94,10 +98,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
     };
 
-    /**
-     * Helper method to determine if the device has an extra-large screen. For
-     * example, 10" tablets are extra-large.
-     */
     private static boolean isLargeScreen(Context context) {
         return (context.getResources().getConfiguration().screenLayout
                 & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
@@ -140,8 +140,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 startMainService(Intent.ACTION_POWER_CONNECTED);
             }
         }
-
-        startActivity(new Intent(this, SettingsActivity.class));
     }
 
     /**
@@ -180,7 +178,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         return PreferenceFragment.class.getName().equals(fragmentName)
                 || WakeUpPreferencesFragment.class.getName().equals(fragmentName)
                 || SuspendPreferencesFragment.class.getName().equals(fragmentName)
-                || DebugFragment.class.getName().equals(fragmentName)
+                || DebuggingFragment.class.getName().equals(fragmentName)
                 || InputPreferencesFragment.class.getName().equals(fragmentName);
     }
 
@@ -193,7 +191,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_general);
+            addPreferencesFromResource(R.xml.pref_debug);
             setHasOptionsMenu(true);
 
             // Bind the summaries of EditText/List/Dialog/Ringtone preferences
@@ -224,7 +222,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_general);
+            addPreferencesFromResource(R.xml.pref_debug);
             setHasOptionsMenu(true);
 
             // Bind the summaries of EditText/List/Dialog/Ringtone preferences
@@ -282,19 +280,74 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      * activity is showing a two-pane settings UI.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class DebugFragment extends PreferenceFragment {
+    public static class DebuggingFragment extends PreferenceFragment {
+
+        SwitchPreference debugEnabledToggle;
+        SwitchPreference debugPowerToggle;
+        private String TAG = DebuggingFragment 
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_data_sync);
-            setHasOptionsMenu(true);
+            addPreferencesFromResource(R.xml.pref_debug);
+            setHasOptionsMenu(false);
 
             // Bind the summaries of EditText/List/Dialog/Ringtone preferences
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            bindPreferenceSummaryToValue(findPreference("sync_frequency"));
+
+            debugEnabledToggle = (SwitchPreference) findPreference(getString(R.string.DEBUG_ENABLED_KEY));
+            debugPowerToggle = (SwitchPreference) findPreference(getString(R.string.POWER_ON_DEBUG_KEY));
+
+            bindPreferenceSummaryToValue(debugEnabledToggle);
+            bindPreferenceSummaryToValue(debugPowerToggle);
+            setupToggles();
         }
+
+        public void setupToggles() {
+            Boolean powerOn = debugPowerToggle.isChecked();
+            Boolean debugEnabled = debugEnabledToggle.isChecked();
+
+            debugPowerToggle.setEnabled(debugEnabled);
+
+            debugEnabledToggle.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    boolean switchValue = (boolean) newValue;
+
+                    Log.v(TAG, "Debug enabled: " + String.valueOf(switchValue));
+
+                    if (isChecked) {
+                        if (sharedPreferences.getBoolean(getString(R.string.POWER_ON_DEBUG_KEY), false)){
+                            startMainService(Intent.ACTION_POWER_CONNECTED);
+                        } else {
+                            startMainService(Intent.ACTION_POWER_DISCONNECTED);
+                        }
+                    }
+                });
+
+            powerOnButton.setOnCheckedChangeListener(
+                    new CompoundButton.OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                            Log.v(TAG, "Debug power: " + String.valueOf(isChecked));
+
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putBoolean(getString(R.string.POWER_ON_DEBUG_KEY), isChecked);
+                            editor.apply();
+
+                            if (sharedPreferences.getBoolean(getString(R.string.DEBUG_ENABLED_KEY), false)) {
+                                if (isChecked) {
+                                    startMainService(Intent.ACTION_POWER_CONNECTED);
+                                } else {
+                                    startMainService(Intent.ACTION_POWER_DISCONNECTED);
+                                }
+                            }
+                        }
+                    });
+        }
+        */
 
         @Override
         public boolean onOptionsItemSelected(MenuItem item) {
