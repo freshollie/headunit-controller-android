@@ -102,5 +102,10 @@
 
     <string name="pref_title_vibrate">Vibrate</string>
 
+    <string name="debug_power_on_toggle_title">Debug power test</string>
+    <string name="debug_power_on_toggle_summary">If debugging enabled use this to test if power on and off is working correctly</string>
+    <string name="debug_toggle_summary">Debugging currently %s</string>
+    <string name="debug_toggle_title">Debugging</string>
+
 
 </resources>
