@@ -1,13 +1,15 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
+    <com.freshollie.headunitcontroller.utils.DummyPreference/>
     <SwitchPreference
         android:defaultValue="false"
         android:key="@string/DEBUG_ENABLED_KEY"
-        android:summary="@string/debug_toggle_summary"
+        android:summaryOn="@string/debug_toggle_enabled_summary"
+        android:summaryOff="@string/debug_toggle_disabled_summary"
         android:title="@string/debug_toggle_title"/>
 
     <SwitchPreference
         android:defaultValue="false"
+        android:enabled="false"
         android:key="@string/POWER_ON_DEBUG_KEY"
         android:summary="@string/debug_power_on_toggle_summary"
         android:title="@string/debug_power_on_toggle_title"/>
