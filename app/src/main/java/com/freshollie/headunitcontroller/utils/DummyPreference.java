@@ -8,8 +8,8 @@ import android.view.ViewGroup;
 
 /**
  * Created by freshollie on 26/04/17.
+ * Fixes animations in preference fragments
  */
-
 public class DummyPreference extends Preference {
     public DummyPreference(Context context, AttributeSet attrs) {
         super(context, attrs);

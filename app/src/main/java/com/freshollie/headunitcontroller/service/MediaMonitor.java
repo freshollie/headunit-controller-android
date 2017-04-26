@@ -7,6 +7,7 @@ import android.media.session.MediaController;
 import android.media.session.MediaSessionManager;
 import android.media.session.PlaybackState;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.freshollie.headunitcontroller.R;
@@ -38,11 +39,7 @@ public class MediaMonitor extends MediaController.Callback implements MediaSessi
         Log.v(TAG, "Created");
 
         context = serviceContext;
-        sharedPreferences = context.getApplicationContext()
-                .getSharedPreferences(
-                        context.getString(R.string.PREFERENCES_KEY),
-                        Context.MODE_PRIVATE
-                );
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         mediaSessionManager = (MediaSessionManager) context.getSystemService(Context.MEDIA_SESSION_SERVICE);
         mainHandler = new Handler(context.getMainLooper());

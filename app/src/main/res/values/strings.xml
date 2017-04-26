@@ -3,111 +3,126 @@
 
     <string name="PREFERENCES_KEY">9asdy9a8fnas9hf9qwm9</string>
 
+    <!-- Internal keys !-->
     <string name="PLAYING_AUDIO_APP_KEY">last_audio_app</string>
     <string name="PLAYING_RADIO_KEY">playing_radio</string>
     <string name="DRIVING_MODE_KEY">driving_mode</string>
     <string name="LAUNCH_MAPS_KEY">launch_maps</string>
 
-    <string name="POWER_ON_DEBUG_KEY">power_on_debug</string>
-    <string name="DEBUG_ENABLED_KEY">debug</string>
-    <string name="NUM_DEVICES_KEY">max_devices_key</string>
+    <!-- Settable preference keys !-->
+    <string name="pref_power_on_debug_key">power_on_debug</string>
+    <string name="pref_debug_enabled_key">debug</string>
+    <string name="pref_num_devices_key">max_devices_key</string>
 
-    <string name="KEY_PRESS_EVENT_KEY">key%1$d_press_event_key</string>
-    <string name="KEY_PRESS_EXTRA_DATA_KEY">
+    <string name="pref_key_press_event_key">key%1$d_press_event_key</string>
+    <string name="pref_key_press_extra_data_key">
         key%1$d_press_extra_data_key</string>
 
-    <string name="KEY_HOLD_EVENT_KEY">key%1$d_hold_event_key</string>
-    <string name="KEY_HOLD_EXTRA_DATA_KEY">
+    <string name="pref_key_hold_event_keu">key%1$d_hold_event_key</string>
+    <string name="pref_key_hold_extra_data_key">
         key%1$d_hold_extra_data_key</string>
-    <string name="KEY_HOLD_LENGTH_KEY">key%1$d_hold_length_key</string>
+    <string name="pref_key_hold_length_key">key%1$d_hold_length_key</string>
 
+    <string name="pref_wakelock_key">pref_wakelock</string>
+
+    <string name="pref_play_media_key">pref_play_media</string>
+
+    <string name="pref_wake_up_delay_key">pref_wake_up_delay</string>
+
+    <string name="pref_set_volume_key">pref_set_volume</string>
+
+    <string name="pref_shell_commands_key">pref_shell_commands</string>
+
+    <string name="pref_volume_level_key">pref_volume_level</string>
+
+    <string name="pref_launch_gps_key">pref_launch_gps</string>
+
+    <string name="pref_blank_audio_key">pref_blank_audio</string>
+
+
+
+    <!-- Notification text !-->
     <string name="notify_su_not_granted_closing">Superuser not granted, stopping controller</string>
     <string name="notify_running">Running</string>
     <string name="notify_no_notification_listen_permission">Please enable notification listening in settings</string>
 
     <string name="notify_no_usage_stats_permission">Click here to enable usage monitoring in settings</string>
 
-    <string name="num_devices_input_label">num USB Devices</string>
+
+    <!-- Settings values !-->
     <string name="title_activity_settings">Headunit Controller</string>
 
-    <!-- Strings related to Settings -->
+    <string name="pref_debug_power_on_toggle_title">Debug power test</string>
+    <string name="pref_debug_power_on_toggle_summary">Test if power on and off is working correctly</string>
+    <string name="pref_debug_toggle_summary">Debugging currently %s</string>
+    <string name="pref_debug_toggle_title">Debugging</string>
+    <string name="pref_debug_toggle_disabled_summary">Debug mode is disabled</string>
+    <string name="pref_debug_toggle_enabled_summary">Debug mode is enabled</string>
 
-    <!-- Example General settings -->
-    <string name="pref_header_general">General</string>
 
-    <string name="pref_title_social_recommendations">Enable social recommendations</string>
-    <string name="pref_description_social_recommendations">Recommendations for people to contact
-        based on your message history
-    </string>
+    <string name="pref_general_title">General</string>
+    <string name="pref_wakelock_title">Wakelock</string>
+    <string name="pref_wakelock_summary_on">Controller will keep device awake</string>
+    <string name="pref_wakelock_summary_off">Controller will not keep device awake</string>
 
-    <string name="pref_title_display_name">Display name</string>
-    <string name="pref_default_display_name">John Smith</string>
+    <string name="pref_blank_audio_title">Keep audio active</string>
+    <string name="pref_blank_audio_summary_on">Audio will stay active to reduce noise</string>
+    <string name="pref_blank_audio_summary_off">Audio will not stay active, noise may occur</string>
 
-    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
-    <string-array name="pref_example_list_titles">
-        <item>Always</item>
-        <item>When possible</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_example_list_values">
-        <item>1</item>
-        <item>0</item>
-        <item>-1</item>
-    </string-array>
+    <string name="pref_max_devices_title">Number of devices</string>
+    <string name="pref_max_devices_summary">Number of devices that should be connected to tablet: %s (Wake Up will not launch apps until all these devices are detected)</string>
 
-    <!-- Example settings for Data & Sync -->
-    <string name="pref_header_data_sync">Data &amp; sync</string>
+    <string name="pref_routine_start_options_title">Routine Start Options</string>
 
-    <string name="pref_title_sync_frequency">Sync frequency</string>
-    <string-array name="pref_sync_frequency_titles">
-        <item>15 minutes</item>
-        <item>30 minutes</item>
-        <item>1 hour</item>
-        <item>3 hours</item>
-        <item>6 hours</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_sync_frequency_values">
-        <item>15</item>
-        <item>30</item>
-        <item>60</item>
-        <item>180</item>
-        <item>360</item>
-        <item>-1</item>
-    </string-array>
+    <string name="pref_wake_up_delay_title">Routine delay</string>
+    <string name="pref_wake_up_delay_summary">Will wait %s milliseconds before running routine</string>
 
-    <string-array name="list_preference_entries">
-        <item>Entry 1</item>
-        <item>Entry 2</item>
-        <item>Entry 3</item>
-    </string-array>
+    <string name="pref_media_options_title">Media Options</string>
 
-    <string-array name="list_preference_entry_values">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-    </string-array>
+    <string name="pref_play_media_title">Continue playing media</string>
+    <string name="pref_play_media_summary_on">Will continue playing the last media app</string>
+    <string name="pref_play_media_summary_off">Will not continue playing the last media app</string>
 
-    <string-array name="multi_select_list_preference_default_value" />
+    <string name="pref_device_volume_title">Device Volume</string>
 
-    <string name="pref_title_system_sync_settings">System sync settings</string>
+    <string name="pref_set_volume_title">Set volume</string>
+    <string name="pref_set_volume_summary_on">Will set volume to the desired level on wake up</string>
+    <string name="pref_set_volume_summary_off">Will not set volume to the desired level on wakeup</string>
 
-    <!-- Example settings for Notifications -->
-    <string name="pref_header_notifications">Notifications</string>
+    <string name="pref_volume_level_title">Volume</string>
+    <string name="pref_volume_level_summary">Volume will be set to %s</string>
 
-    <string name="pref_title_new_message_notifications">New message notifications</string>
+    <string name="pref_start_drivers_title">Load Drivers</string>
+    <string name="pref_launch_gps_title">Launch UsbGps Driver</string>
+    <string name="pref_launch_gps_summary_on">UsbGps Driver will be started on wake</string>
+    <string name="pref_launch_gps_summary_off">UsbGps Driver will not be started on wake</string>
 
-    <string name="pref_title_ringtone">Ringtone</string>
-    <string name="pref_ringtone_silent">Silent</string>
+    <string name="pref_shell_commands_title">Shell Commands</string>
+    <string name="pref_shell_commands_summary">Click here to set custom shell commands that will run on wake</string>
 
-    <string name="pref_title_vibrate">Vibrate</string>
+    <string name="pref_suspend_shell_commands_summary">Click here to set custom shell commands that will run on suspend</string>
+    <string name="pref_launch_autobright_key">pref_launch_autobright</string>
+    <string name="pref_launch_autobright_title">Launch AutoBright Service</string>
+    <string name="pref_launch_autobright_summary_on">Controller will start AutoBright in the background if installed</string>
+    <string name="pref_launch_autobright_summary_off">Controller will not start AutoBright</string>
+    <string name="pref_launch_maps_title">Launch Maps Driving Mode</string>
+    <string name="pref_launch_maps_summary_on">Controller will launch maps if it was running before suspend</string>
+    <string name="pref_launch_maps_summary_off">Controller will not launch maps</string>
+    <string name="pref_launch_maps_key">pref_launch_maps</string>
 
-    <string name="debug_power_on_toggle_title">Debug power test</string>
-    <string name="debug_power_on_toggle_summary">Test if power on and off is working correctly</string>
-    <string name="debug_toggle_summary">Debugging currently %s</string>
-    <string name="debug_toggle_title">Debugging</string>
-    <string name="debug_toggle_disabled_summary">Debug mode is disabled</string>
-    <string name="debug_toggle_enabled_summary">Debug mode is enabled</string>
+    <string name="pref_stop_navigation_title">Stop Navigation</string>
+    <string name="pref_stop_navigation_summary_on">Navigation will be stopped on suspend</string>
+    <string name="pref_stop_navigation_summary_off">Navigation will not be stopped on suspend</string>
+    <string name="pref_stop_navigation_key">pref_stop_navigation</string>
+
+    <string name="pref_input_service_enabled_key">pref_input_service_enabled</string>
+    <string name="pref_input_service_enabled_summary_on">Tablet control from shuttle xpress enabled</string>
+    <string name="pref_input_service_enabled_summary_off">Tablet control from shuttle xpress disabled</string>
+
+    <string name="pref_input_service_enabled_title">Shuttle Xpress Input</string>
+    <string name="pref_launch_input_summary">Launch the shuttle xpress input service</string>
+    <string name="pref_launch_input_title">Start input service</string>
+
 
 
 </resources>

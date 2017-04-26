@@ -2,60 +2,102 @@
     <com.freshollie.headunitcontroller.utils.DummyPreference/>
 
     <PreferenceCategory
-        android:title="General" />
+        android:title="@string/pref_general_title" />
     <SwitchPreference
-        android:title="Wakelock"
-        android:summaryOn="Controller will keep device awake"
-        android:summaryOff="Controller will not keep device awake"
-        android:key="pref_wakelock"/>
+        android:title="@string/pref_wakelock_title"
+        android:defaultValue="true"
+        android:summaryOn="@string/pref_wakelock_summary_on"
+        android:summaryOff="@string/pref_wakelock_summary_off"
+        android:key="@string/pref_wakelock_key"/>
 
     <SwitchPreference
-        android:title="Keep audio active"
-        android:summaryOn="Audio will stay active to reduce noise"
-        android:summaryOff="Audio will not stay active, noise may occur"
-        android:key="pref_blank_audio"
+        android:title="@string/pref_launch_autobright_title"
+        android:summaryOn="@string/pref_launch_autobright_summary_on"
+        android:summaryOff="@string/pref_launch_autobright_summary_off"
+        android:key="@string/pref_launch_autobright_key"
+        android:defaultValue="true"
+        />
+
+    <SwitchPreference
+        android:title="@string/pref_launch_maps_title"
+        android:summaryOn="@string/pref_launch_maps_summary_on"
+        android:summaryOff="@string/pref_launch_maps_summary_off"
+        android:key="@string/pref_launch_maps_key"
+        android:defaultValue="true"
+        />
+
+    <SwitchPreference
+        android:title="@string/pref_blank_audio_title"
+        android:defaultValue="true"
+        android:summaryOn="@string/pref_blank_audio_summary_on"
+        android:summaryOff="@string/pref_blank_audio_summary_off"
+        android:key="@string/pref_blank_audio_key"
         />
 
     <ListPreference
-        android:title="Number of devices"
-        android:summary="Devices that should be connected before finishing: %s"
-        android:key="@string/NUM_DEVICES_KEY" />
+        android:title="@string/pref_max_devices_title"
+        android:defaultValue="0"
+        android:summary="@string/pref_max_devices_summary"
+        android:key="@string/pref_num_devices_key" />
+
 
     <PreferenceCategory
-        android:title="Routine Start Options" />
+        android:title="@string/pref_routine_start_options_title" />
 
     <EditTextPreference
-        android:title="Routine delay"
-        android:summary="Will wait %s milliseconds before running routine"
-        android:key="pref_wake_up_delay" />
+        android:title="@string/pref_wake_up_delay_title"
+        android:defaultValue="1000"
+        android:inputType="number"
+        android:summary="@string/pref_wake_up_delay_summary"
+        android:key="@string/pref_wake_up_delay_key" />
 
     <PreferenceCategory
-        android:title="Media Options"
+        android:title="@string/pref_media_options_title"
         />
 
     <SwitchPreference
-        android:title="Continue playing media"
-        android:summaryOn="Will continue playing the last media app"
-        android:summaryOff="Will not continue playing the last media app"
-        android:key="pref_play_media"
-        />
-
-    <PreferenceCategory
-        android:title="Device Volume"
-        />
-
-    <SwitchPreference
-        android:title="Set volume"
+        android:title="@string/pref_play_media_title"
         android:defaultValue="true"
-        android:summaryOn="Will set volume to the desired level on wake up"
-        android:summaryOff="Will not set volume to the desired level on wakeup"
-        android:key="pref_volume_set_enabled"
+        android:summaryOn="@string/pref_play_media_summary_on"
+        android:summaryOff="@string/pref_play_media_summary_off"
+        android:key="@string/pref_play_media_key"
+        />
+
+    <PreferenceCategory
+        android:title="@string/pref_device_volume_title"
+        />
+
+    <SwitchPreference
+        android:title="@string/pref_set_volume_title"
+        android:defaultValue="true"
+        android:summaryOn="@string/pref_set_volume_summary_on"
+        android:summaryOff="@string/pref_set_volume_summary_off"
+        android:key="@string/pref_set_volume_key"
         />
 
     <ListPreference
-        android:title="Volume"
-        android:summary="Volume will set to %s"
-        android:key="pref_volume_level"
+        android:title="@string/pref_volume_level_title"
+        android:defaultValue="13"
+        android:summary="@string/pref_volume_level_summary"
+        android:key="@string/pref_volume_level_key"
         />
+
+    <PreferenceCategory
+        android:title="@string/pref_start_drivers_title"
+        />
+
+    <SwitchPreference
+        android:title="@string/pref_launch_gps_title"
+        android:defaultValue="true"
+        android:summaryOn="@string/pref_launch_gps_summary_on"
+        android:summaryOff="@string/pref_launch_gps_summary_off"
+        android:key="@string/pref_launch_gps_key"
+        />
+
+    <Preference
+        android:title="@string/pref_shell_commands_title"
+        android:summary="@string/pref_shell_commands_summary"
+        />
+
 
 </PreferenceScreen>

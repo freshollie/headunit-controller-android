@@ -1,0 +1,21 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <com.freshollie.headunitcontroller.utils.DummyPreference/>
+
+    <PreferenceCategory
+        android:title="@string/pref_general_title" />
+
+
+    <SwitchPreference
+        android:title="@string/pref_stop_navigation_title"
+        android:summaryOn="@string/pref_stop_navigation_summary_on"
+        android:summaryOff="@string/pref_stop_navigation_summary_off"
+        android:key="@string/pref_stop_navigation_key"
+        android:defaultValue="true"
+        />
+
+    <Preference
+        android:title="@string/pref_shell_commands_title"
+        android:summary="@string/pref_suspend_shell_commands_summary"
+        />
+
+</PreferenceScreen>

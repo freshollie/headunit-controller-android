@@ -1,0 +1,27 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <com.freshollie.headunitcontroller.utils.DummyPreference/>
+
+    <Preference
+        android:title="@string/pref_launch_input_title"
+        android:summary="@string/pref_launch_input_summary"
+        />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/pref_input_service_enabled_key"
+        android:summaryOn="@string/pref_input_service_enabled_summary_on"
+        android:summaryOff="@string/pref_input_service_enabled_summary_off"
+        android:title="@string/pref_input_service_enabled_title"/>
+
+    <PreferenceCategory
+        android:title="Buttons"
+        />
+
+    <PreferenceCategory
+        android:title="Click Wheel"
+        />
+
+    <PreferenceCategory
+        android:title="Ring"
+        />
+</PreferenceScreen>

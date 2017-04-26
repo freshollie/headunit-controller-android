@@ -11,6 +11,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -22,6 +23,8 @@ import android.preference.RingtonePreference;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import com.freshollie.headunitcontroller.R;
 import com.freshollie.headunitcontroller.service.MainService;
@@ -49,82 +52,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
 
     private StatusUtil statusUtil;
 
-    /**
-     * A preference value change listener that updates the preference's summary
-     * to reflect its new value.
-     */
-    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
-        @Override
-        public boolean onPreferenceChange(Preference preference, Object value) {
-            String stringValue = value.toString();
-
-            if (preference instanceof ListPreference) {
-                // For list preferences, look up the correct display value in
-                // the preference's 'entries' list.
-                ListPreference listPreference = (ListPreference) preference;
-                int index = listPreference.findIndexOfValue(stringValue);
-
-                // Set the summary to reflect the new value.
-                preference.setSummary(
-                        index >= 0
-                                ? listPreference.getEntries()[index]
-                                : null);
-
-            } else if (preference instanceof RingtonePreference) {
-                // For ringtone preferences, look up the correct display value
-                // using RingtoneManager.
-                if (TextUtils.isEmpty(stringValue)) {
-                    // Empty values correspond to 'silent' (no ringtone).
-                    preference.setSummary(R.string.pref_ringtone_silent);
-
-                } else {
-                    Ringtone ringtone = RingtoneManager.getRingtone(
-                            preference.getContext(), Uri.parse(stringValue));
-
-                    if (ringtone == null) {
-                        // Clear the summary if there was a lookup error.
-                        preference.setSummary(null);
-                    } else {
-                        // Set the summary to reflect the new ringtone display
-                        // name.
-                        String name = ringtone.getTitle(preference.getContext());
-                        preference.setSummary(name);
-                    }
-                }
-
-            } else {
-                // For all other preferences, set the summary to the value's
-                // simple string representation.
-                preference.setSummary(stringValue);
-            }
-            return true;
-        }
-    };
-
     private static boolean isLargeScreen(Context context) {
         return (context.getResources().getConfiguration().screenLayout
                 & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
-    }
-
-    /**
-     * Binds a preference's summary to its value. More specifically, when the
-     * preference's value is changed, its summary (line of text below the
-     * preference title) is updated to reflect the value. The summary is also
-     * immediately updated upon calling this method. The exact display format is
-     * dependent on the type of preference.
-     *
-     * @see #sBindPreferenceSummaryToValueListener
-     */
-    private static void bindPreferenceSummaryToValue(Preference preference) {
-        // Set the listener to watch for value changes.
-        preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
-
-        // Trigger the listener immediately with the preference's
-        // current value.
-        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
     }
 
     public static void startMainService(Context context, String action) {
@@ -139,7 +69,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
 
         statusUtil = StatusUtil.getInstance();
 
-        if (!sharedPreferences.getBoolean(getString(R.string.DEBUG_ENABLED_KEY), false)) {
+        if (!sharedPreferences.getBoolean(getString(R.string.pref_debug_enabled_key), false)) {
             if (PowerUtil.isConnected(getApplicationContext())) {
                 startMainService(this, Intent.ACTION_POWER_CONNECTED);
             }
@@ -210,22 +140,106 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
                 || InputPreferencesFragment.class.getName().equals(fragmentName);
     }
 
-    /**
-     * This fragment shows general preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class WakeUpPreferencesFragment extends PreferenceFragment {
+
+        ListPreference maxDevicesPreference;
+        EditTextPreference routineDelayPreference;
+        SwitchPreference setVolumeSwitchPreference;
+        ListPreference volumeLevelPreference;
+        Preference shellCommandsPreference;
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_wakeup);
+
             setHasOptionsMenu(true);
 
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
+            maxDevicesPreference = (ListPreference)
+                    findPreference(getString(R.string.pref_num_devices_key));
+
+            routineDelayPreference = (EditTextPreference)
+                    findPreference(getString(R.string.pref_wake_up_delay_key));
+
+            setVolumeSwitchPreference = (SwitchPreference)
+                    findPreference(getString(R.string.pref_set_volume_key));
+
+            volumeLevelPreference = (ListPreference)
+                    findPreference(getString(R.string.pref_volume_level_key));
+
+            shellCommandsPreference = findPreference(getString(R.string.pref_shell_commands_key));
+
+            setupPreferences();
+
+        }
+
+        private void setupPreferences() {
+
+            routineDelayPreference.setSummary(getString(R.string.pref_wake_up_delay_summary,
+                    routineDelayPreference.getText()));
+
+            routineDelayPreference.setOnPreferenceChangeListener(
+                    new Preference.OnPreferenceChangeListener() {
+                        @Override
+                        public boolean onPreferenceChange(Preference preference, Object o) {
+                            preference.setSummary(getString(R.string.pref_wake_up_delay_summary, o));
+
+                            View view = getActivity().getCurrentFocus();
+                            if (view != null) {
+                                InputMethodManager inputManager = (InputMethodManager)
+                                        getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                                inputManager.hideSoftInputFromWindow(view.getWindowToken(),
+                                        InputMethodManager.HIDE_NOT_ALWAYS);
+                            }
+
+                            return true;
+                        }
+                    }
+            );
+
+            String[] numDevicesValues = new String[101];
+
+            for (int i = 0; i < 101; i++) {
+                numDevicesValues[i] = String.valueOf(i);
+            }
+
+            maxDevicesPreference.setEntries(numDevicesValues);
+            maxDevicesPreference.setEntryValues(numDevicesValues);
+
+            setVolumeSwitchPreference.setOnPreferenceChangeListener(
+                    new Preference.OnPreferenceChangeListener() {
+                        @Override
+                        public boolean onPreferenceChange(Preference preference, Object o) {
+                            boolean newValue = (boolean) o;
+                            volumeLevelPreference.setEnabled(newValue);
+
+                            return true;
+                        }
+                    }
+            );
+
+            String[] volumes = new String[17];
+            for (int i = 0; i < 17; i++) {
+                volumes[i] = String.valueOf(i);
+            }
+
+            volumeLevelPreference.setEnabled(setVolumeSwitchPreference.isChecked());
+            volumeLevelPreference.setEntries(volumes);
+            volumeLevelPreference.setEntryValues(volumes);
+
+            volumeLevelPreference.setOnPreferenceChangeListener(
+                    new Preference.OnPreferenceChangeListener() {
+                        @Override
+                        public boolean onPreferenceChange(Preference preference, Object o) {
+                            preference.setSummary(getString(R.string.pref_volume_level_summary, o));
+                            return true;
+                        }
+                    }
+            );
+
+
+
         }
 
         @Override
@@ -248,7 +262,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_debug);
+            addPreferencesFromResource(R.xml.pref_suspend);
             setHasOptionsMenu(true);
 
             // Bind the summaries of EditText/List/Dialog/Ringtone preferences
@@ -278,7 +292,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_notification);
+            addPreferencesFromResource(R.xml.pref_input);
             setHasOptionsMenu(true);
 
             // Bind the summaries of EditText/List/Dialog/Ringtone preferences
@@ -321,14 +335,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
             // updated to reflect the new value, per the Android Design
             // guidelines.
 
-            debugEnabledToggle = (SwitchPreference) findPreference(getString(R.string.DEBUG_ENABLED_KEY));
-            debugPowerToggle = (SwitchPreference) findPreference(getString(R.string.POWER_ON_DEBUG_KEY));
+            debugEnabledToggle = (SwitchPreference) findPreference(getString(R.string.pref_debug_enabled_key));
+            debugPowerToggle = (SwitchPreference) findPreference(getString(R.string.pref_power_on_debug_key));
 
             setupToggles();
         }
 
         public void setupToggles() {
-            final Boolean powerOn = debugPowerToggle.isChecked();
             final Boolean debugEnabled = debugEnabledToggle.isChecked();
 
             debugPowerToggle.setEnabled(debugEnabled);
