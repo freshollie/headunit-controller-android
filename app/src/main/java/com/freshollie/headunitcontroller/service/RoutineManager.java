@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
 
@@ -62,10 +63,10 @@ public class RoutineManager {
                 UsbManager usbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
                 long startTime = SystemClock.currentThreadTimeMillis();
 
-                int allDevices = sharedPreferences.getInt(
-                        context.getString(R.string.NUM_DEVICES_KEY),
-                        0
-                );
+                int allDevices = Integer.valueOf(sharedPreferences.getString(
+                        context.getString(R.string.pref_num_devices_key),
+                        "0"
+                ));
 
                 while (usbManager.getDeviceList().size() < allDevices
                     && (SystemClock.currentThreadTimeMillis() - startTime) < ATTACH_TIMEOUT) {
@@ -95,10 +96,9 @@ public class RoutineManager {
         context = serviceContext;
         superuserManager = SuperuserManager.getInstance();
         Log.v(TAG, "Created");
-        sharedPreferences = context.getSharedPreferences(
-                context.getString(R.string.PREFERENCES_KEY),
-                Context.MODE_PRIVATE
-        );
+
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+
         lastState = STOP_ROUTINE_RUN;
         deviceInputManager = new DeviceInputManager(context);
     }
@@ -137,9 +137,14 @@ public class RoutineManager {
     }
 
     public void raiseVolume() {
-        Log.v(TAG, "Raising system volume");
+        int volume = Integer.valueOf(sharedPreferences.getString(
+                context.getString(R.string.pref_volume_level_key), "13")
+        );
+
+        Log.v(TAG, "Raising system volume to " + volume);
+
         ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE))
-                .setStreamVolume(AudioManager.STREAM_MUSIC, 13, 0);
+                .setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
     }
 
 
@@ -216,8 +221,6 @@ public class RoutineManager {
 
     public void launchGpsService() {
         Log.v(TAG, "Launching GPS service");
-
-        StatusUtil.getInstance().setStatus("WakeUp: Launching GPS");
 
         if (superuserManager.hasPermission()) {
             superuserManager.asyncExecute(
@@ -299,8 +302,18 @@ public class RoutineManager {
         if (PowerUtil.isConnected(context)) {
             if (lastState != START_ROUTINE_RUN) {
                 lastState = START_ROUTINE_RUN;
-                playLastAudioSource();
-                launchBrightnessControllerService();
+
+                if (sharedPreferences.getBoolean(
+                        context.getString(R.string.pref_play_media_key), true)) {
+                    StatusUtil.getInstance().setStatus("WakeUp: playing last media");
+                    playLastAudioSource();
+                }
+
+                if (sharedPreferences.getBoolean(
+                        context.getString(R.string.pref_launch_autobright_key), true)) {
+                    StatusUtil.getInstance().setStatus("WakeUp: Starting Autobright");
+                    launchBrightnessControllerService();
+                }
 
                 StatusUtil.getInstance().setStatus("WakeUp: Waiting for devices");
 
@@ -309,10 +322,18 @@ public class RoutineManager {
                     public void onAllAttached() {
                         Log.v(TAG, "All devices attached");
                         StatusUtil.getInstance().setStatus("WakeUp: Devices attached");
-                        launchGpsService();
 
-                        StatusUtil.getInstance().setStatus("WakeUp: Starting Input");
-                        startInputService();
+                        if (sharedPreferences.getBoolean(
+                                context.getString(R.string.pref_launch_gps_key), false)) {
+                            StatusUtil.getInstance().setStatus("WakeUp: Launching GPS");
+                            launchGpsService();
+                        }
+
+                        if (sharedPreferences.getBoolean(
+                                context.getString(R.string.pref_input_service_enabled_key), true)) {
+                            StatusUtil.getInstance().setStatus("WakeUp: Starting Input");
+                            startInputService();
+                        }
 
                         Log.v(TAG, "Wakeup routine complete");
                         StatusUtil.getInstance().setStatus("WakeUp: Done");
@@ -326,7 +347,9 @@ public class RoutineManager {
                 });
 
                 if (!sharedPreferences.getBoolean(
-                        context.getString(R.string.DEBUG_ENABLED_KEY), true)) {
+                        context.getString(R.string.pref_debug_enabled_key), true) &&
+                        sharedPreferences.getBoolean(
+                                context.getString(R.string.pref_set_volume_key), true)) {
                     Log.v(TAG, "Setting Volume");
 
                     StatusUtil.getInstance().setStatus("WakeUp: Setting Volume");
@@ -336,7 +359,9 @@ public class RoutineManager {
                 if (sharedPreferences.getBoolean(
                         context.getString(R.string.LAUNCH_MAPS_KEY), false) &&
                         sharedPreferences.getBoolean(
-                                context.getString(R.string.DRIVING_MODE_KEY), false)) {
+                                context.getString(R.string.DRIVING_MODE_KEY), false) &&
+                        sharedPreferences.getBoolean(
+                                context.getString(R.string.pref_launch_maps_key), true)) {
 
                     Log.v(TAG, "Launching maps");
                     StatusUtil.getInstance().setStatus("WakeUp: Launching Maps");
@@ -347,9 +372,10 @@ public class RoutineManager {
                 Log.v(TAG, "Aborting run routine as it has " +
                         "already been run once while power is connected");
 
-                StatusUtil.getInstance().setStatus("WakeUp: Aborting");
+                StatusUtil.getInstance().setStatus("WakeUp: Aborting, already run");
             }
         } else {
+            StatusUtil.getInstance().setStatus("WakeUp: Aborting, no power");
             Log.v(TAG, "Power no longer connected, aborting");
         }
     }
@@ -363,25 +389,38 @@ public class RoutineManager {
             StatusUtil.getInstance().setStatus("Suspend");
 
             checkMapsForeground();
-            stopMapsNavigation();
+
+            if (sharedPreferences.getBoolean(context.getString(R.string.pref_stop_navigation_key), true)) {
+                StatusUtil.getInstance().setStatus("Stopping navigation service");
+                stopMapsNavigation();
+            }
 
             StatusUtil.getInstance().setStatus("Suspend Complete");
         } else {
-            StatusUtil.getInstance().setStatus("Suspend: Aborting");
+            StatusUtil.getInstance().setStatus("Suspend: Aborting, already run");
             Log.v(TAG, "Aborting, stop routine already run");
         }
 
     }
 
     public void onPowerConnected() {
-        startBlankAudio();
-        acquireWakeLock();
 
-        StatusUtil.getInstance().setStatus("Blank audio and wakelock acquired");
+        if (sharedPreferences.getBoolean(context.getString(R.string.pref_blank_audio_key), true)) {
+            StatusUtil.getInstance().setStatus("Starting blank audio");
+            startBlankAudio();
+        }
 
-        int delay = 1000; //milliseconds
+        if (sharedPreferences.getBoolean(context.getString(R.string.pref_wakelock_key), true)) {
+            StatusUtil.getInstance().setStatus("Acquiring wakelock");
+            acquireWakeLock();
+        }
 
-        StatusUtil.getInstance().setStatus("WakeUp: Wait 1 second");
+        int delay = Integer.valueOf(
+                sharedPreferences.getString(context.getString(R.string.pref_wake_up_delay_key),
+                        "1000")
+        );
+
+        StatusUtil.getInstance().setStatus("WakeUp: Waiting " + delay + "ms");
 
         new Handler(context.getMainLooper()).postDelayed(new Runnable() {
             public void run() {
@@ -393,7 +432,7 @@ public class RoutineManager {
     public void onPowerDisconnected() {
         StatusUtil.getInstance().setStatus("Power disconnected");
 
-        StatusUtil.getInstance().setStatus("Stopping Audio");
+        StatusUtil.getInstance().setStatus("Stopping blank audio");
         stopBlankAudio();
 
         StatusUtil.getInstance().setStatus("Release wakelock");

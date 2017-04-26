@@ -2,6 +2,7 @@ package com.freshollie.headunitcontroller.input;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import com.freshollie.headunitcontroller.R;
 import com.freshollie.shuttlexpressdriver.ShuttleXpressDevice;
@@ -15,10 +16,7 @@ public class DeviceKeyMapper {
     private Context context;
 
     public DeviceKeyMapper(Context appContext) {
-        sharedPreferences = appContext.getSharedPreferences(
-                appContext.getString(R.string.PREFERENCES_KEY),
-                Context.MODE_PRIVATE
-        );
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(appContext);
 
         context = appContext;
     }
@@ -27,22 +25,22 @@ public class DeviceKeyMapper {
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         if (!hold) {
-            editor.putString(context.getString(R.string.KEY_PRESS_EVENT_KEY, id),
+            editor.putString(context.getString(R.string.pref_key_press_event_key, id),
                     action);
 
-            editor.putString(context.getString(R.string.KEY_PRESS_EXTRA_DATA_KEY, id),
+            editor.putString(context.getString(R.string.pref_key_press_extra_data_key, id),
                     extra);
 
 
         } else {
-            editor.putString(context.getString(R.string.KEY_HOLD_EVENT_KEY, id),
+            editor.putString(context.getString(R.string.pref_key_hold_event_keu, id),
                     action);
 
-            editor.putString(context.getString(R.string.KEY_HOLD_EXTRA_DATA_KEY, id),
+            editor.putString(context.getString(R.string.pref_key_hold_extra_data_key, id),
                     extra);
 
             editor.putLong(
-                    context.getString(R.string.KEY_HOLD_LENGTH_KEY, id),
+                    context.getString(R.string.pref_key_hold_length_key, id),
                     holdLength);
         }
         editor.apply();
@@ -63,12 +61,12 @@ public class DeviceKeyMapper {
     public String[] getKeyPressAction(int id) {
         return new String[]{
                 sharedPreferences.getString(
-                        context.getString(R.string.KEY_PRESS_EVENT_KEY, id),
+                        context.getString(R.string.pref_key_press_event_key, id),
                         null
                 ),
 
                 sharedPreferences.getString(
-                        context.getString(R.string.KEY_PRESS_EXTRA_DATA_KEY, id),
+                        context.getString(R.string.pref_key_press_extra_data_key, id),
                         null
                 )
         };
@@ -77,19 +75,19 @@ public class DeviceKeyMapper {
     public String[] getKeyHoldAction(int id) {
         return new String[]{
                 sharedPreferences.getString(
-                        context.getString(R.string.KEY_HOLD_EVENT_KEY, id),
+                        context.getString(R.string.pref_key_hold_event_keu, id),
                         null
                 ),
 
                 sharedPreferences.getString(
-                        context.getString(R.string.KEY_HOLD_EXTRA_DATA_KEY, id),
+                        context.getString(R.string.pref_key_hold_extra_data_key, id),
                         null
                 )
         };
     }
 
     public long getKeyHoldDelay(int id) {
-        return sharedPreferences.getLong(context.getString(R.string.KEY_HOLD_LENGTH_KEY, id), 0);
+        return sharedPreferences.getLong(context.getString(R.string.pref_key_hold_length_key, id), 0);
     }
 
     public void clear(int key) {

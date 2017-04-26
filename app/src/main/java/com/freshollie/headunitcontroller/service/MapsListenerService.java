@@ -3,6 +3,7 @@ package com.freshollie.headunitcontroller.service;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
@@ -18,8 +19,7 @@ public class MapsListenerService extends NotificationListenerService {
     @Override
     public void onCreate() {
         super.onCreate();
-        sharedPreferences =
-                getSharedPreferences(getString(R.string.PREFERENCES_KEY), Context.MODE_PRIVATE);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         Log.v(TAG, "Created");
     }
 
