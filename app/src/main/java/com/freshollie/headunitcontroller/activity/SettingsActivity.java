@@ -26,6 +26,7 @@ import android.view.MenuItem;
 import com.freshollie.headunitcontroller.R;
 import com.freshollie.headunitcontroller.service.MainService;
 import com.freshollie.headunitcontroller.utils.PowerUtil;
+import com.freshollie.headunitcontroller.utils.StatusUtil;
 
 import java.util.List;
 
@@ -40,11 +41,13 @@ import java.util.List;
  * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
  * API Guide</a> for more information on developing a Settings UI.
  */
-public class SettingsActivity extends AppCompatPreferenceActivity {
+public class SettingsActivity extends AppCompatPreferenceActivity implements StatusUtil.OnStatusChangeListener {
 
     private String TAG = SettingsActivity.class.getSimpleName();
 
     private SharedPreferences sharedPreferences;
+
+    private StatusUtil statusUtil;
 
     /**
      * A preference value change listener that updates the preference's summary
@@ -124,33 +127,58 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                         .getString(preference.getKey(), ""));
     }
 
-    public void startMainService(String action) {
-        startService(new Intent(getApplicationContext(), MainService.class).setAction(action));
+    public static void startMainService(Context context, String action) {
+        context.startService(new Intent(context, MainService.class).setAction(action));
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setupActionBar();
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
+        statusUtil = StatusUtil.getInstance();
+
         if (!sharedPreferences.getBoolean(getString(R.string.DEBUG_ENABLED_KEY), false)) {
             if (PowerUtil.isConnected(getApplicationContext())) {
-                startMainService(Intent.ACTION_POWER_CONNECTED);
+                startMainService(this, Intent.ACTION_POWER_CONNECTED);
             }
         }
     }
 
-    /**
-     * Set up the {@link android.app.ActionBar}, if the API is available.
-     */
-    private void setupActionBar() {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            // Show the Up button in the action bar.
-            actionBar.setTitle("Headunit Controller Settings");
-        }
+    @Override
+    public void onResume() {
+        statusUtil.addOnStatusChangeListener(this);
+        onStatusChange(statusUtil.getStatus());
+
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        statusUtil.removeOnStatusChangeListener(this);
+
+        super.onPause();
+    }
+
+    @Override
+    public void onStatusChange(final String newStatus) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ActionBar actionBar = getSupportActionBar();
+                if (actionBar != null) {
+                    String titleString = getString(R.string.title_activity_settings) + " - " +
+                            newStatus;
+
+                    if (newStatus == null) {
+                        titleString = getString(R.string.title_activity_settings);
+                    }
+
+                    actionBar.setTitle(titleString);
+                }
+            }
+        });
     }
 
     /**
@@ -191,15 +219,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_debug);
+            addPreferencesFromResource(R.xml.pref_wakeup);
             setHasOptionsMenu(true);
 
             // Bind the summaries of EditText/List/Dialog/Ringtone preferences
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            bindPreferenceSummaryToValue(findPreference("example_text"));
-            bindPreferenceSummaryToValue(findPreference("example_list"));
         }
 
         @Override
@@ -229,8 +255,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            bindPreferenceSummaryToValue(findPreference("example_text"));
-            bindPreferenceSummaryToValue(findPreference("example_list"));
         }
 
         @Override
@@ -261,7 +285,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
+
         }
 
         @Override
@@ -284,7 +308,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
         SwitchPreference debugEnabledToggle;
         SwitchPreference debugPowerToggle;
-        private String TAG = DebuggingFragment 
+        private String TAG = DebuggingFragment.class.getSimpleName();
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -300,14 +324,12 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             debugEnabledToggle = (SwitchPreference) findPreference(getString(R.string.DEBUG_ENABLED_KEY));
             debugPowerToggle = (SwitchPreference) findPreference(getString(R.string.POWER_ON_DEBUG_KEY));
 
-            bindPreferenceSummaryToValue(debugEnabledToggle);
-            bindPreferenceSummaryToValue(debugPowerToggle);
             setupToggles();
         }
 
         public void setupToggles() {
-            Boolean powerOn = debugPowerToggle.isChecked();
-            Boolean debugEnabled = debugEnabledToggle.isChecked();
+            final Boolean powerOn = debugPowerToggle.isChecked();
+            final Boolean debugEnabled = debugEnabledToggle.isChecked();
 
             debugPowerToggle.setEnabled(debugEnabled);
 
@@ -318,36 +340,40 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
                     Log.v(TAG, "Debug enabled: " + String.valueOf(switchValue));
 
-                    if (isChecked) {
-                        if (sharedPreferences.getBoolean(getString(R.string.POWER_ON_DEBUG_KEY), false)){
-                            startMainService(Intent.ACTION_POWER_CONNECTED);
+                    if (switchValue) {
+                        if (debugPowerToggle.isChecked()) {
+                            startMainService(getActivity(), Intent.ACTION_POWER_CONNECTED);
                         } else {
-                            startMainService(Intent.ACTION_POWER_DISCONNECTED);
+                            startMainService(getActivity(), Intent.ACTION_POWER_DISCONNECTED);
                         }
                     }
-                });
 
-            powerOnButton.setOnCheckedChangeListener(
-                    new CompoundButton.OnCheckedChangeListener() {
-                        @Override
-                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                            Log.v(TAG, "Debug power: " + String.valueOf(isChecked));
+                    debugPowerToggle.setEnabled(switchValue);
 
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putBoolean(getString(R.string.POWER_ON_DEBUG_KEY), isChecked);
-                            editor.apply();
+                    return true;
+                }
+            });
 
-                            if (sharedPreferences.getBoolean(getString(R.string.DEBUG_ENABLED_KEY), false)) {
-                                if (isChecked) {
-                                    startMainService(Intent.ACTION_POWER_CONNECTED);
-                                } else {
-                                    startMainService(Intent.ACTION_POWER_DISCONNECTED);
-                                }
-                            }
+
+            debugPowerToggle.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    boolean switchValue = (boolean) newValue;
+
+                    Log.v(TAG, "Debug power: " + String.valueOf(switchValue));
+
+                    if (debugEnabledToggle.isChecked()){
+                        if (switchValue) {
+                            startMainService(getActivity(), Intent.ACTION_POWER_CONNECTED);
+                        } else {
+                            startMainService(getActivity(), Intent.ACTION_POWER_DISCONNECTED);
                         }
-                    });
+                    }
+
+                    return true;
+                }
+            });
         }
-        */
 
         @Override
         public boolean onOptionsItemSelected(MenuItem item) {

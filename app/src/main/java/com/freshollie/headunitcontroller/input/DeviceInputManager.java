@@ -13,6 +13,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.KeyEvent;
 
+import com.freshollie.headunitcontroller.utils.StatusUtil;
 import com.freshollie.headunitcontroller.utils.SuperuserManager;
 import com.freshollie.shuttlexpressdriver.Driver;
 import com.freshollie.shuttlexpressdriver.ShuttleXpressDevice;
@@ -122,6 +123,10 @@ public class DeviceInputManager {
 
     public void stop() {
         driver.stop();
+
+        Log.v(TAG, "Input driving stopping");
+
+        StatusUtil.getInstance().setStatus("Input driver stopping");
 
         inputDevice.unregisterKeyListener(deviceKeyListener);
         inputDevice.unregisterConnectedListener(connectedListener);

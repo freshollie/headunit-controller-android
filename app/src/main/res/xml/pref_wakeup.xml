@@ -1,0 +1,61 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <com.freshollie.headunitcontroller.utils.DummyPreference/>
+
+    <PreferenceCategory
+        android:title="General" />
+    <SwitchPreference
+        android:title="Wakelock"
+        android:summaryOn="Controller will keep device awake"
+        android:summaryOff="Controller will not keep device awake"
+        android:key="pref_wakelock"/>
+
+    <SwitchPreference
+        android:title="Keep audio active"
+        android:summaryOn="Audio will stay active to reduce noise"
+        android:summaryOff="Audio will not stay active, noise may occur"
+        android:key="pref_blank_audio"
+        />
+
+    <ListPreference
+        android:title="Number of devices"
+        android:summary="Devices that should be connected before finishing: %s"
+        android:key="@string/NUM_DEVICES_KEY" />
+
+    <PreferenceCategory
+        android:title="Routine Start Options" />
+
+    <EditTextPreference
+        android:title="Routine delay"
+        android:summary="Will wait %s milliseconds before running routine"
+        android:key="pref_wake_up_delay" />
+
+    <PreferenceCategory
+        android:title="Media Options"
+        />
+
+    <SwitchPreference
+        android:title="Continue playing media"
+        android:summaryOn="Will continue playing the last media app"
+        android:summaryOff="Will not continue playing the last media app"
+        android:key="pref_play_media"
+        />
+
+    <PreferenceCategory
+        android:title="Device Volume"
+        />
+
+    <SwitchPreference
+        android:title="Set volume"
+        android:defaultValue="true"
+        android:summaryOn="Will set volume to the desired level on wake up"
+        android:summaryOff="Will not set volume to the desired level on wakeup"
+        android:key="pref_volume_set_enabled"
+        />
+
+    <ListPreference
+        android:title="Volume"
+        android:summary="Volume will set to %s"
+        android:key="pref_volume_level"
+        />
+
+</PreferenceScreen>

@@ -11,6 +11,7 @@ import android.util.Log;
 
 import com.freshollie.headunitcontroller.R;
 import com.freshollie.headunitcontroller.utils.PowerUtil;
+import com.freshollie.headunitcontroller.utils.StatusUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +51,8 @@ public class MediaMonitor extends MediaController.Callback implements MediaSessi
     public void start() {
         Log.v(TAG, "Starting");
 
+        StatusUtil.getInstance().setStatus("Starting Media Monitor");
+
         mediaSessionManager.addOnActiveSessionsChangedListener(
                 this,
                 new ComponentName(context, MapsListenerService.class)
@@ -58,6 +61,8 @@ public class MediaMonitor extends MediaController.Callback implements MediaSessi
 
     public void stop() {
         Log.v(TAG, "Stopping");
+
+        StatusUtil.getInstance().setStatus("Stopping Media Monitor");
 
         mediaSessionManager.removeOnActiveSessionsChangedListener(this);
     }
@@ -136,6 +141,8 @@ public class MediaMonitor extends MediaController.Callback implements MediaSessi
                 }
 
                 Log.v(TAG, "Recording last playback app " + String.valueOf(outputPackageName));
+
+                StatusUtil.getInstance().setStatus("Last playback app: " + String.valueOf(outputPackageName));
 
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString(context.getString(R.string.PLAYING_AUDIO_APP_KEY), packageName);

@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.os.Environment;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
@@ -20,6 +21,7 @@ import com.freshollie.headunitcontroller.input.DeviceInputManager;
 import com.freshollie.headunitcontroller.input.DeviceKeyMapper;
 import com.freshollie.headunitcontroller.utils.NotificationHandler;
 import com.freshollie.headunitcontroller.utils.PowerUtil;
+import com.freshollie.headunitcontroller.utils.StatusUtil;
 import com.freshollie.headunitcontroller.utils.SuperuserManager;
 import com.freshollie.shuttlexpressdriver.ShuttleXpressDevice;
 
@@ -174,7 +176,7 @@ public class MainService extends Service {
 
 
         String [] args = new String[] {"logcat", "-v", "threadtime",
-                "-f", "/mnt/sdcard/logs/all.log",
+                "-f", Environment.getExternalStorageDirectory() + "logs/all.log",
                 "-r", Integer.toString(100),
                 "-n", Integer.toString(100)};
 
@@ -244,7 +246,9 @@ public class MainService extends Service {
     @Override
     public int onStartCommand(final Intent intent, final int flags, final int startId) {
         Log.v(TAG, "Received run intent: " + intent.getAction());
+        
         if (intent.getAction().equals(ACTION_SU_NOT_GRANTED)) {
+            StatusUtil.getInstance().setStatus("Superuser not granted");
             stopWithStatus(getString(R.string.notify_su_not_granted_closing));
             return START_NOT_STICKY;
         }
@@ -261,6 +265,8 @@ public class MainService extends Service {
 
         } else if (!superuserManager.hasPermission()) {
             Log.v(TAG, "No superuser permission, requesting");
+
+            StatusUtil.getInstance().setStatus("Requesting SU");
 
             superuserManager.request(new SuperuserManager.permissionListener() {
                 @Override
@@ -280,7 +286,11 @@ public class MainService extends Service {
         } else {
             if (intent.getAction() != null) {
                 Log.v(TAG, "Has all permissions, running routine");
+
+                StatusUtil.getInstance().setStatus("SU permission granted");
+
                 notificationHandler.cancel(NotificationHandler.STATUS_NOTIFICATION_ID);
+
                 switch(intent.getAction()) {
                     case Intent.ACTION_POWER_CONNECTED:
                         routineManager.onPowerConnected();
