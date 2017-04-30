@@ -105,24 +105,26 @@
     <string name="pref_launch_autobright_title">Launch AutoBright Service</string>
     <string name="pref_launch_autobright_summary_on">Controller will start AutoBright in the background if installed</string>
     <string name="pref_launch_autobright_summary_off">Controller will not start AutoBright</string>
+
     <string name="pref_launch_maps_title">Launch Maps Driving Mode</string>
-    <string name="pref_launch_maps_summary_on">Controller will launch maps if it was running before suspend</string>
-    <string name="pref_launch_maps_summary_off">Controller will not launch maps</string>
+    <string name="pref_launch_maps_summary_on">Controller will keep maps driving mode running</string>
+    <string name="pref_launch_maps_summary_off">Controller will not keep maps driving mode running</string>
     <string name="pref_launch_maps_key">pref_launch_maps</string>
 
     <string name="pref_stop_navigation_title">Stop Navigation</string>
-    <string name="pref_stop_navigation_summary_on">Navigation will be stopped on suspend</string>
-    <string name="pref_stop_navigation_summary_off">Navigation will not be stopped on suspend</string>
+    <string name="pref_stop_navigation_summary_on">Navigation will be stopped 5 minutes after suspend</string>
+    <string name="pref_stop_navigation_summary_off">Navigation will not be stopped 5 minutes after suspend</string>
     <string name="pref_stop_navigation_key">pref_stop_navigation</string>
 
     <string name="pref_input_service_enabled_key">pref_input_service_enabled</string>
-    <string name="pref_input_service_enabled_summary_on">Tablet control from shuttle xpress enabled</string>
-    <string name="pref_input_service_enabled_summary_off">Tablet control from shuttle xpress disabled</string>
+    <string name="pref_input_service_enabled_summary_on">Tablet control from a Shuttle Xpress enabled</string>
+    <string name="pref_input_service_enabled_summary_off">Tablet control from a Shuttle Xpress disabled</string>
 
     <string name="pref_input_service_enabled_title">Shuttle Xpress Input</string>
-    <string name="pref_launch_input_summary">Launch the shuttle xpress input service</string>
+    <string name="pref_launch_input_summary">Manually launch the Shuttle Xpress input service</string>
     <string name="pref_launch_input_title">Start input service</string>
 
+    <string name="pref_input_button_x">Button %d</string>
 
 
 </resources>

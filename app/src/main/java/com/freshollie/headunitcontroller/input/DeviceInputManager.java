@@ -13,6 +13,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.KeyEvent;
 
+import com.freshollie.headunitcontroller.R;
 import com.freshollie.headunitcontroller.utils.StatusUtil;
 import com.freshollie.headunitcontroller.utils.SuperuserManager;
 import com.freshollie.shuttlexpressdriver.Driver;
@@ -36,6 +37,14 @@ public class DeviceInputManager {
             "com.freshollie.headunitcontroller.action.GO_HOME";
     public static final String ACTION_LAUNCH_VOICE_ASSIST =
             "com.freshollie.headunitcontroller.action.LAUNCH_VOICE_ASSIST";
+
+    public static final String[] ALL_ACTIONS = new String[] {
+            ACTION_GO_HOME,
+            ACTION_SEND_KEYEVENT,
+            ACTION_LAUNCH_APP,
+            ACTION_LAUNCH_VOICE_ASSIST,
+            ACTION_START_DRIVING_MODE
+    };
 
     private Driver driver;
     private ShuttleXpressDevice inputDevice;
@@ -124,7 +133,7 @@ public class DeviceInputManager {
     public void stop() {
         driver.stop();
 
-        Log.v(TAG, "Input driving stopping");
+        Log.v(TAG, "Input driver stopping");
 
         StatusUtil.getInstance().setStatus("Input driver stopping");
 
@@ -209,5 +218,52 @@ public class DeviceInputManager {
         Log.v(TAG, "Sending key, " + String.valueOf(keyCode));
         SuperuserManager.getInstance().asyncExecute("input keyevent " + String.valueOf(keyCode));
         context.sendBroadcast(new Intent(ACTION_SEND_KEYEVENT).putExtra("keyCode", keyCode));
+    }
+
+    public static String getStringForAction(Context context, String action) {
+        if (action == null) {
+            return "";
+        }
+
+        switch(action) {
+            case DeviceInputManager.ACTION_GO_HOME:
+                return "Home button";
+
+            case DeviceInputManager.ACTION_LAUNCH_APP:
+                return "Launch app";
+
+            case DeviceInputManager.ACTION_LAUNCH_VOICE_ASSIST:
+                return "Launch voice input";
+
+            case DeviceInputManager.ACTION_SEND_KEYEVENT:
+                return "Send key press";
+
+            case DeviceInputManager.ACTION_START_DRIVING_MODE:
+                return "Start maps driving mode";
+        }
+
+        return "";
+    }
+
+    public static String getNameForDeviceKey(Context context, int key) {
+        if (ShuttleXpressDevice.KeyCodes.ALL_BUTTONS.contains(key)) {
+            return context.getString(R.string.pref_input_button_x,
+                    key - ShuttleXpressDevice.KeyCodes.BUTTON_0 + 1);
+        } else {
+            switch (key) {
+                case ShuttleXpressDevice.KeyCodes.RING_LEFT:
+                    return "Ring left";
+                case ShuttleXpressDevice.KeyCodes.RING_MIDDLE:
+                    return "Ring middle";
+                case ShuttleXpressDevice.KeyCodes.RING_RIGHT:
+                    return "Ring right";
+                case ShuttleXpressDevice.KeyCodes.WHEEL_LEFT:
+                    return "Wheel left";
+                case ShuttleXpressDevice.KeyCodes.WHEEL_RIGHT:
+                    return "Wheel right";
+            }
+        }
+
+        return "";
     }
 }

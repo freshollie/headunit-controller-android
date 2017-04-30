@@ -2,7 +2,9 @@ package com.freshollie.headunitcontroller.activity;
 
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -15,23 +17,33 @@ import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
+import android.support.v4.view.KeyEventCompat;
 import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import com.freshollie.headunitcontroller.R;
+import com.freshollie.headunitcontroller.input.DeviceInputManager;
+import com.freshollie.headunitcontroller.input.DeviceKeyMapper;
 import com.freshollie.headunitcontroller.service.MainService;
+import com.freshollie.headunitcontroller.utils.DummyPreference;
 import com.freshollie.headunitcontroller.utils.PowerUtil;
 import com.freshollie.headunitcontroller.utils.StatusUtil;
+import com.freshollie.shuttlexpressdriver.ShuttleXpressDevice;
 
 import java.util.List;
+
+import static com.freshollie.headunitcontroller.service.MainService.ACTION_START_INPUT_SERVICE;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -289,17 +301,197 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class InputPreferencesFragment extends PreferenceFragment {
+
+        DeviceKeyMapper keyMapper;
+
+        Preference[] deviceKeyPreferences = new Preference[ShuttleXpressDevice.KeyCodes.NUM_KEYS];
+
+        Preference defaultsPreference;
+        Preference startInputPreference;
+
+        PreferenceCategory buttonCategory;
+        PreferenceCategory wheelCategory;
+        PreferenceCategory ringCategory;
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_input);
             setHasOptionsMenu(true);
 
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
+            keyMapper = new DeviceKeyMapper(getActivity());
 
+            setupPage();
+        }
+
+        private String getSummaryForKey(int key, boolean hold) {
+            String summary = "";
+
+            String[] actionAndExtra;
+
+            if (!hold) {
+                actionAndExtra = keyMapper.getKeyPressAction(key);
+            } else {
+                actionAndExtra = keyMapper.getKeyHoldAction(key);
+            }
+
+            if (actionAndExtra[0] != null) {
+                if (hold) {
+                    summary += "Hold " + keyMapper.getKeyHoldDelay(key) + "ms: " +
+                            DeviceInputManager.getStringForAction(getActivity(), actionAndExtra[0]);
+                } else {
+                    summary += "Press: " +
+                            DeviceInputManager.getStringForAction(getActivity(), actionAndExtra[0]);
+                }
+
+                if (actionAndExtra[0].equals(DeviceInputManager.ACTION_SEND_KEYEVENT)) {
+                    int keyCode = Integer.parseInt(actionAndExtra[1]);
+                    summary += " -> " + KeyEvent.keyCodeToString(keyCode);
+
+                } else if (actionAndExtra[0].equals(DeviceInputManager.ACTION_LAUNCH_APP)) {
+                    summary += " -> " + actionAndExtra[1];
+
+                }
+            } else {
+                if (hold) {
+                    summary += "Hold: None";
+                } else {
+                    summary += "Press: None";
+                }
+            }
+
+            if (!hold) {
+                summary += "\n";
+                summary += getSummaryForKey(key, true);
+            }
+
+            return summary;
+        }
+
+        public String getSummaryForKey(int key) {
+            return getSummaryForKey(key, false);
+        }
+
+        public void launchKeySetDialog(int key) {
+            KeySetDialog dialog = new KeySetDialog();
+            dialog.setKey(key);
+            dialog.show(getFragmentManager(), "KeysetDialog");
+        }
+
+        private void setupPage() {
+            PreferenceScreen screen = getPreferenceManager().createPreferenceScreen(getActivity());
+
+            DummyPreference d = new DummyPreference(getActivity(), null);
+            screen.addPreference(d);
+
+            SwitchPreference inputEnabledPreference = new SwitchPreference(getActivity());
+            inputEnabledPreference.setTitle(R.string.pref_input_service_enabled_title);
+            inputEnabledPreference.setKey(getString(R.string.pref_input_service_enabled_key));
+            inputEnabledPreference.setSummaryOn(R.string.pref_input_service_enabled_summary_on);
+            inputEnabledPreference.setSummaryOff(R.string.pref_input_service_enabled_summary_off);
+            inputEnabledPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object o) {
+                    boolean value = (boolean) o;
+
+                    for (Preference keyPreference: deviceKeyPreferences) {
+                        keyPreference.setEnabled(value);
+                    }
+
+                    startInputPreference.setEnabled(value);
+                    defaultsPreference.setEnabled(value);
+
+                    buttonCategory.setEnabled(false);
+                    wheelCategory.setEnabled(false);
+                    ringCategory.setEnabled(false);
+
+
+                    return true;
+                }
+            });
+
+            screen.addPreference(inputEnabledPreference);
+
+            startInputPreference = new Preference(getActivity());
+            startInputPreference.setTitle(R.string.pref_launch_input_title);
+            startInputPreference.setSummary(R.string.pref_launch_input_summary);
+            startInputPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    startMainService(getActivity(), ACTION_START_INPUT_SERVICE);
+                    return true;
+                }
+            });
+            startInputPreference.setEnabled(inputEnabledPreference.isChecked());
+            screen.addPreference(startInputPreference);
+
+            defaultsPreference = new Preference(getActivity());
+            defaultsPreference.setTitle("Reset to default");
+            defaultsPreference.setSummary("Reset all input settings to their original values");
+            defaultsPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    new AlertDialog.Builder(getActivity())
+                            .setMessage(
+                                    "Are you sure you want to set the input preferences to default?")
+                            .setPositiveButton(android.R.string.no, null)
+                            .setNegativeButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    keyMapper.setDefaults();
+                                    setupPage();
+                                }
+                            })
+                            .show();
+                    return true;
+                }
+            });
+            defaultsPreference.setEnabled(inputEnabledPreference.isChecked());
+            screen.addPreference(defaultsPreference);
+
+            for (int i = 0; i < deviceKeyPreferences.length; i++) {
+                if (i == 0) {
+                    PreferenceCategory category = new PreferenceCategory(getActivity());
+                    category.setTitle("Buttons");
+                    screen.addPreference(category);
+                    buttonCategory = category;
+                    category.setEnabled(inputEnabledPreference.isChecked());
+
+                } else if (i == ShuttleXpressDevice.KeyCodes.ALL_BUTTONS.size()) {
+                    PreferenceCategory category = new PreferenceCategory(getActivity());
+                    category.setTitle("Ring");
+                    screen.addPreference(category);
+                    ringCategory = category;
+                    category.setEnabled(inputEnabledPreference.isChecked());
+
+                } else if (i == ShuttleXpressDevice.KeyCodes.ALL_KEYS.size() - 2) {
+                    PreferenceCategory category = new PreferenceCategory(getActivity());
+                    category.setTitle("Wheel");
+                    screen.addPreference(category);
+                    wheelCategory = category;
+                    category.setEnabled(inputEnabledPreference.isChecked());
+                }
+
+                final int key = ShuttleXpressDevice.KeyCodes.ALL_KEYS.get(i);
+
+                Preference keyPreference = new Preference(getActivity());
+                keyPreference.setTitle(DeviceInputManager.getNameForDeviceKey(getActivity(), key));
+                keyPreference.setSummary(getSummaryForKey(key));
+                keyPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        launchKeySetDialog(key);
+                        return true;
+                    }
+                });
+
+                keyPreference.setEnabled(inputEnabledPreference.isChecked());
+
+                screen.addPreference(keyPreference);
+
+                deviceKeyPreferences[i] = keyPreference;
+
+                setPreferenceScreen(screen);
+            }
         }
 
         @Override

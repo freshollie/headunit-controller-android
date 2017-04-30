@@ -1,10 +1,11 @@
 package com.freshollie.headunitcontroller.service;
 
-import android.app.usage.UsageStats;
-import android.app.usage.UsageStatsManager;
-import android.content.ComponentName;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.hardware.usb.UsbManager;
 import android.media.AudioManager;
@@ -22,10 +23,9 @@ import com.freshollie.headunitcontroller.input.DeviceInputManager;
 import com.freshollie.headunitcontroller.utils.PowerUtil;
 import com.freshollie.headunitcontroller.utils.StatusUtil;
 import com.freshollie.headunitcontroller.utils.SuperuserManager;
+import com.rvalerio.fgchecker.AppChecker;
 
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import static android.content.Context.ALARM_SERVICE;
 
 /**
  * Created by Freshollie on 14/12/2016.
@@ -34,8 +34,6 @@ import java.util.TreeMap;
 public class RoutineManager {
     public String TAG = this.getClass().getSimpleName();
     public static int ATTACH_TIMEOUT = 3000; // Milliseconds
-
-    public static String CONTEXT_USAGE_STATS_MANAGER = "usagestats";
 
     public static int START_ROUTINE_RUN = 0;
     public static int STOP_ROUTINE_RUN = 1;
@@ -46,6 +44,36 @@ public class RoutineManager {
 
     private SharedPreferences sharedPreferences;
     private MediaPlayer mediaPlayer;
+
+    private Handler mainHandler;
+
+    private boolean navigationStopped = true;
+
+    private String STOP_MAPS_NAVIGATION =
+            "com.freshollie.headunitcontroller.action.STOP_MAPS_NAVIGATION";
+
+    private PendingIntent stopNavigationPendingIntent;
+
+    private BroadcastReceiver stopNavigationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (!PowerUtil.isConnected(context)) {
+                stopMapsNavigation();
+            }
+        }
+    };
+
+    private AppChecker mapsForegroundChecker;
+
+    private Runnable mapsNotForegroundRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (PowerUtil.isConnected(context)) {
+                Log.v(TAG, "Maps not in foreground");
+                setMapsForeground(false);
+            }
+        }
+    };
 
     private PowerManager.WakeLock wakeLock;
 
@@ -74,7 +102,7 @@ public class RoutineManager {
                 }
 
                 if (usbManager.getDeviceList().size() < allDevices) {
-                    new Handler(context.getMainLooper()).post(new Runnable() {
+                    mainHandler.post(new Runnable() {
                         @Override
                         public void run() {
                             listener.onTimedOut();
@@ -82,7 +110,7 @@ public class RoutineManager {
                     });
                 }
 
-                new Handler(context.getMainLooper()).post(new Runnable() {
+                mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         listener.onAllAttached();
@@ -100,7 +128,15 @@ public class RoutineManager {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         lastState = STOP_ROUTINE_RUN;
+
+        mainHandler = new Handler(serviceContext.getMainLooper());
+
         deviceInputManager = new DeviceInputManager(context);
+
+        stopNavigationPendingIntent = PendingIntent.getBroadcast(context, 0,
+                new Intent(STOP_MAPS_NAVIGATION),
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        context.registerReceiver(stopNavigationReceiver, new IntentFilter(STOP_MAPS_NAVIGATION));
     }
 
     public void acquireWakeLock() {
@@ -257,39 +293,76 @@ public class RoutineManager {
         deviceInputManager.run();
     }
 
-    public void launchMaps() {
+    public void startMapsForegroundChecker() {
+        Log.v(TAG, "Starting maps foreground checker");
+        mapsForegroundChecker =
+                new AppChecker()
+                        .when("com.google.android.apps.maps", new AppChecker.Listener() {
+                            @Override
+                            public void onForeground(String process) {
+                                if (PowerUtil.isConnected(context)) {
+                                    if (!sharedPreferences.getBoolean(
+                                            context.getString(R.string.LAUNCH_MAPS_KEY), false)) {
+                                        Log.v(TAG, "Maps in foreground");
+                                        mainHandler.removeCallbacks(mapsNotForegroundRunnable);
+                                        setMapsForeground(true);
+                                    }
+                                }
+                            }
+                        }).other(new AppChecker.Listener() {
+                    @Override
+                    public void onForeground(String process) {
+                        if (PowerUtil.isConnected(context)) {
+                            if (sharedPreferences.getBoolean(context.getString(R.string.LAUNCH_MAPS_KEY), false)) {
+                                mainHandler.postDelayed(mapsNotForegroundRunnable, 3000);
+                            }
+                        }
+                    }
+                });
+        mapsForegroundChecker.start(context);
+    }
+
+    public void stopMapsForegroundChecker() {
+        Log.v(TAG, "Stopping maps foreground checker");
+        if (mapsForegroundChecker != null) {
+            mapsForegroundChecker.stop();
+            mapsForegroundChecker = null;
+        }
+    }
+
+    public void setMapsForeground(boolean foreground) {
+        sharedPreferences
+                .edit()
+                .putBoolean(context.getString(R.string.LAUNCH_MAPS_KEY), foreground)
+                .apply();
+    }
+
+    public void startMapsDrivingMode() {
         context.startActivity(
                 new Intent(Intent.ACTION_VIEW)
                     .setData(Uri.parse("google.navigation:/?free=1&mode=d&entry=fnls"))
-                    .setComponent(
-                            new ComponentName(
-                                    "com.google.android.apps.maps",
-                                    "com.google.android.maps.MapsActivity"
-                            )
-                    )
+                    .setPackage("com.google.android.apps.maps")
                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         );
     }
 
-    public boolean isMapsForeground() {
-        return getForegroundPackageName().equals("com.google.android.apps.maps");
+    public void scheduleStopMapsNavigation() {
+        navigationStopped = false;
+        long time = SystemClock.elapsedRealtime() + 300000;
+
+        AlarmManager aMgr = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+        aMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, time, stopNavigationPendingIntent);
     }
 
-    public void checkMapsForeground() {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        Log.v(TAG, "Checked foreground and found: " + getForegroundPackageName());
-
-        StatusUtil.getInstance().setStatus("Foreground: " + getForegroundPackageName());
-        if (isMapsForeground()) {
-            Log.v(TAG, "Maps in foreground");
-            editor.putBoolean(context.getString(R.string.LAUNCH_MAPS_KEY), true);
-        } else {
-            editor.putBoolean(context.getString(R.string.LAUNCH_MAPS_KEY), false);
-        }
-        editor.apply();
+    public void cancelStopMapsNavigation() {
+        Log.v(TAG, "Cancelling stop navigation alarm");
+        AlarmManager aMgr = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+        aMgr.cancel(stopNavigationPendingIntent);
     }
 
     public void stopMapsNavigation() {
+        Log.v(TAG, "Stopping navigation");
+        navigationStopped = true;
         superuserManager.asyncExecute(
                 "am stopservice " +
                 "-n com.google.android.apps.maps/" +
@@ -356,16 +429,16 @@ public class RoutineManager {
                     raiseVolume();
                 }
 
-                if (sharedPreferences.getBoolean(
-                        context.getString(R.string.LAUNCH_MAPS_KEY), false) &&
+                if (navigationStopped &&
+                        sharedPreferences.getBoolean(
+                                context.getString(R.string.LAUNCH_MAPS_KEY), false) &&
                         sharedPreferences.getBoolean(
                                 context.getString(R.string.DRIVING_MODE_KEY), false) &&
                         sharedPreferences.getBoolean(
                                 context.getString(R.string.pref_launch_maps_key), true)) {
-
                     Log.v(TAG, "Launching maps");
                     StatusUtil.getInstance().setStatus("WakeUp: Launching Maps");
-                    launchMaps();
+                    startMapsDrivingMode();
                 }
 
             } else {
@@ -388,11 +461,9 @@ public class RoutineManager {
 
             StatusUtil.getInstance().setStatus("Suspend");
 
-            checkMapsForeground();
-
             if (sharedPreferences.getBoolean(context.getString(R.string.pref_stop_navigation_key), true)) {
-                StatusUtil.getInstance().setStatus("Stopping navigation service");
-                stopMapsNavigation();
+                StatusUtil.getInstance().setStatus("Scheduling maps to stop");
+                scheduleStopMapsNavigation();
             }
 
             StatusUtil.getInstance().setStatus("Suspend Complete");
@@ -404,7 +475,6 @@ public class RoutineManager {
     }
 
     public void onPowerConnected() {
-
         if (sharedPreferences.getBoolean(context.getString(R.string.pref_blank_audio_key), true)) {
             StatusUtil.getInstance().setStatus("Starting blank audio");
             startBlankAudio();
@@ -415,6 +485,13 @@ public class RoutineManager {
             acquireWakeLock();
         }
 
+        if (sharedPreferences.getBoolean(context.getString(R.string.pref_launch_maps_key), true)) {
+            StatusUtil.getInstance().setStatus("Starting maps foreground checker");
+            startMapsForegroundChecker();
+        }
+
+        cancelStopMapsNavigation();
+
         int delay = Integer.valueOf(
                 sharedPreferences.getString(context.getString(R.string.pref_wake_up_delay_key),
                         "1000")
@@ -422,7 +499,7 @@ public class RoutineManager {
 
         StatusUtil.getInstance().setStatus("WakeUp: Waiting " + delay + "ms");
 
-        new Handler(context.getMainLooper()).postDelayed(new Runnable() {
+        mainHandler.postDelayed(new Runnable() {
             public void run() {
                 runWakeUpRoutine();
             }
@@ -438,39 +515,15 @@ public class RoutineManager {
         StatusUtil.getInstance().setStatus("Release wakelock");
         releaseWakeLock();
 
+        StatusUtil.getInstance().setStatus("Stopping maps foreground checker");
+        stopMapsForegroundChecker();
+
         runSuspendSequence();
+
     }
-
-    public String getForegroundPackageName(){
-        String currentApp = "";
-
-        //noinspection ResourceType
-        UsageStatsManager usm = (UsageStatsManager) context.getSystemService(CONTEXT_USAGE_STATS_MANAGER);
-
-        long time = System.currentTimeMillis();
-        List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY,
-                time - 1000 * 1000, time);
-        // Gets the apps used in the last second
-
-        if (appList != null && appList.size() > 0) {
-            SortedMap<Long, UsageStats> mySortedMap = new TreeMap<>();
-
-            for (UsageStats usageStats : appList) {
-                mySortedMap.put(usageStats.getLastTimeUsed(),
-                        usageStats);
-            }
-
-            if (!mySortedMap.isEmpty()) {
-                // Get the top app
-                currentApp = mySortedMap.get(
-                        mySortedMap.lastKey()).getPackageName();
-            }
-        }
-
-        return currentApp;
-    };
 
     public void stop() {
         deviceInputManager.stop();
+        context.unregisterReceiver(stopNavigationReceiver);
     }
 }

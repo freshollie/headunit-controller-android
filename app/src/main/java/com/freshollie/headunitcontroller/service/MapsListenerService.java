@@ -1,8 +1,8 @@
 package com.freshollie.headunitcontroller.service;
 
 
-import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
@@ -10,16 +10,19 @@ import android.util.Log;
 
 import com.freshollie.headunitcontroller.R;
 import com.freshollie.headunitcontroller.utils.PowerUtil;
+import com.freshollie.headunitcontroller.utils.StatusUtil;
+import com.rvalerio.fgchecker.AppChecker;
 
 public class MapsListenerService extends NotificationListenerService {
-
     private String TAG = this.getClass().getSimpleName();
     private SharedPreferences sharedPreferences;
 
     @Override
     public void onCreate() {
         super.onCreate();
+
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
         Log.v(TAG, "Created");
     }
 
@@ -39,9 +42,7 @@ public class MapsListenerService extends NotificationListenerService {
     }
 
     public void setDrivingMode(Boolean mode) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(getString(R.string.DRIVING_MODE_KEY), mode);
-        editor.apply();
+        sharedPreferences.edit().putBoolean(getString(R.string.DRIVING_MODE_KEY), mode).apply();
     }
 
     @Override
