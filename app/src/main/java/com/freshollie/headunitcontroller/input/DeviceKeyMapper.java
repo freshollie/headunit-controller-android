@@ -3,6 +3,7 @@ package com.freshollie.headunitcontroller.input;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.view.KeyEvent;
 
 import com.freshollie.headunitcontroller.R;
 import com.freshollie.shuttlexpressdriver.ShuttleXpressDevice;
@@ -17,8 +18,99 @@ public class DeviceKeyMapper {
 
     public DeviceKeyMapper(Context appContext) {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(appContext);
-
         context = appContext;
+
+        if (sharedPreferences.getBoolean("firstrun", true)) {
+            sharedPreferences.edit().putBoolean("firstrun", false).apply();
+            setDefaults();
+        }
+
+    }
+
+    /**
+     * Set the test bindings for the input device
+     */
+    public void setDefaults() {
+        clearAll();
+
+        setKeyAction(
+                ShuttleXpressDevice.KeyCodes.BUTTON_0,
+                DeviceInputManager.ACTION_LAUNCH_APP,
+                "com.spotify.music",
+                true,
+                300);
+        setKeyAction(
+                ShuttleXpressDevice.KeyCodes.BUTTON_0,
+                DeviceInputManager.ACTION_SEND_KEYEVENT,
+                String.valueOf(KeyEvent.KEYCODE_ENTER)
+        );
+
+        setKeyAction(
+                ShuttleXpressDevice.KeyCodes.BUTTON_1,
+                DeviceInputManager.ACTION_LAUNCH_APP,
+                "com.freshollie.monkeyboarddabradio"
+        );
+
+        setKeyAction(
+                ShuttleXpressDevice.KeyCodes.BUTTON_2,
+                DeviceInputManager.ACTION_LAUNCH_APP,
+                "au.com.shiftyjelly.pocketcasts"
+        );
+
+        setKeyAction(
+                ShuttleXpressDevice.KeyCodes.BUTTON_3,
+                DeviceInputManager.ACTION_LAUNCH_APP,
+                "com.google.android.apps.maps"
+        );
+
+        setKeyAction(
+                ShuttleXpressDevice.KeyCodes.BUTTON_3,
+                DeviceInputManager.ACTION_START_DRIVING_MODE,
+                true,
+                1000
+        );
+
+        setKeyAction(
+                ShuttleXpressDevice.KeyCodes.BUTTON_4,
+                DeviceInputManager.ACTION_GO_HOME
+        );
+        setKeyAction(
+                ShuttleXpressDevice.KeyCodes.BUTTON_4,
+                DeviceInputManager.ACTION_LAUNCH_VOICE_ASSIST,
+                true,
+                1000
+        );
+
+        setKeyAction(
+                ShuttleXpressDevice.KeyCodes.RING_LEFT,
+                DeviceInputManager.ACTION_SEND_KEYEVENT,
+                String.valueOf(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
+        );
+        setKeyAction(
+                ShuttleXpressDevice.KeyCodes.RING_LEFT,
+                DeviceInputManager.ACTION_SEND_KEYEVENT,
+                String.valueOf(KeyEvent.KEYCODE_BACK),
+                true,
+                1000
+        );
+
+        setKeyAction(
+                ShuttleXpressDevice.KeyCodes.RING_RIGHT,
+                DeviceInputManager.ACTION_SEND_KEYEVENT,
+                String.valueOf(KeyEvent.KEYCODE_MEDIA_NEXT)
+        );
+
+        setKeyAction(
+                ShuttleXpressDevice.KeyCodes.WHEEL_LEFT,
+                DeviceInputManager.ACTION_SEND_KEYEVENT,
+                String.valueOf(KeyEvent.KEYCODE_DPAD_UP)
+        );
+
+        setKeyAction(
+                ShuttleXpressDevice.KeyCodes.WHEEL_RIGHT,
+                DeviceInputManager.ACTION_SEND_KEYEVENT,
+                String.valueOf(KeyEvent.KEYCODE_TAB)
+        );
     }
 
     public void setKeyAction(int id, String action, String extra, boolean hold, long holdLength) {

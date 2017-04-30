@@ -38,6 +38,9 @@ public class MainService extends Service {
     public static String ACTION_SU_NOT_GRANTED =
             "com.freshollie.headunitcontroller.action.SU_NOT_GRANTED";
 
+    public static String ACTION_START_INPUT_SERVICE =
+            "com.freshollie.headunitcontroller.action.ACTION_START_INPUT_SERVICE";
+
     private SuperuserManager superuserManager;
     private NotificationHandler notificationHandler;
 
@@ -67,94 +70,6 @@ public class MainService extends Service {
         }
     }
 
-    /**
-     * Set the test bindings for the input device
-     */
-    public void setTestKeyBindings() {
-        DeviceKeyMapper keyMapper = new DeviceKeyMapper(getApplicationContext());
-
-        keyMapper.clearAll();
-
-        keyMapper.setKeyAction(
-                ShuttleXpressDevice.KeyCodes.BUTTON_0,
-                DeviceInputManager.ACTION_LAUNCH_APP,
-                "com.apple.android.music",
-                true,
-                300);
-        keyMapper.setKeyAction(
-                ShuttleXpressDevice.KeyCodes.BUTTON_0,
-                DeviceInputManager.ACTION_SEND_KEYEVENT,
-                String.valueOf(KeyEvent.KEYCODE_ENTER)
-        );
-
-        keyMapper.setKeyAction(
-                ShuttleXpressDevice.KeyCodes.BUTTON_1,
-                DeviceInputManager.ACTION_LAUNCH_APP,
-                "com.freshollie.monkeyboarddabradio"
-        );
-
-        keyMapper.setKeyAction(
-                ShuttleXpressDevice.KeyCodes.BUTTON_2,
-                DeviceInputManager.ACTION_LAUNCH_APP,
-                "au.com.shiftyjelly.pocketcasts"
-        );
-
-        keyMapper.setKeyAction(
-                ShuttleXpressDevice.KeyCodes.BUTTON_3,
-                DeviceInputManager.ACTION_LAUNCH_APP,
-                "com.google.android.apps.maps"
-        );
-
-        keyMapper.setKeyAction(
-                ShuttleXpressDevice.KeyCodes.BUTTON_3,
-                DeviceInputManager.ACTION_START_DRIVING_MODE,
-                true,
-                1000
-        );
-
-        keyMapper.setKeyAction(
-                ShuttleXpressDevice.KeyCodes.BUTTON_4,
-                DeviceInputManager.ACTION_GO_HOME
-        );
-        keyMapper.setKeyAction(
-                ShuttleXpressDevice.KeyCodes.BUTTON_4,
-                DeviceInputManager.ACTION_LAUNCH_VOICE_ASSIST,
-                true,
-                1000
-        );
-
-        keyMapper.setKeyAction(
-                ShuttleXpressDevice.KeyCodes.RING_LEFT,
-                DeviceInputManager.ACTION_SEND_KEYEVENT,
-                String.valueOf(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
-        );
-        keyMapper.setKeyAction(
-                ShuttleXpressDevice.KeyCodes.RING_LEFT,
-                DeviceInputManager.ACTION_SEND_KEYEVENT,
-                String.valueOf(KeyEvent.KEYCODE_BACK),
-                true,
-                1000
-        );
-
-        keyMapper.setKeyAction(
-                ShuttleXpressDevice.KeyCodes.RING_RIGHT,
-                DeviceInputManager.ACTION_SEND_KEYEVENT,
-                String.valueOf(KeyEvent.KEYCODE_MEDIA_NEXT)
-        );
-
-        keyMapper.setKeyAction(
-                ShuttleXpressDevice.KeyCodes.WHEEL_LEFT,
-                DeviceInputManager.ACTION_SEND_KEYEVENT,
-                String.valueOf(KeyEvent.KEYCODE_DPAD_UP)
-        );
-
-        keyMapper.setKeyAction(
-                ShuttleXpressDevice.KeyCodes.WHEEL_RIGHT,
-                DeviceInputManager.ACTION_SEND_KEYEVENT,
-                String.valueOf(KeyEvent.KEYCODE_TAB)
-        );
-    }
-
     @Override
     public void onCreate() {
         Log.v(TAG, "Started");
@@ -171,8 +86,6 @@ public class MainService extends Service {
         }
 
         routineManager = new RoutineManager(getApplicationContext());
-
-        setTestKeyBindings();
 
 
         String [] args = new String[] {"logcat", "-v", "threadtime",
@@ -285,19 +198,23 @@ public class MainService extends Service {
 
         } else {
             if (intent.getAction() != null) {
-                Log.v(TAG, "Has all permissions, running routine");
+                if (intent.getAction().equals(ACTION_START_INPUT_SERVICE)) {
+                    routineManager.startInputService();
+                } else {
+                    Log.v(TAG, "Has all permissions, running routine");
 
-                StatusUtil.getInstance().setStatus("SU permission granted");
+                    StatusUtil.getInstance().setStatus("SU permission granted");
 
-                notificationHandler.cancel(NotificationHandler.STATUS_NOTIFICATION_ID);
+                    notificationHandler.cancel(NotificationHandler.STATUS_NOTIFICATION_ID);
 
-                switch(intent.getAction()) {
-                    case Intent.ACTION_POWER_CONNECTED:
-                        routineManager.onPowerConnected();
-                        break;
-                    case Intent.ACTION_POWER_DISCONNECTED:
-                        routineManager.onPowerDisconnected();
-                        break;
+                    switch (intent.getAction()) {
+                        case Intent.ACTION_POWER_CONNECTED:
+                            routineManager.onPowerConnected();
+                            break;
+                        case Intent.ACTION_POWER_DISCONNECTED:
+                            routineManager.onPowerDisconnected();
+                            break;
+                    }
                 }
             }
         }
