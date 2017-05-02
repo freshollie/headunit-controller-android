@@ -1,4 +1,4 @@
-package com.freshollie.headunitcontroller.activity;
+package com.freshollie.headunitcontroller.ui;
 
 import android.app.DialogFragment;
 import android.os.Bundle;

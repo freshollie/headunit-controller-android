@@ -9,7 +9,7 @@ import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 
 import com.freshollie.headunitcontroller.R;
-import com.freshollie.headunitcontroller.activity.SettingsActivity;
+import com.freshollie.headunitcontroller.ui.SettingsActivity;
 
 /**
  * Created by Freshollie on 14/12/2016.
