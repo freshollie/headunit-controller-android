@@ -3,27 +3,27 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="com.freshollie.headunitcontroller.activity.SettingsActivity$WakeUpPreferencesFragment"
+        android:fragment="com.freshollie.headunitcontroller.ui.SettingsActivity$WakeUpPreferencesFragment"
         android:icon="@drawable/ic_battery_charging_full_black_24dp"
         android:title="Wakeup" />
     <header
-        android:fragment="com.freshollie.headunitcontroller.activity.SettingsActivity$SuspendPreferencesFragment"
+        android:fragment="com.freshollie.headunitcontroller.ui.SettingsActivity$SuspendPreferencesFragment"
         android:icon="@drawable/ic_battery_full_black_24dp"
         android:title="Suspend"/>
 
     <header
-        android:fragment="com.freshollie.headunitcontroller.activity.SettingsActivity$InputPreferencesFragment"
+        android:fragment="com.freshollie.headunitcontroller.ui.SettingsActivity$InputPreferencesFragment"
         android:icon="@drawable/ic_gamepad_black_24dp"
         android:title="Input" />
 
     <header
-        android:fragment="com.freshollie.headunitcontroller.activity.SettingsActivity$DebuggingFragment"
+        android:fragment="com.freshollie.headunitcontroller.ui.SettingsActivity$DebuggingFragment"
         android:icon="@drawable/ic_info_black_24dp"
         android:title="About"
         />
 
     <header
-        android:fragment="com.freshollie.headunitcontroller.activity.SettingsActivity$DebuggingFragment"
+        android:fragment="com.freshollie.headunitcontroller.ui.SettingsActivity$DebuggingFragment"
         android:icon="@drawable/ic_build_black_24dp"
         android:title="Debugging" />
 
