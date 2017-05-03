@@ -4,14 +4,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.inputmethodservice.Keyboard;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.IBinder;
-import android.os.SystemClock;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.KeyEvent;
 
 import com.freshollie.headunitcontroller.R;
 import com.freshollie.headunitcontroller.utils.StatusUtil;
@@ -27,6 +23,9 @@ public class DeviceInputManager {
 
     public static String TAG = DeviceInputManager.class.getSimpleName();
 
+
+    public static final String ACTION_NONE =
+            "com.freshollie.headunitcontroller.action.NONE";
     public static final String ACTION_LAUNCH_APP =
             "com.freshollie.headunitcontroller.action.LAUNCH_APP";
     public static final String ACTION_SEND_KEYEVENT =
@@ -38,7 +37,8 @@ public class DeviceInputManager {
     public static final String ACTION_LAUNCH_VOICE_ASSIST =
             "com.freshollie.headunitcontroller.action.LAUNCH_VOICE_ASSIST";
 
-    public static final String[] ALL_ACTIONS = new String[] {
+    public static final String[] ACTIONS = new String[] {
+            ACTION_NONE,
             ACTION_GO_HOME,
             ACTION_SEND_KEYEVENT,
             ACTION_LAUNCH_APP,
@@ -83,12 +83,11 @@ public class DeviceInputManager {
                 @Override
                 public void run() {
                     keyHoldRunnables.append(id, null);
-                    String[] actions = keyMapper.getKeyHoldAction(id);
-                    if (actions[0] != null) {
-                        handleActionRequest(actions[0], actions[1]);
+                    DeviceKeyMapper.ActionMap action = keyMapper.getKeyHoldAction(id);
+                    if (action.getActionId() != 0) {
+                        handleActionRequest(action);
                     } else {
-                        actions = keyMapper.getKeyPressAction(id);
-                        handleActionRequest(actions[0], actions[1]);
+                        handleActionRequest(keyMapper.getKeyPressAction(id));
                     }
                 }
             });
@@ -101,8 +100,7 @@ public class DeviceInputManager {
                 mainLoopHandler.removeCallbacks(keyHoldRunnables.get(id));
                 keyHoldRunnables.append(id, null);
 
-                String[] actions = keyMapper.getKeyPressAction(id);
-                handleActionRequest(actions[0], actions[1]);
+                handleActionRequest(keyMapper.getKeyPressAction(id));
             }
         }
     };
@@ -141,7 +139,10 @@ public class DeviceInputManager {
         inputDevice.unregisterConnectedListener(connectedListener);
     }
 
-    public void handleActionRequest(String action, String extra) {
+    public void handleActionRequest(DeviceKeyMapper.ActionMap actionMap) {
+        String action = getActionFromId(actionMap.getActionId());
+        String extra = actionMap.getExtra();
+
         if (action != null) {
             switch (action) {
                 case ACTION_LAUNCH_APP:
@@ -226,23 +227,34 @@ public class DeviceInputManager {
         }
 
         switch(action) {
-            case DeviceInputManager.ACTION_GO_HOME:
+            case ACTION_NONE:
+                return "None";
+
+            case ACTION_GO_HOME:
                 return "Home button";
 
-            case DeviceInputManager.ACTION_LAUNCH_APP:
+            case ACTION_LAUNCH_APP:
                 return "Launch app";
 
-            case DeviceInputManager.ACTION_LAUNCH_VOICE_ASSIST:
+            case ACTION_LAUNCH_VOICE_ASSIST:
                 return "Launch voice input";
 
-            case DeviceInputManager.ACTION_SEND_KEYEVENT:
+            case ACTION_SEND_KEYEVENT:
                 return "Send key press";
 
-            case DeviceInputManager.ACTION_START_DRIVING_MODE:
+            case ACTION_START_DRIVING_MODE:
                 return "Start maps driving mode";
         }
 
         return "";
+    }
+
+    public static String getStringForAction(Context context, int actionId) {
+        if (actionId > -1) {
+            return getStringForAction(context, getActionFromId(actionId));
+        } else {
+            return "";
+        }
     }
 
     public static String getNameForDeviceKey(Context context, int key) {
@@ -265,5 +277,23 @@ public class DeviceInputManager {
         }
 
         return "";
+    }
+
+    public static String getActionFromId(int actionId) {
+        if (actionId > -1) {
+            return ACTIONS[actionId];
+        } else {
+            return ACTION_NONE;
+        }
+    }
+
+    public static int getIdFromAction(String action) {
+        for (int actionId = 0; actionId < ACTIONS.length; actionId++) {
+            if (ACTIONS[actionId] == action) {
+                return actionId;
+            }
+        }
+
+        return 0;
     }
 }

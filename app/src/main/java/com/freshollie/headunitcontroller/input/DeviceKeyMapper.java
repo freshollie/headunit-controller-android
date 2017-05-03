@@ -2,6 +2,7 @@ package com.freshollie.headunitcontroller.input;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 
@@ -15,6 +16,61 @@ import com.freshollie.shuttlexpressdriver.ShuttleXpressDevice;
 public class DeviceKeyMapper {
     private SharedPreferences sharedPreferences;
     private Context context;
+
+    public static class ActionMap {
+        private int actionId;
+        private String extra;
+
+        public ActionMap(int actionId, String extra) {
+            this.actionId = actionId;
+            this.extra = extra;
+        }
+
+        public void setActionId(int actionId) {
+            this.actionId = actionId;
+        }
+
+        public void setExtra(String extra) {
+            this.extra = extra;
+        }
+
+        public String getAction() {
+            return DeviceInputManager.getActionFromId(actionId);
+        }
+        public int getActionId() {
+            return actionId;
+        }
+
+        public String getExtra() {
+            return extra;
+        }
+
+        public String getReadableExtra(Context context) {
+            if (getAction().equals(DeviceInputManager.ACTION_SEND_KEYEVENT)) {
+                int keyCode = Integer.parseInt(getExtra());
+                return KeyEvent.keyCodeToString(keyCode);
+
+            } else if (getAction().equals(DeviceInputManager.ACTION_LAUNCH_APP)) {
+                String packageName = getExtra();
+                PackageManager packageManager= context.getPackageManager();
+                String appName = "";
+                if (!packageName.isEmpty()) {
+                    try {
+                        appName = (String) packageManager.getApplicationLabel(
+                                packageManager.getApplicationInfo(packageName,
+                                        PackageManager.GET_META_DATA)
+                        );
+                    } catch (PackageManager.NameNotFoundException e) {
+                        appName = packageName;
+                    }
+                }
+                return appName;
+
+            } else {
+                return null;
+            }
+        }
+    }
 
     public DeviceKeyMapper(Context appContext) {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(appContext);
@@ -35,60 +91,60 @@ public class DeviceKeyMapper {
 
         setKeyAction(
                 ShuttleXpressDevice.KeyCodes.BUTTON_0,
-                DeviceInputManager.ACTION_LAUNCH_APP,
+                DeviceInputManager.getIdFromAction(DeviceInputManager.ACTION_LAUNCH_APP),
                 "com.spotify.music",
                 true,
                 300);
         setKeyAction(
                 ShuttleXpressDevice.KeyCodes.BUTTON_0,
-                DeviceInputManager.ACTION_SEND_KEYEVENT,
+                DeviceInputManager.getIdFromAction(DeviceInputManager.ACTION_SEND_KEYEVENT),
                 String.valueOf(KeyEvent.KEYCODE_ENTER)
         );
 
         setKeyAction(
                 ShuttleXpressDevice.KeyCodes.BUTTON_1,
-                DeviceInputManager.ACTION_LAUNCH_APP,
+                DeviceInputManager.getIdFromAction(DeviceInputManager.ACTION_LAUNCH_APP),
                 "com.freshollie.monkeyboarddabradio"
         );
 
         setKeyAction(
                 ShuttleXpressDevice.KeyCodes.BUTTON_2,
-                DeviceInputManager.ACTION_LAUNCH_APP,
+                DeviceInputManager.getIdFromAction(DeviceInputManager.ACTION_LAUNCH_APP),
                 "au.com.shiftyjelly.pocketcasts"
         );
 
         setKeyAction(
                 ShuttleXpressDevice.KeyCodes.BUTTON_3,
-                DeviceInputManager.ACTION_LAUNCH_APP,
+                DeviceInputManager.getIdFromAction(DeviceInputManager.ACTION_LAUNCH_APP),
                 "com.google.android.apps.maps"
         );
 
         setKeyAction(
                 ShuttleXpressDevice.KeyCodes.BUTTON_3,
-                DeviceInputManager.ACTION_START_DRIVING_MODE,
+                DeviceInputManager.getIdFromAction(DeviceInputManager.ACTION_START_DRIVING_MODE),
                 true,
                 1000
         );
 
         setKeyAction(
                 ShuttleXpressDevice.KeyCodes.BUTTON_4,
-                DeviceInputManager.ACTION_GO_HOME
+                DeviceInputManager.getIdFromAction(DeviceInputManager.ACTION_GO_HOME)
         );
         setKeyAction(
                 ShuttleXpressDevice.KeyCodes.BUTTON_4,
-                DeviceInputManager.ACTION_LAUNCH_VOICE_ASSIST,
+                DeviceInputManager.getIdFromAction(DeviceInputManager.ACTION_LAUNCH_VOICE_ASSIST),
                 true,
                 1000
         );
 
         setKeyAction(
                 ShuttleXpressDevice.KeyCodes.RING_LEFT,
-                DeviceInputManager.ACTION_SEND_KEYEVENT,
+                DeviceInputManager.getIdFromAction(DeviceInputManager.ACTION_SEND_KEYEVENT),
                 String.valueOf(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
         );
         setKeyAction(
                 ShuttleXpressDevice.KeyCodes.RING_LEFT,
-                DeviceInputManager.ACTION_SEND_KEYEVENT,
+                DeviceInputManager.getIdFromAction(DeviceInputManager.ACTION_SEND_KEYEVENT),
                 String.valueOf(KeyEvent.KEYCODE_BACK),
                 true,
                 1000
@@ -96,95 +152,95 @@ public class DeviceKeyMapper {
 
         setKeyAction(
                 ShuttleXpressDevice.KeyCodes.RING_RIGHT,
-                DeviceInputManager.ACTION_SEND_KEYEVENT,
+                DeviceInputManager.getIdFromAction(DeviceInputManager.ACTION_SEND_KEYEVENT),
                 String.valueOf(KeyEvent.KEYCODE_MEDIA_NEXT)
         );
 
         setKeyAction(
                 ShuttleXpressDevice.KeyCodes.WHEEL_LEFT,
-                DeviceInputManager.ACTION_SEND_KEYEVENT,
+                DeviceInputManager.getIdFromAction(DeviceInputManager.ACTION_SEND_KEYEVENT),
                 String.valueOf(KeyEvent.KEYCODE_DPAD_UP)
         );
 
         setKeyAction(
                 ShuttleXpressDevice.KeyCodes.WHEEL_RIGHT,
-                DeviceInputManager.ACTION_SEND_KEYEVENT,
+                DeviceInputManager.getIdFromAction(DeviceInputManager.ACTION_SEND_KEYEVENT),
                 String.valueOf(KeyEvent.KEYCODE_TAB)
         );
     }
 
-    public void setKeyAction(int id, String action, String extra, boolean hold, long holdLength) {
+    public void setKeyAction(int id, int actionId, String extra, boolean hold, int holdLength) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         if (!hold) {
-            editor.putString(context.getString(R.string.pref_key_press_event_key, id),
-                    action);
+            editor.putInt(context.getString(R.string.pref_key_press_action_key, id),
+                    actionId);
 
             editor.putString(context.getString(R.string.pref_key_press_extra_data_key, id),
                     extra);
 
 
         } else {
-            editor.putString(context.getString(R.string.pref_key_hold_event_keu, id),
-                    action);
+            editor.putInt(context.getString(R.string.pref_key_hold_action_key, id),
+                    actionId);
 
             editor.putString(context.getString(R.string.pref_key_hold_extra_data_key, id),
                     extra);
 
-            editor.putLong(
+            editor.putInt(
                     context.getString(R.string.pref_key_hold_length_key, id),
                     holdLength);
         }
         editor.apply();
     }
 
-    public void setKeyAction(int id, String action, String extra) {
-        setKeyAction(id, action, extra, false, 0);
+    public void setKeyAction(int id, int actionId, String extra) {
+        setKeyAction(id, actionId, extra, false, 0);
     }
 
-    public void setKeyAction(int id, String action, boolean hold, long holdLength) {
-        setKeyAction(id, action, null, hold, holdLength);
+    public void setKeyAction(int id, int actionId, boolean hold, int holdLength) {
+        setKeyAction(id, actionId, null, hold, holdLength);
     }
 
-    public void setKeyAction(int id, String action) {
-        setKeyAction(id, action, null, false, 0);
+    public void setKeyAction(int id, int actionId) {
+        setKeyAction(id, actionId, null, false, 0);
     }
     
-    public String[] getKeyPressAction(int id) {
-        return new String[]{
-                sharedPreferences.getString(
-                        context.getString(R.string.pref_key_press_event_key, id),
-                        null
+    public ActionMap getKeyPressAction(int id) {
+        return new ActionMap(
+                sharedPreferences.getInt(
+                        context.getString(R.string.pref_key_press_action_key, id),
+                        0
                 ),
 
                 sharedPreferences.getString(
                         context.getString(R.string.pref_key_press_extra_data_key, id),
                         null
                 )
-        };
+        );
     }
 
-    public String[] getKeyHoldAction(int id) {
-        return new String[]{
-                sharedPreferences.getString(
-                        context.getString(R.string.pref_key_hold_event_keu, id),
-                        null
+    public ActionMap getKeyHoldAction(int id) {
+        return new ActionMap(
+                sharedPreferences.getInt(
+                        context.getString(R.string.pref_key_hold_action_key, id),
+                        0
                 ),
 
                 sharedPreferences.getString(
                         context.getString(R.string.pref_key_hold_extra_data_key, id),
                         null
                 )
-        };
+        );
     }
 
-    public long getKeyHoldDelay(int id) {
-        return sharedPreferences.getLong(context.getString(R.string.pref_key_hold_length_key, id), 0);
+    public int getKeyHoldDelay(int id) {
+        return sharedPreferences.getInt(context.getString(R.string.pref_key_hold_length_key, id), 0);
     }
 
     public void clear(int key) {
-        setKeyAction(key, null, null);
-        setKeyAction(key, null, null, true, 0);
+        setKeyAction(key, -1, null);
+        setKeyAction(key, -1, null, true, 0);
     }
 
     public void clearAll() {

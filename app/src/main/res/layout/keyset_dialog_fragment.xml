@@ -5,23 +5,17 @@
     android:layout_height="match_parent">
 
     <RelativeLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/activity_horizontal_margin">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Button 1"
-            android:id="@+id/key_title"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+        android:layout_margin="16dp"
+        android:descendantFocusability="beforeDescendants"
+        android:focusableInTouchMode="true">
 
         <TextView
             android:id="@+id/press_title"
-            android:layout_below="@id/key_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
+            android:layout_marginBottom="20dp"
             android:text="Press"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
@@ -30,15 +24,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/press_title"
-            android:layout_marginTop="20dp"
-            android:text="Action: "
-            android:textSize="20dp" />
+            android:text="Action: " />
 
         <Spinner
             android:id="@+id/press_action_spinner"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@id/press_action_label"
+            android:layout_width="200dp"
+            android:layout_height="25dp"
+            android:layout_below="@id/press_title"
             android:layout_marginStart="20dp"
             android:layout_toEndOf="@id/press_action_label"/>
 
@@ -46,19 +38,23 @@
             android:id="@+id/press_extra_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@id/press_action_spinner"
+            android:layout_below="@id/press_title"
+            android:textSize="14sp"
             android:layout_toEndOf="@id/press_action_spinner"
-            android:layout_marginStart="50dp"
-            android:text="Extra: "
-            android:textSize="20dp" />
+            android:layout_marginStart="20dp"
+            android:text="Extra: "/>
 
         <EditText
             android:id="@+id/press_extra_input"
-            android:layout_width="100dp"
+            android:layout_width="350dp"
             android:layout_height="wrap_content"
             android:layout_alignTop="@id/press_extra_label"
+            android:textSize="13sp"
             android:layout_marginStart="20dp"
-            android:layout_toEndOf="@id/press_extra_label"/>
+            android:layout_toEndOf="@id/press_extra_label"
+            android:textIsSelectable="true"
+            android:focusable="false"
+            android:cursorVisible="false"/>
 
         <TextView
             android:id="@+id/hold_title"
@@ -67,6 +63,7 @@
 
             android:layout_below="@id/press_action_label"
             android:layout_marginTop="40dp"
+            android:layout_marginBottom="20dp"
             android:text="Hold"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
@@ -75,16 +72,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/hold_title"
-            android:layout_marginTop="20dp"
-            android:text="Delay (ms): "
-            android:textSize="20dp" />
+            android:layout_marginBottom="30dp"
+            android:text="Delay (ms): "/>
 
         <EditText
-            android:layout_width="100dp"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@id/hold_delay_label"
+            android:layout_below="@id/hold_title"
             android:layout_toEndOf="@id/hold_delay_label"
             android:layout_marginStart="20dp"
+            android:textSize="15sp"
             android:inputType="number"
             android:id="@+id/hold_delay_input"/>
 
@@ -92,17 +89,14 @@
             android:id="@+id/hold_action_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@id/hold_delay_label"
-            android:layout_toEndOf="@id/hold_delay_input"
-            android:layout_marginStart="50dp"
-            android:text="Action: "
-            android:textSize="20dp" />
+            android:layout_below="@id/hold_delay_label"
+            android:text="Action: "/>
 
         <Spinner
             android:id="@+id/hold_action_spinner"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@id/hold_delay_label"
+            android:layout_width="200dp"
+            android:layout_height="25dp"
+            android:layout_below="@id/hold_delay_label"
             android:layout_marginStart="20dp"
             android:layout_toEndOf="@id/hold_action_label"/>
 
@@ -110,19 +104,21 @@
             android:id="@+id/hold_extra_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@id/hold_action_spinner"
+            android:layout_below="@id/hold_delay_label"
             android:layout_toEndOf="@id/hold_action_spinner"
-            android:layout_marginStart="50dp"
-            android:text="Extra: "
-            android:textSize="20dp" />
-
-        <TextView
-            android:id="@+id/hold_extra_input"
-            android:layout_width="100dp"
-            android:text="None"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@id/hold_extra_label"
             android:layout_marginStart="20dp"
-            android:layout_toEndOf="@id/hold_extra_label"/>
+            android:text="Extra: "/>
+
+        <EditText
+            android:id="@+id/hold_extra_input"
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/hold_extra_label"
+            android:layout_marginStart="20dp"
+            android:textSize="12sp"
+            android:focusable="false"
+            android:layout_toEndOf="@id/hold_extra_label"
+            android:textIsSelectable="true"
+            android:cursorVisible="false"/>
     </RelativeLayout>
 </ScrollView>

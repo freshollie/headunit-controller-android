@@ -210,6 +210,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
                 numDevicesValues[i] = String.valueOf(i);
             }
 
+            maxDevicesPreference.setDefaultValue(3);
             maxDevicesPreference.setEntries(numDevicesValues);
             maxDevicesPreference.setEntryValues(numDevicesValues);
 
@@ -314,13 +315,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
 
             keyMapper = new DeviceKeyMapper(getActivity());
 
-            setupPage();
+            makePage();
         }
 
         private String getSummaryForKey(int key, boolean hold) {
             String summary = "";
 
-            String[] actionAndExtra;
+            DeviceKeyMapper.ActionMap actionAndExtra;
 
             if (!hold) {
                 actionAndExtra = keyMapper.getKeyPressAction(key);
@@ -328,23 +329,22 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
                 actionAndExtra = keyMapper.getKeyHoldAction(key);
             }
 
-            if (actionAndExtra[0] != null) {
+            if (actionAndExtra.getActionId() != -1) {
                 if (hold) {
                     summary += "Hold " + keyMapper.getKeyHoldDelay(key) + "ms: " +
-                            DeviceInputManager.getStringForAction(getActivity(), actionAndExtra[0]);
+                            DeviceInputManager.getStringForAction(getActivity(),
+                                    actionAndExtra.getActionId());
                 } else {
                     summary += "Press: " +
-                            DeviceInputManager.getStringForAction(getActivity(), actionAndExtra[0]);
+                            DeviceInputManager.getStringForAction(getActivity(),
+                                    actionAndExtra.getActionId());
                 }
 
-                if (actionAndExtra[0].equals(DeviceInputManager.ACTION_SEND_KEYEVENT)) {
-                    int keyCode = Integer.parseInt(actionAndExtra[1]);
-                    summary += " -> " + KeyEvent.keyCodeToString(keyCode);
-
-                } else if (actionAndExtra[0].equals(DeviceInputManager.ACTION_LAUNCH_APP)) {
-                    summary += " -> " + actionAndExtra[1];
-
+                String readableExtra = actionAndExtra.getReadableExtra(getActivity());
+                if (readableExtra != null) {
+                    summary += " -> " + readableExtra;
                 }
+
             } else {
                 if (hold) {
                     summary += "Hold: None";
@@ -368,10 +368,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
         public void launchKeySetDialog(int key) {
             KeySetDialog dialog = new KeySetDialog();
             dialog.setKey(key);
-            dialog.show(getFragmentManager(), "KeysetDialog");
+            dialog.show(getFragmentManager(), KeySetDialog.class.getSimpleName());
         }
 
-        private void setupPage() {
+        private void makePage() {
             PreferenceScreen screen = getPreferenceManager().createPreferenceScreen(getActivity());
 
             DummyPreference d = new DummyPreference(getActivity(), null);
@@ -379,6 +379,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
 
             SwitchPreference inputEnabledPreference = new SwitchPreference(getActivity());
             inputEnabledPreference.setTitle(R.string.pref_input_service_enabled_title);
+            inputEnabledPreference.setDefaultValue(true);
             inputEnabledPreference.setKey(getString(R.string.pref_input_service_enabled_key));
             inputEnabledPreference.setSummaryOn(R.string.pref_input_service_enabled_summary_on);
             inputEnabledPreference.setSummaryOff(R.string.pref_input_service_enabled_summary_off);
@@ -432,7 +433,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     keyMapper.setDefaults();
-                                    setupPage();
+                                    makePage();
                                 }
                             })
                             .show();

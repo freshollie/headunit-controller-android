@@ -14,11 +14,11 @@
     <string name="pref_debug_enabled_key">debug</string>
     <string name="pref_num_devices_key">max_devices_key</string>
 
-    <string name="pref_key_press_event_key">key%1$d_press_event_key</string>
+    <string name="pref_key_press_action_key">key%1$d_press_action_key</string>
     <string name="pref_key_press_extra_data_key">
         key%1$d_press_extra_data_key</string>
 
-    <string name="pref_key_hold_event_keu">key%1$d_hold_event_key</string>
+    <string name="pref_key_hold_action_key">key%1$d_hold_action_key</string>
     <string name="pref_key_hold_extra_data_key">
         key%1$d_hold_extra_data_key</string>
     <string name="pref_key_hold_length_key">key%1$d_hold_length_key</string>
