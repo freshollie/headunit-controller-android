@@ -47,14 +47,21 @@ public class DeviceKeyMapper {
 
         public String getReadableExtra(Context context) {
             if (getAction().equals(DeviceInputManager.ACTION_SEND_KEYEVENT)) {
-                int keyCode = Integer.parseInt(getExtra());
-                return KeyEvent.keyCodeToString(keyCode);
+                try {
+                    int keyCode = Integer.parseInt(getExtra());
+                    return KeyEvent.keyCodeToString(keyCode);
+                } catch (NumberFormatException e) {
+                    return context.getString(R.string.error);
+                }
+
 
             } else if (getAction().equals(DeviceInputManager.ACTION_LAUNCH_APP)) {
                 String packageName = getExtra();
                 PackageManager packageManager= context.getPackageManager();
                 String appName = "";
-                if (!packageName.isEmpty()) {
+                if (packageName == null) {
+                    return context.getString(R.string.error);
+                } else if (!packageName.isEmpty()) {
                     try {
                         appName = (String) packageManager.getApplicationLabel(
                                 packageManager.getApplicationInfo(packageName,
@@ -76,8 +83,10 @@ public class DeviceKeyMapper {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(appContext);
         context = appContext;
 
-        if (sharedPreferences.getBoolean("firstrun", true)) {
-            sharedPreferences.edit().putBoolean("firstrun", false).apply();
+        if (sharedPreferences.getBoolean(appContext.getString(R.string.pref_first_run), true)) {
+            sharedPreferences.edit()
+                    .putBoolean(appContext.getString(R.string.pref_first_run), false)
+                    .apply();
             setDefaults();
         }
 

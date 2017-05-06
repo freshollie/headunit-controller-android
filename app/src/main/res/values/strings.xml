@@ -125,6 +125,19 @@
     <string name="pref_launch_input_title">Start input service</string>
 
     <string name="pref_input_button_x">Button %d</string>
+    <string name="pref_first_run">firstrun</string>
+    <string name="error">Error</string>
+    <string name="ring_left">Ring left</string>
+    <string name="ring_middle">Ring middle</string>
+    <string name="ring_right">Ring right</string>
+    <string name="wheel_left">Wheel left</string>
+    <string name="wheel_right">Wheel right</string>
+    <string name="map_action_none">None</string>
+    <string name="map_action_home_button">Home button</string>
+    <string name="map_action_launch_app">Launch app</string>
+    <string name="map_action_launch_voice">Launch voice input</string>
+    <string name="map_action_send_key">Send key press</string>
+    <string name="map_action_start_driving">Start maps driving mode</string>
 
 
 </resources>
