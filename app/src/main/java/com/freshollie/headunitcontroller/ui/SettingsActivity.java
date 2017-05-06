@@ -367,6 +367,15 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
 
         public void launchKeySetDialog(int key) {
             KeySetDialog dialog = new KeySetDialog();
+
+            // Page will refresh when dialog closes
+            dialog.setOnDismissListener(new KeySetDialog.KeySetDismissListener() {
+                @Override
+                public void onDismissed() {
+                    makePage();
+                }
+            });
+
             dialog.setKey(key);
             dialog.show(getFragmentManager(), KeySetDialog.class.getSimpleName());
         }

@@ -175,6 +175,7 @@ public class DeviceInputManager {
             }
         }
     }
+
     public void launchApp(String packageName) {
         Log.v(TAG, "Launching: " + packageName);
         Intent i = packageManager.getLaunchIntentForPackage(packageName);
@@ -228,22 +229,22 @@ public class DeviceInputManager {
 
         switch(action) {
             case ACTION_NONE:
-                return "None";
+                return context.getString(R.string.map_action_none);
 
             case ACTION_GO_HOME:
-                return "Home button";
+                return context.getString(R.string.map_action_home_button);
 
             case ACTION_LAUNCH_APP:
-                return "Launch app";
+                return context.getString(R.string.map_action_launch_app);
 
             case ACTION_LAUNCH_VOICE_ASSIST:
-                return "Launch voice input";
+                return context.getString(R.string.map_action_launch_voice);
 
             case ACTION_SEND_KEYEVENT:
-                return "Send key press";
+                return context.getString(R.string.map_action_send_key);
 
             case ACTION_START_DRIVING_MODE:
-                return "Start maps driving mode";
+                return context.getString(R.string.map_action_start_driving);
         }
 
         return "";
@@ -264,15 +265,15 @@ public class DeviceInputManager {
         } else {
             switch (key) {
                 case ShuttleXpressDevice.KeyCodes.RING_LEFT:
-                    return "Ring left";
+                    return context.getString(R.string.ring_left);
                 case ShuttleXpressDevice.KeyCodes.RING_MIDDLE:
-                    return "Ring middle";
+                    return context.getString(R.string.ring_middle);
                 case ShuttleXpressDevice.KeyCodes.RING_RIGHT:
-                    return "Ring right";
+                    return context.getString(R.string.ring_right);
                 case ShuttleXpressDevice.KeyCodes.WHEEL_LEFT:
-                    return "Wheel left";
+                    return context.getString(R.string.wheel_left);
                 case ShuttleXpressDevice.KeyCodes.WHEEL_RIGHT:
-                    return "Wheel right";
+                    return context.getString(R.string.wheel_right);
             }
         }
 
@@ -289,7 +290,7 @@ public class DeviceInputManager {
 
     public static int getIdFromAction(String action) {
         for (int actionId = 0; actionId < ACTIONS.length; actionId++) {
-            if (ACTIONS[actionId] == action) {
+            if (ACTIONS[actionId].equals(action)) {
                 return actionId;
             }
         }
