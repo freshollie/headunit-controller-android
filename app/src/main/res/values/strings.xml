@@ -143,6 +143,18 @@
     <string name="map_action_start_driving">Start maps driving mode</string>
     <string name="pref_reset_defaults_key">pref_reset_defaults</string>
     <string name="pref_log_key">pref_log</string>
+    <string name="pref_reset_defaults_title">Reset defaults</string>
+    <string name="pref_reset_details_summary">Reset preferences to default</string>
+    <string name="pref_cat_reset">Reset</string>
+    <string name="pref_about_summary">Written by Oliver Bell - 2017 www.github.com/freshollie/AndroidHeadunitController</string>
+    <string name="pref_cat_log">Log</string>
+    <string name="select_application_holder">Select Application</string>
+    <string name="select_key_holder">Select Key</string>
+    <string name="error_no_app_selected">Please select an app to launch</string>
+    <string name="error_no_key_selected">Please select a key to be pressed</string>
+    <string name="incomplete_title">Incomplete</string>
+    <string name="select_key_title">Select Key</string>
+    <string name="select_application_title">Select Application</string>
 
 
 </resources>
