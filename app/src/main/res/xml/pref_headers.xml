@@ -17,9 +17,9 @@
         android:title="Input" />
 
     <header
-        android:fragment="com.freshollie.headunitcontroller.ui.SettingsActivity$DebuggingFragment"
+        android:fragment="com.freshollie.headunitcontroller.ui.SettingsActivity$InfoFragment"
         android:icon="@drawable/ic_info_black_24dp"
-        android:title="About"
+        android:title="Info"
         />
 
     <header

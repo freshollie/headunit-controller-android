@@ -13,9 +13,10 @@
         android:defaultValue="true"
         />
 
-    <Preference
+    <EditTextPreference
         android:title="@string/pref_shell_commands_title"
         android:summary="@string/pref_suspend_shell_commands_summary"
+        android:key="@string/pref_shell_suspend_commands_key"
         />
 
 </PreferenceScreen>

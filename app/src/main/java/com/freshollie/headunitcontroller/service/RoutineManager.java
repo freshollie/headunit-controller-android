@@ -441,6 +441,15 @@ public class RoutineManager {
                     startMapsDrivingMode();
                 }
 
+                if (!sharedPreferences
+                        .getString(context.getString(R.string.pref_shell_wakeup_commands_key), "")
+                        .isEmpty()) {
+                    StatusUtil.getInstance().setStatus("WakeUp: Running shell commands");
+                    superuserManager.asyncExecute(sharedPreferences
+                            .getString(context.getString(R.string.pref_shell_wakeup_commands_key), "")
+                    );
+                }
+
             } else {
                 Log.v(TAG, "Aborting run routine as it has " +
                         "already been run once while power is connected");
@@ -462,8 +471,17 @@ public class RoutineManager {
             StatusUtil.getInstance().setStatus("Suspend");
 
             if (sharedPreferences.getBoolean(context.getString(R.string.pref_stop_navigation_key), true)) {
-                StatusUtil.getInstance().setStatus("Scheduling maps to stop");
+                StatusUtil.getInstance().setStatus("Suspend: Scheduling maps to stop");
                 scheduleStopMapsNavigation();
+            }
+
+            if (!sharedPreferences
+                    .getString(context.getString(R.string.pref_shell_suspend_commands_key), "")
+                    .isEmpty()) {
+                StatusUtil.getInstance().setStatus("Suspend: Running shell commands");
+                superuserManager.asyncExecute(sharedPreferences
+                        .getString(context.getString(R.string.pref_shell_suspend_commands_key), "")
+                );
             }
 
             StatusUtil.getInstance().setStatus("Suspend Complete");

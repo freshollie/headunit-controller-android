@@ -3,6 +3,7 @@ package com.freshollie.headunitcontroller.ui;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,6 +11,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -21,16 +23,18 @@ import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.TextView;
 
 import com.freshollie.headunitcontroller.R;
 import com.freshollie.headunitcontroller.input.DeviceInputManager;
 import com.freshollie.headunitcontroller.input.DeviceKeyMapper;
 import com.freshollie.headunitcontroller.service.MainService;
 import com.freshollie.headunitcontroller.utils.DummyPreference;
+import com.freshollie.headunitcontroller.utils.LogPreference;
 import com.freshollie.headunitcontroller.utils.PowerUtil;
 import com.freshollie.headunitcontroller.utils.StatusUtil;
 import com.freshollie.shuttlexpressdriver.ShuttleXpressDevice;
@@ -143,6 +147,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
                 || WakeUpPreferencesFragment.class.getName().equals(fragmentName)
                 || SuspendPreferencesFragment.class.getName().equals(fragmentName)
                 || DebuggingFragment.class.getName().equals(fragmentName)
+                || InfoFragment.class.getName().equals(fragmentName)
                 || InputPreferencesFragment.class.getName().equals(fragmentName);
     }
 
@@ -174,7 +179,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
             volumeLevelPreference = (ListPreference)
                     findPreference(getString(R.string.pref_volume_level_key));
 
-            shellCommandsPreference = findPreference(getString(R.string.pref_shell_commands_key));
+            shellCommandsPreference = findPreference(getString(R.string.pref_shell_wakeup_commands_key));
 
             setupPreferences();
 
@@ -592,6 +597,94 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
                 return true;
             }
             return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
+     * This fragment shows general preferences only. It is used when the
+     * activity is showing a two-pane settings UI.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static class InfoFragment extends PreferenceFragment implements StatusUtil.OnStatusChangeListener {
+        private String TAG = InfoFragment.class.getSimpleName();
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.pref_info);
+            setHasOptionsMenu(true);
+
+            setupScreen();
+
+        }
+
+        private void setupScreen() {
+            findPreference(getString(R.string.pref_reset_defaults_key))
+                    .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                        @Override
+                        public boolean onPreferenceClick(Preference preference) {
+                            new AlertDialog.Builder(getActivity())
+                                    .setMessage(
+                                            "Are you sure you want to reset all settings to default"
+                                    )
+                                    .setNegativeButton(
+                                            android.R.string.yes,
+                                            new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialogInterface, int i) {
+                                                    PreferenceManager
+                                                            .getDefaultSharedPreferences(getActivity())
+                                                            .edit()
+                                                            .clear()
+                                                            .apply();
+                                                }
+                                    })
+                                    .setPositiveButton(
+                                            android.R.string.no,
+                                            null
+                                    )
+                                    .show();
+                            return false;
+                        }
+            });
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+
+            StatusUtil.getInstance().addOnStatusChangeListener(this);
+        }
+
+        private void fillLog() {
+            ((LogPreference) findPreference(getString(R.string.pref_log_key)))
+                    .updateLog(StatusUtil.getInstance().getHistory());
+        }
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            int id = item.getItemId();
+            if (id == android.R.id.home) {
+                startActivity(new Intent(getActivity(), SettingsActivity.class));
+                return true;
+            }
+            return super.onOptionsItemSelected(item);
+        }
+
+        @Override
+        public void onStatusChange(String status) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    fillLog();
+                }
+            });
+        }
+
+        @Override
+        public void onPause() {
+            super.onPause();
+            StatusUtil.getInstance().removeOnStatusChangeListener(this);
         }
     }
 }
