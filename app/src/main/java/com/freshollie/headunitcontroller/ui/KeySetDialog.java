@@ -148,11 +148,11 @@ public class KeySetDialog extends DialogFragment {
 
                     if (pressAction.getAction()
                             .equals(DeviceInputManager.ACTION_LAUNCH_APP)) {
-                        extraPlacement = "Select Application";
+                        extraPlacement = getString(R.string.select_application_holder);
 
                     } else if (pressAction.getAction()
                             .equals(DeviceInputManager.ACTION_SEND_KEYEVENT)) {
-                        extraPlacement = "Select Key";
+                        extraPlacement = getString(R.string.select_key_holder);
 
                     } else {
                         holdExtraEditText.setEnabled(false);
@@ -199,11 +199,11 @@ public class KeySetDialog extends DialogFragment {
 
                     if (holdAction.getAction()
                             .equals(DeviceInputManager.ACTION_LAUNCH_APP)) {
-                        extraPlacement = "Select Application";
+                        extraPlacement = getString(R.string.select_application_holder);
 
                     } else if (holdAction.getAction()
                             .equals(DeviceInputManager.ACTION_SEND_KEYEVENT)) {
-                        extraPlacement = "Select Key";
+                        extraPlacement = getString(R.string.select_key_holder);
 
                     } else {
                         holdExtraEditText.setEnabled(false);
@@ -248,7 +248,7 @@ public class KeySetDialog extends DialogFragment {
         }
 
         new AlertDialog.Builder(getActivity())
-                .setTitle("Select Key")
+                .setTitle(R.string.select_key_title)
                 .setSingleChoiceItems(allKeyCodes, selectedKeycode,
                         new DialogInterface.OnClickListener() {
                             @Override
@@ -301,7 +301,7 @@ public class KeySetDialog extends DialogFragment {
         }
 
         new AlertDialog.Builder(getActivity())
-                .setTitle("Select Application")
+                .setTitle(R.string.select_application_title)
                 .setSingleChoiceItems(appNames, packageNum,
                         new DialogInterface.OnClickListener() {
                             @Override
@@ -328,18 +328,18 @@ public class KeySetDialog extends DialogFragment {
                 pressAction.getExtra() == null) ||
                 (holdAction.getAction().equals(DeviceInputManager.ACTION_LAUNCH_APP) &&
                 holdAction.getExtra() == null)) {
-            dialogText = "Please select an app to launch";
+            dialogText = getString(R.string.error_no_app_selected);
 
         } else if ((pressAction.getAction().equals(DeviceInputManager.ACTION_SEND_KEYEVENT) &&
                 pressAction.getExtra() == null) ||
                 (holdAction.getAction().equals(DeviceInputManager.ACTION_SEND_KEYEVENT) &&
                         holdAction.getExtra() == null)) {
-            dialogText = "Please select a key to be pressed";
+            dialogText = getString(R.string.error_no_key_selected);
         }
 
         if (!dialogText.isEmpty()) {
             new AlertDialog.Builder(getActivity())
-                    .setTitle("Incomplete")
+                    .setTitle(R.string.incomplete_title)
                     .setMessage(dialogText)
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
