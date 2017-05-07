@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="Log"
+        />
+
+    <com.freshollie.headunitcontroller.utils.LogPreference
+        android:key="@string/pref_log_key"/>
+
+    <PreferenceCategory
+        android:title="Reset"
+        />
+
+    <Preference
+        android:title="Reset defaults"
+        android:summary="Reset preferences to default"
+        android:key="@string/pref_reset_defaults_key"
+        />
+
+    <Preference
+        android:summary="Written by Oliver Bell - 2017\nwww.github.com/freshollie/AndroidHeadunitController"
+        />
+
+</PreferenceScreen>

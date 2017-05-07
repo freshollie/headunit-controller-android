@@ -1,5 +1,7 @@
 package com.freshollie.headunitcontroller.utils;
 
+import android.text.TextUtils;
+
 import java.util.ArrayList;
 
 /**
@@ -23,6 +25,10 @@ public class StatusUtil {
 
     }
 
+    public String getHistory() {
+        return TextUtils.join("\n", log);
+    }
+
     public static StatusUtil getInstance() {
         return INSTANCE;
     }
@@ -35,7 +41,7 @@ public class StatusUtil {
         status = newStatus;
         log.add(status);
 
-        if (log.size() > 500) {
+        if (log.size() > 100) {
             log.remove(0);
         }
 

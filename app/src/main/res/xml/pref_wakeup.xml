@@ -94,10 +94,10 @@
         android:key="@string/pref_launch_gps_key"
         />
 
-    <Preference
+    <EditTextPreference
         android:title="@string/pref_shell_commands_title"
-        android:summary="@string/pref_shell_commands_summary"
+        android:summary="@string/pref_shell_wakeup_commands_summary"
+        android:key="@string/pref_shell_wakeup_commands_key"
         />
-
 
 </PreferenceScreen>

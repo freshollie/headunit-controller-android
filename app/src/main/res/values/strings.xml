@@ -31,7 +31,9 @@
 
     <string name="pref_set_volume_key">pref_set_volume</string>
 
-    <string name="pref_shell_commands_key">pref_shell_commands</string>
+    <string name="pref_shell_wakeup_commands_key">pref_shell_wakeup_commands</string>
+
+    <string name="pref_shell_suspend_commands_key">pref_shell_suspend_commands</string>
 
     <string name="pref_volume_level_key">pref_volume_level</string>
 
@@ -98,9 +100,10 @@
     <string name="pref_launch_gps_summary_off">UsbGps Driver will not be started on wake</string>
 
     <string name="pref_shell_commands_title">Shell Commands</string>
-    <string name="pref_shell_commands_summary">Click here to set custom shell commands that will run on wake</string>
+    <string name="pref_shell_wakeup_commands_summary">Click here to set custom shell commands that will run on wake</string>
 
     <string name="pref_suspend_shell_commands_summary">Click here to set custom shell commands that will run on suspend</string>
+
     <string name="pref_launch_autobright_key">pref_launch_autobright</string>
     <string name="pref_launch_autobright_title">Launch AutoBright Service</string>
     <string name="pref_launch_autobright_summary_on">Controller will start AutoBright in the background if installed</string>
@@ -138,6 +141,8 @@
     <string name="map_action_launch_voice">Launch voice input</string>
     <string name="map_action_send_key">Send key press</string>
     <string name="map_action_start_driving">Start maps driving mode</string>
+    <string name="pref_reset_defaults_key">pref_reset_defaults</string>
+    <string name="pref_log_key">pref_log</string>
 
 
 </resources>
