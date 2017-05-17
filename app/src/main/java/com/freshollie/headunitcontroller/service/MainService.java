@@ -211,6 +211,11 @@ public class MainService extends Service {
                         case Intent.ACTION_POWER_CONNECTED:
                             routineManager.onPowerConnected();
                             break;
+                        
+                        case Intent.ACTION_BOOT_COMPLETED:
+                            routineManager.onPowerConnected();
+                            break;
+
                         case Intent.ACTION_POWER_DISCONNECTED:
                             routineManager.onPowerDisconnected();
                             break;
