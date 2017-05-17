@@ -261,8 +261,8 @@ public class RoutineManager {
         if (superuserManager.hasPermission()) {
             superuserManager.asyncExecute(
                     "am startservice " +
-                            "-a org.broeuschmeul.android.gps" +
-                            ".usb.provider.nmea.intent.action.START_GPS_PROVIDER"
+                            "-a org.broeuschmeul.android.gps.usb.provider" +
+                            ".driver.usbgpsproviderservice.intent.action.START_GPS_PROVIDER"
             );
         }
     }
