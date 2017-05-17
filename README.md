@@ -1,7 +1,7 @@
 # Android Headunit Controller
 Android application designed to be used along side Timurs Kernel to control an android tablet as a headunit.
 
-[Latest Build](https://github.com/freshollie/AndroidHeadunitController/tree/master/app/build/outputs/apk) (Minimum android version 5.0)
+[Latest Build](/app/build/outputs/apk) (Minimum android version 5.0)
 
 ## Functionality
 
@@ -42,13 +42,13 @@ Any bugs please submit an issue in the "Issues" section.
 ## Screenshots
 
 <p align="center">
-    <img src="https://github.com/freshollie/AndroidHeadunitController/raw/master/screenshots/wake_settings.png" alt="input interface" width="800"/>
+    <img src="https://github.com/freshollie/AndroidHeadunitController/raw/master/screenshots/wake_settings.png" alt="wake up interface" width="800"/>
 </p>
 
 <p align="center">
-    <img src="https://github.com/freshollie/AndroidHeadunitController/raw/master/screenshots/info_screen.png" alt="mapping interface" width="800"/>
+    <img src="https://github.com/freshollie/AndroidHeadunitController/raw/master/screenshots/info_screen.png" alt="info interface" width="800"/>
 </p>
 
 <p align="center">
-    <img src="https://github.com/freshollie/AndroidHeadunitController/raw/master/screenshots/notification.png" alt="mapping interface" width="800"/>
+    <img src="https://github.com/freshollie/AndroidHeadunitController/raw/master/screenshots/notifications.png" alt="Running" width="800"/>
 </p>
