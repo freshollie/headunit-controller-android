@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -179,11 +180,16 @@ public class DeviceInputManager {
     public void launchApp(String packageName) {
         Log.v(TAG, "Launching: " + packageName);
         Intent i = packageManager.getLaunchIntentForPackage(packageName);
-        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        
-        if (i != null) {
-            context.startActivity(i);
+
+        // If spotify is playing, open it in the music player view
+        if (packageName.contains("spotify") &&
+                PreferenceManager.getDefaultSharedPreferences(context)
+                        .getString(context.getString(R.string.PLAYING_AUDIO_APP_KEY), "")
+                        .contains("spotify")) {
+            i.setAction("com.spotify.mobile.android.ui.action.player.SHOW");
         }
+
+        context.startActivity(i);
 
     }
 
