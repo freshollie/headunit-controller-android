@@ -179,7 +179,8 @@ public class DeviceInputManager {
     public void launchApp(String packageName) {
         Log.v(TAG, "Launching: " + packageName);
         Intent i = packageManager.getLaunchIntentForPackage(packageName);
-
+        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        
         if (i != null) {
             context.startActivity(i);
         }
