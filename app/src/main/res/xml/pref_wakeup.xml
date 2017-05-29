@@ -40,6 +40,14 @@
         android:summary="@string/pref_max_devices_summary"
         android:key="@string/pref_num_devices_key" />
 
+    <PreferenceCategory
+        android:title="@string/bluetooth_tether_category_title"
+        />
+    <Preference
+        android:title="@string/bluetooth_tether_address_title"
+        android:summary="@string/bluetooth_tether_address_summary"
+        android:key="@string/pref_bluetooth_tether_address"/>
+
 
     <PreferenceCategory
         android:title="@string/pref_routine_start_options_title" />

@@ -4,6 +4,8 @@ package com.freshollie.headunitcontroller.ui;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -40,6 +42,7 @@ import com.freshollie.headunitcontroller.utils.StatusUtil;
 import com.freshollie.shuttlexpressdriver.ShuttleXpressDevice;
 
 import java.util.List;
+import java.util.Set;
 
 import static com.freshollie.headunitcontroller.service.MainService.ACTION_START_INPUT_SERVICE;
 
@@ -159,6 +162,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
         SwitchPreference setVolumeSwitchPreference;
         ListPreference volumeLevelPreference;
         Preference shellCommandsPreference;
+        Preference bluetoothTetherPreference;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -250,8 +254,112 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
                     }
             );
 
+            bluetoothTetherPreference = findPreference(getString(R.string.pref_bluetooth_tether_address));
+            bluetoothTetherPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    showBluetoothDeviceList();
+                    return false;
+                }
+            });
+            updateBluetoothTetherSummary();
+        }
 
+        private void updateBluetoothTetherSummary() {
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String savedAddress =
+                    sharedPreferences.getString(
+                            getString(R.string.pref_bluetooth_tether_address),
+                            ""
+                    );
 
+            BluetoothDevice device = null;
+            try {
+                device = BluetoothAdapter
+                        .getDefaultAdapter()
+                        .getRemoteDevice(savedAddress);
+            } catch (IllegalArgumentException ignored) {}
+
+            String deviceName = getActivity().getString(R.string.bluetooth_tether_no_device_set);
+            if (device != null) {
+                deviceName = device.getName();
+            } else if (!savedAddress.isEmpty()) {
+                // The previously saved devices has unpaired
+                sharedPreferences
+                        .edit()
+                        .putString(getString(R.string.pref_bluetooth_tether_address), "")
+                        .apply();
+            }
+
+            bluetoothTetherPreference.setSummary(
+                    getString(R.string.bluetooth_tether_address_summary, deviceName)
+            );
+        }
+
+        private void showBluetoothDeviceList() {
+            final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String address = sharedPreferences.getString(getString(R.string.pref_bluetooth_tether_address), "");
+
+            int checkedDevice = -1;
+            Set<BluetoothDevice> bluetoothDevicesSet =
+                    BluetoothAdapter.getDefaultAdapter().getBondedDevices();
+
+            if (!bluetoothDevicesSet.isEmpty()) {
+                final BluetoothDevice[] bluetoothDevices =
+                        bluetoothDevicesSet.toArray(new BluetoothDevice[bluetoothDevicesSet.size()]);
+
+                String[] deviceNames = new String[bluetoothDevices.length + 1];
+                deviceNames[0] = "None";
+
+                for (int i = 0; i < bluetoothDevices.length; i++) {
+                    deviceNames[i + 1] = bluetoothDevices[i].getName();
+                    if (bluetoothDevices[i].getAddress().equals(address)) {
+                        checkedDevice = i + 1;
+                    }
+                }
+
+                new AlertDialog.Builder(getActivity())
+                        .setTitle(R.string.bluetooth_tether_address_select_title)
+                        .setSingleChoiceItems(
+                                deviceNames,
+                                checkedDevice,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        String address = "";
+                                        if (i > 0) {
+                                            address = bluetoothDevices[i - 1].getAddress();
+                                        }
+                                        sharedPreferences
+                                                .edit()
+                                                .putString(
+                                                        getString(R.string.pref_bluetooth_tether_address),
+                                                        address
+                                                )
+                                                .apply();
+                                        updateBluetoothTetherSummary();
+                                        dialogInterface.dismiss();
+                                    }
+                                })
+                        .setPositiveButton(android.R.string.cancel,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        dialogInterface.dismiss();
+                                    }
+                                })
+                        .show();
+            } else {
+                new AlertDialog.Builder(getActivity())
+                        .setMessage(R.string.bluetooth_no_devices_messaged)
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        })
+                        .show();
+            }
         }
 
         @Override
