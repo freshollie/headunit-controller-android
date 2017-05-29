@@ -63,6 +63,7 @@ public class MainService extends Service {
             startIntent.setAction(intent.getAction()); // Let the service know why it was started
 
             // Don't run if power is not actually connected
+            Log.v("kek", intent.getAction());
             if (!(intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)
                     && !PowerUtil.isConnected(context))) {
                 context.startService(startIntent);

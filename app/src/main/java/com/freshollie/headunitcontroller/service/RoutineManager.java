@@ -2,6 +2,9 @@ package com.freshollie.headunitcontroller.service;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,7 +13,11 @@ import android.content.SharedPreferences;
 import android.hardware.usb.UsbManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
 import android.net.Uri;
+import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.SystemClock;
@@ -24,6 +31,9 @@ import com.freshollie.headunitcontroller.utils.PowerUtil;
 import com.freshollie.headunitcontroller.utils.StatusUtil;
 import com.freshollie.headunitcontroller.utils.SuperuserManager;
 import com.rvalerio.fgchecker.AppChecker;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 
 import static android.content.Context.ALARM_SERVICE;
 
