@@ -78,8 +78,13 @@ public class BluetoothTetherManagerService extends Service {
 
         @Override
         public void onReceive(final Context context, Intent intent) {
-            if ()
-            context.startService(intent.setClass(context, BluetoothTetherManagerService.class));
+            // Only deal with intents if we have a bluetooth address set
+            if (!PreferenceManager
+                    .getDefaultSharedPreferences(context)
+                    .getString(context.getString(R.string.pref_bluetooth_tether_address), "")
+                    .isEmpty()) {
+                context.startService(intent.setClass(context, BluetoothTetherManagerService.class));
+            }
         }
     }
 
