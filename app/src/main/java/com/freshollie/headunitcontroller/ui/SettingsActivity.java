@@ -308,12 +308,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
                 final BluetoothDevice[] bluetoothDevices =
                         bluetoothDevicesSet.toArray(new BluetoothDevice[bluetoothDevicesSet.size()]);
 
-                String[] deviceNames = new String[bluetoothDevices.length];
+                String[] deviceNames = new String[bluetoothDevices.length + 1];
+                deviceNames[0] = "None";
 
                 for (int i = 0; i < bluetoothDevices.length; i++) {
-                    deviceNames[i] = bluetoothDevices[i].getName();
+                    deviceNames[i + 1] = bluetoothDevices[i].getName();
                     if (bluetoothDevices[i].getAddress().equals(address)) {
-                        checkedDevice = i;
+                        checkedDevice = i + 1;
                     }
                 }
 
@@ -325,11 +326,15 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
+                                        String address = "";
+                                        if (i > 0) {
+                                            address = bluetoothDevices[i - 1].getAddress();
+                                        }
                                         sharedPreferences
                                                 .edit()
                                                 .putString(
                                                         getString(R.string.pref_bluetooth_tether_address),
-                                                        bluetoothDevices[i].getAddress()
+                                                        address
                                                 )
                                                 .apply();
                                         updateBluetoothTetherSummary();
