@@ -185,11 +185,14 @@ public class DeviceInputManager {
         if (packageName.contains("spotify") &&
                 PreferenceManager.getDefaultSharedPreferences(context)
                         .getString(context.getString(R.string.PLAYING_AUDIO_APP_KEY), "")
-                        .contains("spotify")) {
+                        .contains("spotify")
+                && i != null) {
             i.setAction("com.spotify.mobile.android.ui.action.player.SHOW");
         }
 
-        context.startActivity(i);
+        if (i != null) {
+            context.startActivity(i);
+        }
 
     }
 

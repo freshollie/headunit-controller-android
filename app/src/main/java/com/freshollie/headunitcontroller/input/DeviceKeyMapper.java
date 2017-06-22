@@ -103,7 +103,8 @@ public class DeviceKeyMapper {
                 DeviceInputManager.getIdFromAction(DeviceInputManager.ACTION_LAUNCH_APP),
                 "com.spotify.music",
                 true,
-                300);
+                1000
+        );
         setKeyAction(
                 ShuttleXpressDevice.KeyCodes.BUTTON_0,
                 DeviceInputManager.getIdFromAction(DeviceInputManager.ACTION_SEND_KEYEVENT),
@@ -113,13 +114,17 @@ public class DeviceKeyMapper {
         setKeyAction(
                 ShuttleXpressDevice.KeyCodes.BUTTON_1,
                 DeviceInputManager.getIdFromAction(DeviceInputManager.ACTION_LAUNCH_APP),
-                "com.freshollie.monkeyboarddabradio"
+                "com.freshollie.monkeyboarddabradio",
+                true,
+                1000
         );
 
         setKeyAction(
                 ShuttleXpressDevice.KeyCodes.BUTTON_2,
                 DeviceInputManager.getIdFromAction(DeviceInputManager.ACTION_LAUNCH_APP),
-                "au.com.shiftyjelly.pocketcasts"
+                "au.com.shiftyjelly.pocketcasts",
+                true,
+                1000
         );
 
         setKeyAction(
