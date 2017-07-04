@@ -52,7 +52,7 @@ public class MediaMonitor extends MediaController.Callback implements MediaSessi
 
         mediaSessionManager.addOnActiveSessionsChangedListener(
                 this,
-                new ComponentName(context, MapsListenerService.class)
+                new ComponentName(context, GoogleMapsListenerService.class)
         );
     }
 

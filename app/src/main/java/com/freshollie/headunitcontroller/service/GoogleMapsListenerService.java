@@ -13,7 +13,7 @@ import com.freshollie.headunitcontroller.utils.PowerUtil;
 import com.freshollie.headunitcontroller.utils.StatusUtil;
 import com.rvalerio.fgchecker.AppChecker;
 
-public class MapsListenerService extends NotificationListenerService {
+public class GoogleMapsListenerService extends NotificationListenerService {
     private String TAG = this.getClass().getSimpleName();
     private SharedPreferences sharedPreferences;
 

@@ -1,4 +1,4 @@
-package com.freshollie.headunitcontroller.utils;
+package com.freshollie.headunitcontroller.ui;
 
 import android.content.Context;
 import android.graphics.Path;
@@ -11,6 +11,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.freshollie.headunitcontroller.R;
+import com.freshollie.headunitcontroller.utils.StatusUtil;
 
 import java.util.zip.Inflater;
 

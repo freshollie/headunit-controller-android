@@ -1,4 +1,4 @@
-package com.freshollie.headunitcontroller.utils;
+package com.freshollie.headunitcontroller.ui;
 
 import android.content.Context;
 import android.preference.Preference;

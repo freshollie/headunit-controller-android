@@ -1,5 +1,5 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <com.freshollie.headunitcontroller.utils.DummyPreference/>
+    <com.freshollie.headunitcontroller.ui.DummyPreference />
 
     <PreferenceCategory
         android:title="@string/pref_general_title" />

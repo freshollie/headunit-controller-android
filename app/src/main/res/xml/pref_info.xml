@@ -5,7 +5,7 @@
         android:title="@string/pref_cat_log"
         />
 
-    <com.freshollie.headunitcontroller.utils.LogPreference
+    <com.freshollie.headunitcontroller.ui.LogPreference
         android:key="@string/pref_log_key"/>
 
     <PreferenceCategory
