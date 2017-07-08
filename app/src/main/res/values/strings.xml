@@ -6,8 +6,9 @@
     <!-- Internal keys !-->
     <string name="PLAYING_AUDIO_APP_KEY">last_audio_app</string>
     <string name="PLAYING_RADIO_KEY">playing_radio</string>
-    <string name="DRIVING_MODE_KEY">driving_mode</string>
-    <string name="LAUNCH_MAPS_KEY">launch_maps</string>
+    <string name="DRIVING_MODE_RUNNING_KEY">driving_mode_running</string>
+    <string name="SHOULD_START_DRIVING_MODE_KEY">should_start_driving_mode</string>
+    <string name="MAPS_WAS_ON_SCREEN">maps_was_on_screen</string>
 
     <!-- Settable preference keys !-->
     <string name="pref_power_on_debug_key">power_on_debug</string>

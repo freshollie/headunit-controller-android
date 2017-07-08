@@ -2,9 +2,6 @@ package com.freshollie.headunitcontroller.service;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,11 +10,7 @@ import android.content.SharedPreferences;
 import android.hardware.usb.UsbManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.ConnectivityManager;
-import android.net.Network;
-import android.net.NetworkInfo;
 import android.net.Uri;
-import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.SystemClock;
@@ -31,9 +24,6 @@ import com.freshollie.headunitcontroller.utils.PowerUtil;
 import com.freshollie.headunitcontroller.utils.StatusUtil;
 import com.freshollie.headunitcontroller.utils.SuperuserManager;
 import com.rvalerio.fgchecker.AppChecker;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 
 import static android.content.Context.ALARM_SERVICE;
 
@@ -312,7 +302,7 @@ public class RoutineManager {
                             public void onForeground(String process) {
                                 if (PowerUtil.isConnected(context)) {
                                     if (!sharedPreferences.getBoolean(
-                                            context.getString(R.string.LAUNCH_MAPS_KEY), false)) {
+                                            context.getString(R.string.MAPS_WAS_ON_SCREEN), false)) {
                                         Log.v(TAG, "Maps in foreground");
                                         mainHandler.removeCallbacks(mapsNotForegroundRunnable);
                                         setMapsForeground(true);
@@ -323,7 +313,7 @@ public class RoutineManager {
                     @Override
                     public void onForeground(String process) {
                         if (PowerUtil.isConnected(context)) {
-                            if (sharedPreferences.getBoolean(context.getString(R.string.LAUNCH_MAPS_KEY), false)) {
+                            if (sharedPreferences.getBoolean(context.getString(R.string.MAPS_WAS_ON_SCREEN), false)) {
                                 mainHandler.postDelayed(mapsNotForegroundRunnable, 3000);
                             }
                         }
@@ -343,7 +333,7 @@ public class RoutineManager {
     public void setMapsForeground(boolean foreground) {
         sharedPreferences
                 .edit()
-                .putBoolean(context.getString(R.string.LAUNCH_MAPS_KEY), foreground)
+                .putBoolean(context.getString(R.string.MAPS_WAS_ON_SCREEN), foreground)
                 .apply();
     }
 
@@ -441,14 +431,32 @@ public class RoutineManager {
 
                 if (navigationStopped &&
                         sharedPreferences.getBoolean(
-                                context.getString(R.string.LAUNCH_MAPS_KEY), false) &&
+                                context.getString(R.string.MAPS_WAS_ON_SCREEN), false) &&
                         sharedPreferences.getBoolean(
-                                context.getString(R.string.DRIVING_MODE_KEY), false) &&
+                                context.getString(R.string.SHOULD_START_DRIVING_MODE_KEY), false) &&
                         sharedPreferences.getBoolean(
                                 context.getString(R.string.pref_launch_maps_key), true)) {
                     Log.v(TAG, "Launching maps");
                     StatusUtil.getInstance().setStatus("WakeUp: Launching Maps");
                     startMapsDrivingMode();
+                } else {
+                    /**
+                     * if driving mode is not running then that means we shouldn't
+                     * start driving mode next time until driving mode is relaunched
+                     */
+                    if (!sharedPreferences
+                            .getBoolean(
+                                    context.getString(R.string.DRIVING_MODE_RUNNING_KEY),
+                                    false
+                            )) {
+                        sharedPreferences
+                                .edit()
+                                .putBoolean(
+                                        context.getString(R.string.SHOULD_START_DRIVING_MODE_KEY),
+                                        false
+                                )
+                                .apply();
+                    }
                 }
 
                 if (!sharedPreferences

@@ -2,7 +2,6 @@ package com.freshollie.headunitcontroller.service;
 
 
 import android.content.SharedPreferences;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
@@ -10,8 +9,6 @@ import android.util.Log;
 
 import com.freshollie.headunitcontroller.R;
 import com.freshollie.headunitcontroller.utils.PowerUtil;
-import com.freshollie.headunitcontroller.utils.StatusUtil;
-import com.rvalerio.fgchecker.AppChecker;
 
 public class GoogleMapsListenerService extends NotificationListenerService {
     private String TAG = this.getClass().getSimpleName();
@@ -34,24 +31,34 @@ public class GoogleMapsListenerService extends NotificationListenerService {
     @Override
     public void onNotificationPosted(StatusBarNotification statusBarNotification) {
         if (statusBarNotification.getPackageName().equals("com.google.android.apps.maps") &&
-                !sharedPreferences.getBoolean(getString(R.string.DRIVING_MODE_KEY), false) &&
+                !sharedPreferences.getBoolean(getString(R.string.DRIVING_MODE_RUNNING_KEY), false) &&
                 !statusBarNotification.isClearable()) {
             Log.v(TAG, "Driving mode enabled");
             setDrivingMode(true);
+            setShouldStartDrivingMode(true);
         }
     }
 
-    public void setDrivingMode(Boolean mode) {
-        sharedPreferences.edit().putBoolean(getString(R.string.DRIVING_MODE_KEY), mode).apply();
+    public void setDrivingMode(boolean mode) {
+        sharedPreferences.edit().putBoolean(getString(R.string.DRIVING_MODE_RUNNING_KEY), mode).apply();
+    }
+
+    public void setShouldStartDrivingMode(boolean value) {
+        sharedPreferences
+                .edit()
+                .putBoolean(getString(R.string.SHOULD_START_DRIVING_MODE_KEY), value)
+                .apply();
     }
 
     @Override
     public void onNotificationRemoved(StatusBarNotification notification) {
-        if (PowerUtil.isConnected(getApplicationContext()) &&
-                notification.getPackageName().equals("com.google.android.apps.maps") &&
+        if (notification.getPackageName().equals("com.google.android.apps.maps") &&
                 !notification.isClearable()) {
             Log.v(TAG, "Driving mode disabled");
             setDrivingMode(false);
+            if (PowerUtil.isConnected(getApplicationContext())) {
+                setShouldStartDrivingMode(false);
+            }
         }
     }
 

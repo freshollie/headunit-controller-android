@@ -154,7 +154,7 @@ public class DeviceInputManager {
 
                 case ACTION_START_DRIVING_MODE:
                     if (!PreferenceManager.getDefaultSharedPreferences(context)
-                            .getBoolean(context.getString(R.string.DRIVING_MODE_KEY), false)) {
+                            .getBoolean(context.getString(R.string.DRIVING_MODE_RUNNING_KEY), false)) {
                         startGoogleMapsDrivingMode();
                     } else {
                         launchApp("com.google.android.apps.maps");
