@@ -272,7 +272,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
                 device = BluetoothAdapter
                         .getDefaultAdapter()
                         .getRemoteDevice(savedAddress);
-            } catch (IllegalArgumentException ignored) {}
+            } catch (IllegalArgumentException | NullPointerException ignored) {}
 
             String deviceName = getActivity().getString(R.string.bluetooth_tether_no_device_set);
             if (device != null) {
@@ -295,10 +295,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
             String address = sharedPreferences.getString(getString(R.string.pref_bluetooth_tether_address), "");
 
             int checkedDevice = -1;
-            Set<BluetoothDevice> bluetoothDevicesSet =
-                    BluetoothAdapter.getDefaultAdapter().getBondedDevices();
+            Set<BluetoothDevice> bluetoothDevicesSet = null;
 
-            if (!bluetoothDevicesSet.isEmpty()) {
+            if (BluetoothAdapter.getDefaultAdapter() != null) {
+                BluetoothAdapter.getDefaultAdapter().getBondedDevices();
+            }
+
+            if (bluetoothDevicesSet != null && !bluetoothDevicesSet.isEmpty()) {
                 final BluetoothDevice[] bluetoothDevices =
                         bluetoothDevicesSet.toArray(new BluetoothDevice[bluetoothDevicesSet.size()]);
 
