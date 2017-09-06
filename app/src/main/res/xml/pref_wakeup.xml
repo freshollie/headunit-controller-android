@@ -10,6 +10,12 @@
         android:summaryOff="@string/pref_wakelock_summary_off"
         android:key="@string/pref_wakelock_key"/>
 
+    <ListPreference
+        android:title="@string/pref_screen_orientation_title"
+        android:defaultValue="4"
+        android:summary="@string/pref_screen_orientation_summary"
+        android:key="@string/pref_screen_orientation_key" />
+
     <SwitchPreference
         android:title="@string/pref_launch_autobright_title"
         android:summaryOn="@string/pref_launch_autobright_summary_on"
@@ -41,11 +47,11 @@
         android:key="@string/pref_num_devices_key" />
 
     <PreferenceCategory
-        android:title="@string/bluetooth_tether_category_title"
+        android:title="@string/pref_bluetooth_tether_category_title"
         />
     <Preference
-        android:title="@string/bluetooth_tether_address_title"
-        android:summary="@string/bluetooth_tether_address_summary"
+        android:title="@string/pref_bluetooth_tether_address_title"
+        android:summary="@string/pref_bluetooth_tether_address_summary"
         android:key="@string/pref_bluetooth_tether_address"/>
 
 

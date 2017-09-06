@@ -93,7 +93,7 @@ public class RoutineManager {
 
                 int allDevices = Integer.valueOf(sharedPreferences.getString(
                         context.getString(R.string.pref_num_devices_key),
-                        "0"
+                        "3"
                 ));
 
                 while (usbManager.getDeviceList().size() < allDevices
