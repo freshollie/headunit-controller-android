@@ -33,7 +33,7 @@ import com.freshollie.headunitcontroller.input.DeviceKeyMapper;
 import com.freshollie.headunitcontroller.service.MainService;
 import com.freshollie.headunitcontroller.utils.PowerUtil;
 import com.freshollie.headunitcontroller.utils.StatusUtil;
-import com.freshollie.shuttlexpressdriver.ShuttleXpressDevice;
+import com.freshollie.shuttlexpress.ShuttleXpressDevice;
 
 import java.util.List;
 import java.util.Set;
@@ -417,6 +417,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
         PreferenceCategory buttonCategory;
         PreferenceCategory wheelCategory;
         PreferenceCategory ringCategory;
+        SwitchPreference inputEnabledPreference;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -496,7 +497,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
             DummyPreference d = new DummyPreference(getActivity(), null);
             screen.addPreference(d);
 
-            SwitchPreference inputEnabledPreference = new SwitchPreference(getActivity());
+            inputEnabledPreference = new SwitchPreference(getActivity());
             inputEnabledPreference.setTitle(R.string.pref_input_service_enabled_title);
             inputEnabledPreference.setDefaultValue(true);
             inputEnabledPreference.setKey(getString(R.string.pref_input_service_enabled_key));

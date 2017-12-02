@@ -21,7 +21,8 @@ import java.util.List;
  * Created by Freshollie on 13/12/2016.
  */
 
-public class MediaMonitor extends MediaController.Callback implements MediaSessionManager.OnActiveSessionsChangedListener{
+public class MediaMonitor extends MediaController.Callback implements
+        MediaSessionManager.OnActiveSessionsChangedListener{
 
     public String TAG = this.getClass().getSimpleName();
     private MediaSessionManager mediaSessionManager;

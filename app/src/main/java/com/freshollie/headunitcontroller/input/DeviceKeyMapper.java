@@ -7,7 +7,7 @@ import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 
 import com.freshollie.headunitcontroller.R;
-import com.freshollie.shuttlexpressdriver.ShuttleXpressDevice;
+import com.freshollie.shuttlexpress.ShuttleXpressDevice;
 
 /**
  * Created by freshollie on 1/3/17.
@@ -114,7 +114,7 @@ public class DeviceKeyMapper {
         setKeyAction(
                 ShuttleXpressDevice.KeyCodes.BUTTON_1,
                 DeviceInputManager.getIdFromAction(DeviceInputManager.ACTION_LAUNCH_APP),
-                "com.freshollie.monkeyboarddabradio",
+                "com.freshollie.monkeyboard.keystoneradio",
                 true,
                 1000
         );

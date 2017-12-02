@@ -13,8 +13,8 @@ import android.util.SparseArray;
 import com.freshollie.headunitcontroller.R;
 import com.freshollie.headunitcontroller.utils.StatusUtil;
 import com.freshollie.headunitcontroller.utils.SuperuserManager;
-import com.freshollie.shuttlexpressdriver.Driver;
-import com.freshollie.shuttlexpressdriver.ShuttleXpressDevice;
+import com.freshollie.shuttlexpress.ShuttleXpressConnection;
+import com.freshollie.shuttlexpress.ShuttleXpressDevice;
 
 /**
  * Created by freshollie on 1/1/17.
@@ -47,7 +47,7 @@ public class DeviceInputManager {
             ACTION_START_DRIVING_MODE
     };
 
-    private Driver driver;
+    private ShuttleXpressConnection deviceConnection;
     private ShuttleXpressDevice inputDevice;
 
     private PackageManager packageManager;
@@ -60,16 +60,13 @@ public class DeviceInputManager {
 
     private Context context;
 
-    private ShuttleXpressDevice.ConnectedListener connectedListener =
-            new ShuttleXpressDevice.ConnectedListener() {
+    private ShuttleXpressConnection.ConnectionStateChangeListener connectionStateChangeListener =
+            new ShuttleXpressConnection.ConnectionStateChangeListener() {
                 @Override
-                public void onConnected() {
-
-                }
-
-                @Override
-                public void onDisconnected() {
-                    stop();
+                public void onChange(int newState) {
+                    if (newState == ShuttleXpressConnection.STATE_DISCONNECTED) {
+                        stop();
+                    }
                 }
             };
 
@@ -114,33 +111,34 @@ public class DeviceInputManager {
         mainLoopHandler = new Handler(context.getMainLooper());
         keyMapper = new DeviceKeyMapper(context);
 
-        driver = new Driver(context);
-        inputDevice = driver.getDevice();
+        deviceConnection = new ShuttleXpressConnection(context);
+        deviceConnection.setShowNotifications(true);
+
+        inputDevice = deviceConnection.getDevice();
     }
 
     public void run() {
-        if (!inputDevice.isConnected()) {
-            Log.v(TAG, "Starting driver");
-            driver.start();
-        }
 
         inputDevice.registerKeyListener(deviceKeyListener);
-        inputDevice.registerConnectedListener(connectedListener);
+        deviceConnection.registerConnectionChangeListener(connectionStateChangeListener);
 
+        if (!deviceConnection.isRunning()) {
+            Log.v(TAG, "Opening input deviceConnection");
+            StatusUtil.getInstance().setStatus("Opening input deviceConnection");
+            deviceConnection.open();
+        }
     }
 
     public void stop() {
-        driver.stop();
+        Log.v(TAG, "Closing input deviceConnection");
+        StatusUtil.getInstance().setStatus("Closing input deviceConnection");
 
-        Log.v(TAG, "Input driver stopping");
-
-        StatusUtil.getInstance().setStatus("Input driver stopping");
-
+        deviceConnection.close();
         inputDevice.unregisterKeyListener(deviceKeyListener);
-        inputDevice.unregisterConnectedListener(connectedListener);
+        deviceConnection.unregisterConnectionChangeListener(connectionStateChangeListener);
     }
 
-    public void handleActionRequest(DeviceKeyMapper.ActionMap actionMap) {
+    private void handleActionRequest(DeviceKeyMapper.ActionMap actionMap) {
         String action = getActionFromId(actionMap.getActionId());
         String extra = actionMap.getExtra();
 
@@ -183,7 +181,7 @@ public class DeviceInputManager {
         }
     }
 
-    public void launchApp(String packageName) {
+    private void launchApp(String packageName) {
         Log.v(TAG, "Launching: " + packageName);
         Intent i = packageManager.getLaunchIntentForPackage(packageName);
 
@@ -202,7 +200,7 @@ public class DeviceInputManager {
 
     }
 
-    public void startGoogleMapsDrivingMode() {
+    private void startGoogleMapsDrivingMode() {
         Log.v(TAG, "Launching driving mode");
         context.startActivity(
                 new Intent(Intent.ACTION_VIEW)

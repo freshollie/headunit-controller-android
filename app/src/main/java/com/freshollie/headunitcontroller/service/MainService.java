@@ -23,7 +23,6 @@ import com.freshollie.headunitcontroller.utils.NotificationHandler;
 import com.freshollie.headunitcontroller.utils.PowerUtil;
 import com.freshollie.headunitcontroller.utils.StatusUtil;
 import com.freshollie.headunitcontroller.utils.SuperuserManager;
-import com.freshollie.shuttlexpressdriver.ShuttleXpressDevice;
 
 import java.io.IOException;
 
@@ -259,6 +258,4 @@ public class MainService extends Service {
         routineManager.stop();
         stopForeground(true);
     }
-
-
 }

@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.pm.PackageInfo;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +19,7 @@ import android.widget.Spinner;
 import com.freshollie.headunitcontroller.R;
 import com.freshollie.headunitcontroller.input.DeviceInputManager;
 import com.freshollie.headunitcontroller.input.DeviceKeyMapper;
-import com.freshollie.shuttlexpressdriver.ShuttleXpressDevice;
+import com.freshollie.shuttlexpress.ShuttleXpressDevice;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -73,7 +74,6 @@ public class KeySetDialog extends DialogFragment {
 
         pressAction = keyMapper.getKeyPressAction(key);
         holdAction = keyMapper.getKeyHoldAction(key);
-
 
         @SuppressLint("InflateParams")
         View v = i.inflate(R.layout.keyset_dialog_fragment, null);
@@ -136,15 +136,15 @@ public class KeySetDialog extends DialogFragment {
         pressActionSpinner.setAdapter(
                 new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line,
                         actionStrings));
-        pressActionSpinner.setSelection(pressAction.getActionId());
 
         pressActionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
                 if (pressAction.getActionId() != i) {
                     pressAction = new DeviceKeyMapper.ActionMap(i, null);
                     String extraPlacement = "";
-                    holdExtraEditText.setEnabled(true);
+                    pressExtraEditText.setEnabled(true);
 
                     if (pressAction.getAction()
                             .equals(DeviceInputManager.ACTION_LAUNCH_APP)) {
@@ -155,7 +155,7 @@ public class KeySetDialog extends DialogFragment {
                         extraPlacement = getString(R.string.select_key_holder);
 
                     } else {
-                        holdExtraEditText.setEnabled(false);
+                        pressExtraEditText.setEnabled(false);
 
                     }
 
@@ -168,6 +168,8 @@ public class KeySetDialog extends DialogFragment {
 
             }
         });
+
+        pressActionSpinner.setSelection(pressAction.getActionId());
 
         pressExtraEditText.setText(pressAction.getReadableExtra(getActivity()));
 
@@ -183,6 +185,7 @@ public class KeySetDialog extends DialogFragment {
         });
 
         holdDelayEditText.setText(String.valueOf(keyMapper.getKeyHoldDelay(key)));
+
 
         holdActionSpinner.setAdapter(
                 new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line,
