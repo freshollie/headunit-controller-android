@@ -23,8 +23,8 @@ import java.util.List;
 
 public class MediaMonitor extends MediaController.Callback implements
         MediaSessionManager.OnActiveSessionsChangedListener{
+    private static final String TAG = MediaMonitor.class.getSimpleName();
 
-    public String TAG = this.getClass().getSimpleName();
     private MediaSessionManager mediaSessionManager;
 
     // Used to keep track of the currently playing media controllers
@@ -102,7 +102,7 @@ public class MediaMonitor extends MediaController.Callback implements
         }
     };
 
-    public void checkActiveMediaControllers() {
+    private void checkActiveMediaControllers() {
         boolean mediaControllerActive = false;
 
         for (MediaController activeMediaController: activeMediaControllers) {
@@ -123,7 +123,7 @@ public class MediaMonitor extends MediaController.Callback implements
     }
 
 
-    public void saveCurrentActiveMediaApp(String packageName) {
+    private void saveCurrentActiveMediaApp(String packageName) {
         if (PowerUtil.isConnected(context.getApplicationContext())) {
 
             if (!packageName.equals(

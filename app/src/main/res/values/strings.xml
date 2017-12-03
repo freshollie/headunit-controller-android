@@ -128,7 +128,7 @@
     <string name="pref_launch_input_summary">Manually launch the Shuttle Xpress input service</string>
     <string name="pref_launch_input_title">Start input service</string>
 
-    <string name="pref_input_button_x">Button %d</string>
+    <string name="device_input_button_x">Button %d</string>
     <string name="pref_first_run">firstrun</string>
     <string name="error">Error</string>
     <string name="ring_left">Ring left</string>

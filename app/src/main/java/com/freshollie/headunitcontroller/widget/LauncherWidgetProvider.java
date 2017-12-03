@@ -21,12 +21,14 @@ import java.util.Arrays;
  */
 
 public class LauncherWidgetProvider extends AppWidgetProvider {
+    static String VOICE_INTENT_PACKAGE = "voice";
+
     static String[] launcherApps = {
             "com.android.chrome",
             "au.com.shiftyjelly.pocketcasts",
             "com.google.android.apps.maps",
             "com.freshollie.monkeyboard.keystoneradio",
-            "voice",
+            VOICE_INTENT_PACKAGE,
             "com.spotify.music"
     };
 
@@ -52,13 +54,6 @@ public class LauncherWidgetProvider extends AppWidgetProvider {
             for (int i = 0; i < launcherApps.length; i++) {
                 String packageName = launcherApps[i];
                 int buttonId = launcherButtons[i];
-                //Log.d("LAUNCHER WIDGET", packageName);
-                //Log.d("LAUNCHER WIDGET", String.valueOf(buttonId));
-
-                //Intent intent = new Intent(context, LauncherWidgetProvider.class);
-                //intent.setAction(packageName);
-                //Log.d("TEST", String.valueOf(intent.getExtras()));
-
                 remoteViews.setOnClickPendingIntent(buttonId,
                         getLaunchIntent(context, packageName));
             }
@@ -72,7 +67,7 @@ public class LauncherWidgetProvider extends AppWidgetProvider {
         Intent i;
 
         // Voice app needs a different intent
-            if (!packageName.equals("voice")) {
+        if (!packageName.equals(VOICE_INTENT_PACKAGE)) {
             i = context.getPackageManager().getLaunchIntentForPackage(packageName);
         } else {
             i = new Intent("android.intent.action.VOICE_ASSIST")

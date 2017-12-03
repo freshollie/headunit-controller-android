@@ -272,23 +272,30 @@ public class DeviceInputManager {
         }
     }
 
-    public static String getNameForDeviceKey(Context context, int key) {
-        if (ShuttleXpressDevice.KeyCodes.ALL_BUTTONS.contains(key)) {
-            return context.getString(R.string.pref_input_button_x,
-                    key - ShuttleXpressDevice.KeyCodes.BUTTON_0 + 1);
-        } else {
-            switch (key) {
-                case ShuttleXpressDevice.KeyCodes.RING_LEFT:
-                    return context.getString(R.string.ring_left);
-                case ShuttleXpressDevice.KeyCodes.RING_MIDDLE:
-                    return context.getString(R.string.ring_middle);
-                case ShuttleXpressDevice.KeyCodes.RING_RIGHT:
-                    return context.getString(R.string.ring_right);
-                case ShuttleXpressDevice.KeyCodes.WHEEL_LEFT:
-                    return context.getString(R.string.wheel_left);
-                case ShuttleXpressDevice.KeyCodes.WHEEL_RIGHT:
-                    return context.getString(R.string.wheel_right);
+    public static String getNameForDeviceKey(Context context, int keyCode) {
+
+        int[] buttonKeyCodes = ShuttleXpressDevice.KeyCodes.BUTTON_KEYS;
+
+        // Check if it's a button keycode
+        for (int i = 0; i < buttonKeyCodes.length; i++) {
+            if (buttonKeyCodes[i] == keyCode) {
+                // Make the string based off the button number
+                return context.getString(R.string.device_input_button_x, i + 1);
             }
+        }
+
+        // Otherwise it must be one of these
+        switch (keyCode) {
+            case ShuttleXpressDevice.KeyCodes.RING_LEFT:
+                return context.getString(R.string.ring_left);
+            case ShuttleXpressDevice.KeyCodes.RING_MIDDLE:
+                return context.getString(R.string.ring_middle);
+            case ShuttleXpressDevice.KeyCodes.RING_RIGHT:
+                return context.getString(R.string.ring_right);
+            case ShuttleXpressDevice.KeyCodes.WHEEL_LEFT:
+                return context.getString(R.string.wheel_left);
+            case ShuttleXpressDevice.KeyCodes.WHEEL_RIGHT:
+                return context.getString(R.string.wheel_right);
         }
 
         return "";

@@ -52,10 +52,7 @@ import static com.freshollie.headunitcontroller.service.MainService.ACTION_START
  * API Guide</a> for more information on developing a Settings UI.
  */
 public class SettingsActivity extends AppCompatPreferenceActivity implements StatusUtil.OnStatusChangeListener {
-
     private static String TAG = SettingsActivity.class.getSimpleName();
-
-    private SharedPreferences sharedPreferences;
 
     private StatusUtil statusUtil;
 
@@ -72,7 +69,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         statusUtil = StatusUtil.getInstance();
 
@@ -476,7 +473,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
 
             keyMapper = new DeviceKeyMapper(getActivity());
 
-            makePage();
+            createScreen();
+            updateScreen();
         }
 
         private String getSummaryForKey(int key, boolean hold) {
@@ -526,14 +524,14 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
             return getSummaryForKey(key, false);
         }
 
-        public void launchKeySetDialog(int key) {
+        private void launchKeySetDialog(int key) {
             KeySetDialog dialog = new KeySetDialog();
 
             // Page will refresh when dialog closes
             dialog.setOnDismissListener(new KeySetDialog.KeySetDismissListener() {
                 @Override
                 public void onDismissed() {
-                    makePage();
+                    updateScreen();
                 }
             });
 
@@ -541,7 +539,23 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
             dialog.show(getFragmentManager(), KeySetDialog.class.getSimpleName());
         }
 
-        private void makePage() {
+        private void updateScreen() {
+            boolean inputEnabled = inputEnabledPreference.isChecked();
+
+            defaultsPreference.setEnabled(inputEnabled);
+            buttonCategory.setEnabled(inputEnabled);
+            ringCategory.setEnabled(inputEnabled);
+            wheelCategory.setEnabled(inputEnabled);
+            startInputPreference.setEnabled(inputEnabled);
+
+            for (int i = 0; i < deviceKeyPreferences.length; i++) {
+                int key = ShuttleXpressDevice.KeyCodes.ALL_KEYS[i];
+                deviceKeyPreferences[i].setSummary(getSummaryForKey(key));
+                deviceKeyPreferences[i].setEnabled(inputEnabled);
+            }
+        }
+
+        private void createScreen() {
             PreferenceScreen screen = getPreferenceManager().createPreferenceScreen(getActivity());
 
             DummyPreference d = new DummyPreference(getActivity(), null);
@@ -565,15 +579,12 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
                     startInputPreference.setEnabled(value);
                     defaultsPreference.setEnabled(value);
 
-                    buttonCategory.setEnabled(false);
-                    wheelCategory.setEnabled(false);
-                    ringCategory.setEnabled(false);
-
-
+                    buttonCategory.setEnabled(value);
+                    wheelCategory.setEnabled(value);
+                    ringCategory.setEnabled(value);
                     return true;
                 }
             });
-
             screen.addPreference(inputEnabledPreference);
 
             startInputPreference = new Preference(getActivity());
@@ -586,7 +597,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
                     return true;
                 }
             });
-            startInputPreference.setEnabled(inputEnabledPreference.isChecked());
             screen.addPreference(startInputPreference);
 
             defaultsPreference = new Preference(getActivity());
@@ -603,60 +613,49 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     keyMapper.setDefaults();
-                                    makePage();
+                                    updateScreen();
                                 }
                             })
                             .show();
                     return true;
                 }
             });
-            defaultsPreference.setEnabled(inputEnabledPreference.isChecked());
             screen.addPreference(defaultsPreference);
 
             for (int i = 0; i < deviceKeyPreferences.length; i++) {
-                if (i == 0) {
-                    PreferenceCategory category = new PreferenceCategory(getActivity());
-                    category.setTitle("Buttons");
-                    screen.addPreference(category);
-                    buttonCategory = category;
-                    category.setEnabled(inputEnabledPreference.isChecked());
+                final int keyCode = ShuttleXpressDevice.KeyCodes.ALL_KEYS[i];
 
-                } else if (i == ShuttleXpressDevice.KeyCodes.ALL_BUTTONS.size()) {
-                    PreferenceCategory category = new PreferenceCategory(getActivity());
-                    category.setTitle("Ring");
-                    screen.addPreference(category);
-                    ringCategory = category;
-                    category.setEnabled(inputEnabledPreference.isChecked());
+                // Add the categories to the screen as we come to them
+                if (keyCode == ShuttleXpressDevice.KeyCodes.BUTTON_KEYS[0]) {
+                    buttonCategory = new PreferenceCategory(getActivity());
+                    buttonCategory.setTitle("Buttons");
+                    screen.addPreference(buttonCategory);
 
-                } else if (i == ShuttleXpressDevice.KeyCodes.ALL_KEYS.size() - 2) {
-                    PreferenceCategory category = new PreferenceCategory(getActivity());
-                    category.setTitle("Wheel");
-                    screen.addPreference(category);
-                    wheelCategory = category;
-                    category.setEnabled(inputEnabledPreference.isChecked());
+                } else if (keyCode == ShuttleXpressDevice.KeyCodes.WHEEL_KEYS[0]) {
+                    wheelCategory = new PreferenceCategory(getActivity());
+                    wheelCategory.setTitle("Wheel");
+                    screen.addPreference(wheelCategory);
+
+                } else if (keyCode == ShuttleXpressDevice.KeyCodes.RING_KEYS[0]) {
+                    ringCategory = new PreferenceCategory(getActivity());
+                    ringCategory.setTitle("Ring");
+                    screen.addPreference(ringCategory);
                 }
 
-                final int key = ShuttleXpressDevice.KeyCodes.ALL_KEYS.get(i);
-
                 Preference keyPreference = new Preference(getActivity());
-                keyPreference.setTitle(DeviceInputManager.getNameForDeviceKey(getActivity(), key));
-                keyPreference.setSummary(getSummaryForKey(key));
+                keyPreference.setTitle(DeviceInputManager.getNameForDeviceKey(getActivity(), keyCode));
                 keyPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        launchKeySetDialog(key);
+                        launchKeySetDialog(keyCode);
                         return true;
                     }
                 });
-
-                keyPreference.setEnabled(inputEnabledPreference.isChecked());
-
-                screen.addPreference(keyPreference);
-
                 deviceKeyPreferences[i] = keyPreference;
-
-                setPreferenceScreen(screen);
+                screen.addPreference(keyPreference);
             }
+
+            setPreferenceScreen(screen);
         }
 
         @Override
