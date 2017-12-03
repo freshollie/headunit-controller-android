@@ -1,14 +1,12 @@
 <resources>
     <string name="app_name">Headunit Controller</string>
 
-    <string name="PREFERENCES_KEY">9asdy9a8fnas9hf9qwm9</string>
-
     <!-- Internal keys !-->
     <string name="PLAYING_AUDIO_APP_KEY">last_audio_app</string>
     <string name="PLAYING_RADIO_KEY">playing_radio</string>
     <string name="DRIVING_MODE_RUNNING_KEY">driving_mode_running</string>
-    <string name="SHOULD_START_DRIVING_MODE_KEY">should_start_driving_mode</string>
-    <string name="MAPS_WAS_ON_SCREEN">maps_was_on_screen</string>
+    <string name="should_start_driving_mode_key">should_start_driving_mode</string>
+    <string name="maps_was_on_screen_key">maps_was_on_screen</string>
 
     <!-- Settable preference keys !-->
     <string name="pref_power_on_debug_key">power_on_debug</string>
@@ -168,6 +166,7 @@
     <string name="pref_screen_orientation_summary">Screen orientation is set to: %s degrees</string>
     <string name="pref_screen_orientation_key">pref_screen_orientation</string>
     <string name="pref_screen_orientation_auto_entry">Auto</string>
+    <string name="bluetooth_devices_none_option">None</string>
 
 
 </resources>

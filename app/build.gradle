@@ -6,10 +6,10 @@ android {
     defaultConfig {
         applicationId "com.freshollie.headunitcontroller"
         minSdkVersion 21
-        targetSdkVersion 27
-        versionCode 30
+        // Nexus 7 2013 supports only up to marshmallow, so no point in any higher than that
+        targetSdkVersion 25
+        versionCode 40
         versionName "2.2"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -26,7 +26,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
     compile project(':shuttle-xpress-android')
-    compile 'com.rvalerio:fgchecker:1.0.1'
+    compile 'com.rvalerio:fgchecker:1.1.0'
     compile 'com.android.support:appcompat-v7:27.0.2'
     compile 'com.android.support:support-v4:27.0.2'
 }
