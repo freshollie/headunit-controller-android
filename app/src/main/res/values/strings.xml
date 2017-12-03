@@ -156,13 +156,18 @@
     <string name="incomplete_title">Incomplete</string>
     <string name="select_key_title">Select Key</string>
     <string name="select_application_title">Select Application</string>
+
     <string name="pref_bluetooth_tether_address">bluetooth_tether_address</string>
-    <string name="bluetooth_tether_category_title">Tethering</string>
-    <string name="bluetooth_tether_address_title">Bluetooth tether device</string>
-    <string name="bluetooth_tether_address_summary">When wifi is lost, tether to: %s</string>
-    <string name="bluetooth_tether_address_select_title">Select bluetooth device</string>
-    <string name="bluetooth_no_devices_messaged">You are not paired with any bluetooth devices</string>
-    <string name="bluetooth_tether_no_device_set">No device set</string>
+    <string name="pref_bluetooth_tether_category_title">Tethering</string>
+    <string name="pref_bluetooth_tether_address_title">Bluetooth tether device</string>
+    <string name="pref_bluetooth_tether_address_summary">When wifi is lost, tether to: %s</string>
+    <string name="pref_bluetooth_tether_address_select_title">Select bluetooth device</string>
+    <string name="pref_bluetooth_no_devices_messaged">You are not paired with any bluetooth devices</string>
+    <string name="pref_bluetooth_tether_no_device_set">No device set</string>
+    <string name="pref_screen_orientation_title">Screen orientation</string>
+    <string name="pref_screen_orientation_summary">Screen orientation is set to: %s degrees</string>
+    <string name="pref_screen_orientation_key">pref_screen_orientation</string>
+    <string name="pref_screen_orientation_auto_entry">Auto</string>
 
 
 </resources>

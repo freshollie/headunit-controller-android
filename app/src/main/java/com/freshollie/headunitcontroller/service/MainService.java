@@ -11,6 +11,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -25,13 +26,14 @@ import com.freshollie.headunitcontroller.utils.StatusUtil;
 import com.freshollie.headunitcontroller.utils.SuperuserManager;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * MainService handles main power intents
  * and requesting superuser
  */
 
-public class MainService extends Service {
+public class MainService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener{
     public String TAG = this.getClass().getSimpleName();
 
     public static String ACTION_SU_NOT_GRANTED =
@@ -45,8 +47,6 @@ public class MainService extends Service {
 
     private MediaMonitor mediaMonitor;
     private RoutineManager routineManager;
-
-    private SharedPreferences sharedPreferences;
 
     public static class PowerAndBootReceiver extends BroadcastReceiver {
         /**
@@ -74,9 +74,6 @@ public class MainService extends Service {
     public void onCreate() {
         Log.v(TAG, "Started");
 
-        sharedPreferences =
-                getSharedPreferences(getString(R.string.PREFERENCES_KEY), Context.MODE_PRIVATE);
-
         superuserManager = SuperuserManager.getInstance();
         notificationHandler = new NotificationHandler(getApplicationContext());
 
@@ -88,6 +85,7 @@ public class MainService extends Service {
         routineManager = new RoutineManager(getApplicationContext());
 
 
+        // Record logs
         String [] args = new String[] {"logcat", "-v", "threadtime",
                 "-f", Environment.getExternalStorageDirectory() + "logs/all.log",
                 "-r", Integer.toString(100),
@@ -99,11 +97,37 @@ public class MainService extends Service {
             e.printStackTrace();
         }
 
+        // Ensure the service is not closed
         startForeground(
                 NotificationHandler.SERVICE_NOTIFICATION_ID,
                 notificationHandler.notifyServiceStatus(getString(R.string.notify_running))
         );
 
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String preference) {
+        if (preference.equals(getString(R.string.pref_screen_orientation_key))) {
+            setGlobalScreenOrientation(sharedPreferences.getString(preference, "4"));
+        }
+    }
+
+    public void setGlobalScreenOrientation(String orientationPref) {
+        String autoEnabled = "settings put system accelerometer_rotation ";
+        String orientationCommand = "settings put system user_rotation ";
+
+        if (Integer.valueOf(orientationPref) == 0) {
+            autoEnabled += "1";
+        } else {
+            autoEnabled += "0";
+        }
+
+        orientationCommand += String.valueOf(Integer.valueOf(orientationPref) - 1);
+
+        if (superuserManager.hasPermission()) {
+            SuperuserManager.getInstance().asyncExecute(orientationCommand);
+            SuperuserManager.getInstance().asyncExecute(autoEnabled);
+        }
     }
 
     public void informNoListeningPermission() {
@@ -207,6 +231,20 @@ public class MainService extends Service {
 
                     notificationHandler.cancel(NotificationHandler.STATUS_NOTIFICATION_ID);
 
+                    // Listen for screen orientation changes
+                    PreferenceManager.getDefaultSharedPreferences(this)
+                            .registerOnSharedPreferenceChangeListener(this);
+
+                    // Set the correct orientation
+                    setGlobalScreenOrientation(
+                            PreferenceManager
+                                    .getDefaultSharedPreferences(this)
+                                    .getString(
+                                            getString(R.string.pref_screen_orientation_key),
+                                            "4"
+                                    )
+                    );
+
                     switch (intent.getAction()) {
                         case Intent.ACTION_POWER_CONNECTED:
                             routineManager.onPowerConnected();
@@ -256,6 +294,9 @@ public class MainService extends Service {
         Log.v(TAG, "Stopping");
         mediaMonitor.stop();
         routineManager.stop();
+        // Listen for screen orientation changes
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .unregisterOnSharedPreferenceChangeListener(this);
         stopForeground(true);
     }
 }

@@ -53,7 +53,7 @@ import static com.freshollie.headunitcontroller.service.MainService.ACTION_START
  */
 public class SettingsActivity extends AppCompatPreferenceActivity implements StatusUtil.OnStatusChangeListener {
 
-    private String TAG = SettingsActivity.class.getSimpleName();
+    private static String TAG = SettingsActivity.class.getSimpleName();
 
     private SharedPreferences sharedPreferences;
 
@@ -157,6 +157,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
         ListPreference volumeLevelPreference;
         Preference shellCommandsPreference;
         Preference bluetoothTetherPreference;
+        ListPreference screenRotationPreference;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -164,6 +165,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
             addPreferencesFromResource(R.xml.pref_wakeup);
 
             setHasOptionsMenu(true);
+
+            screenRotationPreference = (ListPreference)
+                    findPreference(getString(R.string.pref_screen_orientation_key));
 
             maxDevicesPreference = (ListPreference)
                     findPreference(getString(R.string.pref_num_devices_key));
@@ -179,11 +183,51 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
 
             shellCommandsPreference = findPreference(getString(R.string.pref_shell_wakeup_commands_key));
 
+            bluetoothTetherPreference = findPreference(getString(R.string.pref_bluetooth_tether_address));
+
             setupPreferences();
 
         }
 
         private void setupPreferences() {
+
+            String[] rotationId = new String[5];
+            for (int i = 0; i < 5; i++) {
+                rotationId[i] = String.valueOf(i);
+            }
+
+            final String[] degrees = new String[5];
+            for (int i = 0; i < 4; i++) {
+                degrees[i + 1] = String.valueOf(i * 90);
+            }
+
+            degrees[0] = getString(R.string.pref_screen_orientation_auto_entry);
+
+            screenRotationPreference.setEntries(degrees);
+            screenRotationPreference.setEntryValues(rotationId);
+
+            screenRotationPreference.setSummary(
+                    getString(
+                            R.string.pref_screen_orientation_summary,
+                            degrees[Integer.valueOf(screenRotationPreference.getValue())]
+                    )
+            );
+
+            screenRotationPreference.setOnPreferenceChangeListener(
+                    new Preference.OnPreferenceChangeListener() {
+                        @Override
+                        public boolean onPreferenceChange(Preference preference, Object o) {
+                            preference.setSummary(
+                                    getString(
+                                            R.string.pref_screen_orientation_summary,
+                                            degrees[Integer.valueOf((String) o)]
+                                    )
+                            );
+
+                            return true;
+                        }
+                    }
+            );
 
             routineDelayPreference.setSummary(getString(R.string.pref_wake_up_delay_summary,
                     routineDelayPreference.getText()));
@@ -213,6 +257,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
                 numDevicesValues[i] = String.valueOf(i);
             }
 
+
+            // Summary is automatically updated
             maxDevicesPreference.setDefaultValue(3);
             maxDevicesPreference.setEntries(numDevicesValues);
             maxDevicesPreference.setEntryValues(numDevicesValues);
@@ -238,17 +284,21 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
             volumeLevelPreference.setEntries(volumes);
             volumeLevelPreference.setEntryValues(volumes);
 
+            volumeLevelPreference.setSummary(
+                    getString(R.string.pref_volume_level_summary, volumeLevelPreference.getValue())
+            );
+
             volumeLevelPreference.setOnPreferenceChangeListener(
                     new Preference.OnPreferenceChangeListener() {
                         @Override
                         public boolean onPreferenceChange(Preference preference, Object o) {
+                            Log.v(TAG, "VOLUME SET?");
                             preference.setSummary(getString(R.string.pref_volume_level_summary, o));
                             return true;
                         }
                     }
             );
 
-            bluetoothTetherPreference = findPreference(getString(R.string.pref_bluetooth_tether_address));
             bluetoothTetherPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
@@ -274,7 +324,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
                         .getRemoteDevice(savedAddress);
             } catch (IllegalArgumentException | NullPointerException ignored) {}
 
-            String deviceName = getActivity().getString(R.string.bluetooth_tether_no_device_set);
+            String deviceName = getActivity().getString(R.string.pref_bluetooth_tether_no_device_set);
             if (device != null) {
                 deviceName = device.getName();
             } else if (!savedAddress.isEmpty()) {
@@ -286,7 +336,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
             }
 
             bluetoothTetherPreference.setSummary(
-                    getString(R.string.bluetooth_tether_address_summary, deviceName)
+                    getString(R.string.pref_bluetooth_tether_address_summary, deviceName)
             );
         }
 
@@ -298,7 +348,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
             Set<BluetoothDevice> bluetoothDevicesSet = null;
 
             if (BluetoothAdapter.getDefaultAdapter() != null) {
-                BluetoothAdapter.getDefaultAdapter().getBondedDevices();
+                bluetoothDevicesSet = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
             }
 
             if (bluetoothDevicesSet != null && !bluetoothDevicesSet.isEmpty()) {
@@ -316,7 +366,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
                 }
 
                 new AlertDialog.Builder(getActivity())
-                        .setTitle(R.string.bluetooth_tether_address_select_title)
+                        .setTitle(R.string.pref_bluetooth_tether_address_select_title)
                         .setSingleChoiceItems(
                                 deviceNames,
                                 checkedDevice,
@@ -348,7 +398,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sta
                         .show();
             } else {
                 new AlertDialog.Builder(getActivity())
-                        .setMessage(R.string.bluetooth_no_devices_messaged)
+                        .setMessage(R.string.pref_bluetooth_no_devices_messaged)
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {

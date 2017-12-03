@@ -20,6 +20,7 @@ It has several customisable features which can be turned on and off at the users
 - Keep speakers active to avoid ground loop interferance
 - Keep autobright alive in the background
 - Kill navigation 5 minutes after suspend (Stops wakelocks)
+- Homescreen widget with 6 apps, (Used mostly for my own use)
 
 ### Shuttle Xpress Input
 
@@ -51,4 +52,8 @@ Any bugs please submit an issue in the "Issues" section.
 
 <p align="center">
     <img src="https://github.com/freshollie/AndroidHeadunitController/raw/master/screenshots/notifications.png" alt="Running" width="800"/>
+</p>
+
+<p align="center">
+    <img src="https://github.com/freshollie/AndroidHeadunitController/raw/master/screenshots/widget.png" alt="Running" width="800"/>
 </p>
