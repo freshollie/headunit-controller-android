@@ -26,10 +26,11 @@ repositories {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
-    compile project(':shuttle-xpress-android')
     compile 'com.rvalerio:fgchecker:1.1.0'
     compile 'com.android.support:appcompat-v7:27.0.2'
     compile 'com.android.support:support-v4:27.0.2'
+
+    compile project(":shuttle-xpress-library")
 }
 
 task makeApkDir {

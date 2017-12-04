@@ -1,1 +1,3 @@
-include ':app', ':shuttle-xpress-android'
+include ':app'
+include ':shuttle-xpress-library'
+project(':shuttle-xpress-library').projectDir = new File('shuttle-xpress-android/shuttle-xpress-library')
