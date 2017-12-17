@@ -14,6 +14,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -21,6 +22,7 @@ import android.view.inputmethod.InputMethodManager;
 import com.freshollie.headunitcontroller.R;
 import com.freshollie.headunitcontroller.SettingsActivity;
 
+import java.util.Arrays;
 import java.util.Set;
 
 /**
@@ -244,11 +246,20 @@ public class WakeUpPreferencesFragment extends PreferenceFragment {
 
             int i = 0;
             for (BluetoothDevice device: bluetoothDevices) {
-                deviceNames[i + 1] = device.getName();
-                deviceAddresses[i + 1] = device.getAddress();
-                if (device.getAddress().equals(currentSelectedDeviceAddress)) {
-                    currentDeviceIndex = i + 1;
+                String name = device.getName();
+                if (name == null) {
+                    name = device.getAddress();
                 }
+
+                if (name != null) {
+                    deviceNames[i + 1] = device.getName();
+                    deviceAddresses[i + 1] = device.getAddress();
+                    if (device.getAddress().equals(currentSelectedDeviceAddress)) {
+                        currentDeviceIndex = i + 1;
+                    }
+                }
+
+                i++;
             }
 
             new AlertDialog.Builder(getActivity())

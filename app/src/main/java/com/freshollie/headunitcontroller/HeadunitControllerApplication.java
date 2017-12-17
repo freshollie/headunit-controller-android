@@ -11,6 +11,6 @@ import android.support.v7.app.AppCompatDelegate;
 
 public class HeadunitControllerApplication extends Application{
     static {
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
     }
 }
