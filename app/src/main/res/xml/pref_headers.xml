@@ -4,27 +4,27 @@
 
     <header
         android:fragment="com.freshollie.headunitcontroller.ui.settings.fragments.WakeUpPreferencesFragment"
-        android:icon="@drawable/ic_battery_charging_full_black_24dp"
+        android:icon="@drawable/ic_wakeup_settings_24dp"
         android:title="Wakeup" />
     <header
         android:fragment="com.freshollie.headunitcontroller.ui.settings.fragments.SuspendPreferencesFragment"
-        android:icon="@drawable/ic_battery_full_black_24dp"
+        android:icon="@drawable/ic_suspend_settings_24dp"
         android:title="Suspend"/>
 
     <header
         android:fragment="com.freshollie.headunitcontroller.ui.settings.fragments.InputPreferencesFragment"
-        android:icon="@drawable/ic_shuttle_xpress_black_24dp"
+        android:icon="@drawable/ic_shuttle_xpress_24dp"
         android:title="Input" />
 
     <header
         android:fragment="com.freshollie.headunitcontroller.ui.settings.fragments.InfoFragment"
-        android:icon="@drawable/ic_info_black_24dp"
+        android:icon="@drawable/ic_info_24dp"
         android:title="Info"
         />
 
     <header
         android:fragment="com.freshollie.headunitcontroller.ui.settings.fragments.DebuggingFragment"
-        android:icon="@drawable/ic_build_black_24dp"
+        android:icon="@drawable/ic_debug_settings_24dp"
         android:title="Debugging" />
 
 </preference-headers>

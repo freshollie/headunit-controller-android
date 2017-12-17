@@ -10,7 +10,7 @@
         android:scaleX="0.100000"
         android:scaleY="-0.100000">
         <path
-            android:fillColor="#000000"
+            android:fillColor="@color/iconColor"
             android:strokeWidth="1"
             android:pathData="M3460 6124 c-126 -11 -310 -37 -413 -59 -1162 -241 -2083 -1163 -2322 -2324 -47
 -226 -59 -350 -59 -611 0 -261 12 -385 59 -611 239 -1162 1162 -2085 2324 -2324
@@ -40,7 +40,7 @@ m-1887 -473 c48 -25 257 -232 282 -281 14 -27 23 -66 26 -118 8 -133 -3 -148 -370
 1 160 -2 210 -20z"
             tools:ignore="VectorPath" />
         <path
-            android:fillColor="#000000"
+            android:fillColor="@color/iconColor"
             android:strokeWidth="1"
             android:pathData="M3466 4155 c-404 -84 -711 -374 -817 -773 -27 -99 -37 -312 -19 -420 66 -415 366
 -744 778 -853 99 -27 312 -37 420 -19 415 66 744 366 853 778 27 99 37 312 19 420

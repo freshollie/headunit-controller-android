@@ -16,11 +16,12 @@ import com.freshollie.headunitcontroller.SettingsActivity;
  */
 
 public class NotificationHandler {
-    private Context context;
     public static int STATUS_NOTIFICATION_ID = 1233234;
     public static int SERVICE_NOTIFICATION_ID = 217234389;
 
-    private NotificationCompat.Builder notificationBuilder;
+    private Context context;
+
+    private Notification.Builder notificationBuilder;
     private NotificationManager notificationManager;
 
     private static Notification SERVICE_NOTIFICATION;
@@ -31,8 +32,8 @@ public class NotificationHandler {
         notificationManager = (NotificationManager) context.getSystemService(Service.NOTIFICATION_SERVICE);
     }
 
-    public void buildNotification() {
-        notificationBuilder = new NotificationCompat.Builder(context.getApplicationContext())
+    private void buildNotification() {
+        notificationBuilder = new Notification.Builder(context.getApplicationContext())
                 .setContentTitle(context.getString(R.string.app_name))
                 .setOngoing(true)
                 .setSmallIcon(R.drawable.ic_notification)

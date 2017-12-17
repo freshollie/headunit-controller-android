@@ -9,14 +9,19 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.database.ContentObserver;
+import android.net.Uri;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Process;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.freshollie.headunitcontroller.R;
+import com.freshollie.headunitcontroller.SettingsActivity;
 import com.freshollie.headunitcontroller.util.NotificationHandler;
 import com.freshollie.headunitcontroller.util.PowerUtil;
 import com.freshollie.headunitcontroller.util.Logger;
@@ -25,23 +30,25 @@ import com.freshollie.headunitcontroller.services.controllers.MainController;
 
 import java.io.IOException;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_NO_HISTORY;
+
 /**
  * MainService handles main power intents
  * and requesting superuser
  */
 
-public class MainService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener{
-    public String TAG = this.getClass().getSimpleName();
+public class MainService extends Service implements
+        SharedPreferences.OnSharedPreferenceChangeListener {
+
+    private static final String TAG = MainService.class.getSimpleName();
 
     public static String ACTION_SU_NOT_GRANTED =
             "com.freshollie.headunitcontroller.action.SU_NOT_GRANTED";
-
     public static String ACTION_START_INPUT_SERVICE =
             "com.freshollie.headunitcontroller.action.ACTION_START_INPUT_SERVICE";
-
     private static String NOTIFICATION_LISTENER_SETTINGS_ACTION =
             "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS";
-
     private static String ENABLED_NOTIFICATION_LISTENERS_KEY =
             "enabled_notification_listeners";
 
@@ -50,28 +57,67 @@ public class MainService extends Service implements SharedPreferences.OnSharedPr
 
     private MediaMonitor mediaMonitor;
     private MainController mainController;
-    private PackageManager packageManager;
     private AppOpsManager appOpsManager;
 
     private SharedPreferences sharedPreferences;
 
+    private ContentObserver notificationListeningSettingsObserver;
+    private AppOpsManager.OnOpChangedListener usagePermissionChangeListener;
 
     @Override
     public void onCreate() {
         Log.d(TAG, "Started");
-
         superuserManager = SuperuserManager.getInstance();
         notificationHandler = new NotificationHandler(getApplicationContext());
         mainController = new MainController(getApplicationContext());
-
         mediaMonitor = new MediaMonitor(getApplicationContext());
-        if (haveListeningPermission()) {
-            mediaMonitor.start();
-        }
 
         sharedPreferences =  PreferenceManager.getDefaultSharedPreferences(this);
-        packageManager = getPackageManager();
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
         appOpsManager = (AppOpsManager) getSystemService(APP_OPS_SERVICE);
+
+        notificationListeningSettingsObserver = new ContentObserver(new Handler(getMainLooper())) {
+            @Override
+            public void onChange(boolean selfChange, Uri uri) {
+                Log.e(TAG, "Test");
+                if (haveListeningPermission()) {
+                    startActivity(
+                            new Intent(getApplicationContext(), SettingsActivity.class)
+                                    .setFlags(
+                                            FLAG_ACTIVITY_NEW_TASK |
+                                            FLAG_ACTIVITY_NO_HISTORY
+                                    )
+                    );
+                }
+            }
+        };
+        getContentResolver()
+                .registerContentObserver(
+                        Settings.Secure.getUriFor(ENABLED_NOTIFICATION_LISTENERS_KEY),
+                        true,
+                        notificationListeningSettingsObserver
+                );
+
+        usagePermissionChangeListener = new AppOpsManager.OnOpChangedListener() {
+            @Override
+            public void onOpChanged(String s, String s1) {
+                Log.e(TAG, "Test");
+                if (haveUsageStatsPermission()) {
+                    startActivity(
+                            new Intent(getApplicationContext(), SettingsActivity.class)
+                                    .setFlags(
+                                            FLAG_ACTIVITY_NEW_TASK |
+                                            FLAG_ACTIVITY_NO_HISTORY
+                                    )
+                    );
+                }
+            }
+        };
+        appOpsManager.startWatchingMode(
+                AppOpsManager.OPSTR_GET_USAGE_STATS,
+                getApplication().getPackageName(),
+                usagePermissionChangeListener
+        );
 
         // Record more logs
         String [] args = new String[] {"logcat", "-v", "threadtime",
@@ -120,23 +166,17 @@ public class MainService extends Service implements SharedPreferences.OnSharedPr
     private void informNoListeningPermission() {
         startActivity(
                 new Intent(NOTIFICATION_LISTENER_SETTINGS_ACTION)
-                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        .setFlags(FLAG_ACTIVITY_NEW_TASK| FLAG_ACTIVITY_NO_HISTORY)
         );
         stopWithStatus(getString(R.string.notify_no_notification_listen_permission));
     }
 
     private void informNoUsageStatsPermission() {
-        notificationHandler.notifyStatus(
-                getString(R.string.notify_no_usage_stats_permission),
-
-                PendingIntent.getActivity(
-                        getApplicationContext(),
-                        0,
-                        new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
-                                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                )
+        startActivity(
+                new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+                        .setFlags(FLAG_ACTIVITY_NEW_TASK| FLAG_ACTIVITY_NO_HISTORY)
         );
+        stopWithStatus(getString(R.string.notify_no_usage_stats_permission));
     }
 
     /**
@@ -155,19 +195,13 @@ public class MainService extends Service implements SharedPreferences.OnSharedPr
      * @return
      */
     private boolean haveUsageStatsPermission() {
-        try {
-            ApplicationInfo applicationInfo =
-                    packageManager.getApplicationInfo(getPackageName(), 0);
-            int mode = appOpsManager.checkOpNoThrow(
-                    AppOpsManager.OPSTR_GET_USAGE_STATS,
-                    applicationInfo.uid,
-                    applicationInfo.packageName
-            );
-            return (mode == AppOpsManager.MODE_ALLOWED);
 
-        } catch (PackageManager.NameNotFoundException e) {
-            return false;
-        }
+        int mode = appOpsManager.checkOpNoThrow(
+                AppOpsManager.OPSTR_GET_USAGE_STATS,
+                Process.myUid(),
+                getApplication().getPackageName()
+        );
+        return (mode == AppOpsManager.MODE_ALLOWED);
     }
 
     @Override
@@ -189,8 +223,10 @@ public class MainService extends Service implements SharedPreferences.OnSharedPr
         if (!haveUsageStatsPermission()) {
             Logger.log(TAG, "Notifying no usage permission");
             informNoUsageStatsPermission();
+            return START_NOT_STICKY;
+        }
 
-        } else if (!superuserManager.hasPermission()) {
+        if (!superuserManager.hasPermission()) {
             Logger.log(TAG, "Requesting SU permission");
 
             superuserManager.request(new SuperuserManager.permissionListener() {
@@ -217,8 +253,7 @@ public class MainService extends Service implements SharedPreferences.OnSharedPr
 
                     notificationHandler.cancel(NotificationHandler.STATUS_NOTIFICATION_ID);
 
-                    // Listen for screen orientation changes
-                    sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+                    mediaMonitor.start();
 
                     // Set the correct orientation
                     setGlobalScreenOrientation(
@@ -261,15 +296,11 @@ public class MainService extends Service implements SharedPreferences.OnSharedPr
     private void stopWithStatus(String status){
         Log.d(TAG, "Stopping with status '" + status + "'");
         Toast.makeText(getApplicationContext(), status, Toast.LENGTH_LONG).show();
-        notificationHandler.notifyStatus(status);
-        stopSelf();
     }
 
     private void stopWithStatusAndAction(String status, PendingIntent action) {
         Log.d(TAG, "Stopping with status '" + status + "'");
         Toast.makeText(getApplicationContext(), status, Toast.LENGTH_LONG).show();
-        notificationHandler.notifyStatus(status, action);
-        stopSelf();
     }
 
     @Override
@@ -277,7 +308,11 @@ public class MainService extends Service implements SharedPreferences.OnSharedPr
         Log.d(TAG, "Stopping");
         mediaMonitor.stop();
         mainController.destroy();
+
+        getContentResolver().unregisterContentObserver(notificationListeningSettingsObserver);
+        appOpsManager.stopWatchingMode(usagePermissionChangeListener);
         sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+
         stopForeground(true);
     }
 

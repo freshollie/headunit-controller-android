@@ -47,7 +47,7 @@
     <string name="notify_running">Running</string>
     <string name="notify_no_notification_listen_permission">Please enable notification listening in settings</string>
 
-    <string name="notify_no_usage_stats_permission">Click here to enable usage monitoring in settings</string>
+    <string name="notify_no_usage_stats_permission">Please enable usage monitoring in settings</string>
 
 
     <!-- Settings values !-->
@@ -167,6 +167,4 @@
     <string name="pref_screen_orientation_key">pref_screen_orientation</string>
     <string name="pref_screen_orientation_auto_entry">Auto</string>
     <string name="bluetooth_devices_none_option">None</string>
-
-
 </resources>

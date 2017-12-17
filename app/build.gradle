@@ -8,8 +8,10 @@ android {
         minSdkVersion 21
         // Nexus 7 2013 supports only up to marshmallow, so no point in any higher than that
         targetSdkVersion 25
-        versionCode 40
-        versionName "2.2"
+        versionCode 42
+        versionName "2.2.1"
+
+        setProperty("archivesBaseName", "headunit-controller-$versionName")
     }
     buildTypes {
         release {
@@ -28,7 +30,6 @@ dependencies {
 
     compile 'com.rvalerio:fgchecker:1.1.0'
     compile 'com.android.support:appcompat-v7:27.0.2'
-    compile 'com.android.support:support-v4:27.0.2'
 
     compile project(":shuttle-xpress-library")
 }

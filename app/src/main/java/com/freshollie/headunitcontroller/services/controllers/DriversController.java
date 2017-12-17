@@ -1,6 +1,8 @@
 package com.freshollie.headunitcontroller.services.controllers;
 
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.usb.UsbManager;
 import android.os.Handler;
@@ -19,10 +21,11 @@ import com.freshollie.headunitcontroller.util.SuperuserManager;
 public class DriversController {
     private static final String TAG = DriversController.class.getSimpleName();
 
-    private static final String USB_GPS_SERVICE_START_COMMAND =
-            "am startservice " +
-                    "-a org.broeuschmeul.android.gps.usb.provider" +
-                    ".driver.usbgpsproviderservice.intent.action.START_GPS_PROVIDER";
+    private static final String USB_GPS_PACKAGE = "org.broeuschmeul.android.gps.usb.provider";
+    private static final String USB_GPS_SERVICE =
+            USB_GPS_PACKAGE + ".driver.USBGpsProviderService";
+    private static final String START_USB_SERVICE_ACTION =
+            USB_GPS_PACKAGE + ".action.START_GPS_PROVIDER";
 
     private static final String AUTOBRIGHT_SERVICE_START_COMMAND =
             "am startservice " +
@@ -34,6 +37,8 @@ public class DriversController {
                     "-n com.autobright.kevinforeman.autobright/.AutoBright";
 
     private static final int ATTACH_TIMEOUT = 3000; // Milliseconds
+
+    private final Intent startUsbGpsServiceIntent;
 
     private final Context context;
     private final Handler mainThread;
@@ -49,10 +54,16 @@ public class DriversController {
 
     public DriversController(Context serviceContext) {
         context = serviceContext;
-        mainThread = new Handler(context.getMainLooper());
+
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        deviceInputManager = new DeviceInputManager(context);
         usbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
+
+        mainThread = new Handler(context.getMainLooper());
+        deviceInputManager = new DeviceInputManager(context);
+
+        startUsbGpsServiceIntent = new Intent();
+        startUsbGpsServiceIntent.setComponent(new ComponentName(USB_GPS_PACKAGE, USB_GPS_SERVICE));
+        startUsbGpsServiceIntent.setAction(START_USB_SERVICE_ACTION);
 
         superuserManager = SuperuserManager.getInstance();
     }
@@ -91,14 +102,13 @@ public class DriversController {
     }
 
     private void launchGpsService() {
-        if (superuserManager.hasPermission()) {
-            superuserManager.asyncExecute(USB_GPS_SERVICE_START_COMMAND);
-        }
+        context.startService(startUsbGpsServiceIntent);
     }
 
     private void launchBrightnessControllerService() {
         Logger.log(TAG, "StartUp: Starting brightness controller");
 
+        // Autobright is not an exported service :(
         if (superuserManager.hasPermission()) {
             superuserManager.asyncExecute(AUTOBRIGHT_SERVICE_START_COMMAND);
         }

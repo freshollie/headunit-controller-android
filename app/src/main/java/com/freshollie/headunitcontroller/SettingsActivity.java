@@ -9,6 +9,8 @@ import android.preference.PreferenceActivity;
 import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatDelegate;
+import android.util.Log;
 
 import com.freshollie.headunitcontroller.services.MainService;
 import com.freshollie.headunitcontroller.ui.settings.AppCompatPreferenceActivity;
@@ -30,6 +32,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Log
 
     private Logger logger;
     private ActionBar actionBar;
+    private SharedPreferences sharedPreferences;
 
     private static boolean isLargeScreen(Context context) {
         return (context.getResources().getConfiguration().screenLayout
@@ -42,21 +45,18 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Log
         logger = Logger.getInstance();
         actionBar = getSupportActionBar();
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-
-        if (!sharedPreferences.getBoolean(getString(R.string.pref_debug_enabled_key), false)) {
-            if (PowerUtil.isConnected(getApplicationContext())) {
-                MainService.start(this, Intent.ACTION_POWER_CONNECTED);
-            }
-        }
-
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
     }
 
     @Override
     public void onResume() {
         logger.registerOnNewLineListener(this);
         onNewLine(logger.getLastLogLine());
+        if (!sharedPreferences.getBoolean(getString(R.string.pref_debug_enabled_key), false)) {
+            if (PowerUtil.isConnected(getApplicationContext())) {
+                MainService.start(this, Intent.ACTION_POWER_CONNECTED);
+            }
+        }
         super.onResume();
     }
 
