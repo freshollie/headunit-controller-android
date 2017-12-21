@@ -105,7 +105,7 @@ public class MainController {
         }
     }
 
-    public void onSuspend() {
+    private void onSuspend() {
         Log.d(TAG, "Running stop routine");
 
         if (lastState == STATE_START_ROUTINE_RUN) {

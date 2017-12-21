@@ -8,6 +8,7 @@ import android.media.session.MediaSessionManager;
 import android.media.session.PlaybackState;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.freshollie.headunitcontroller.R;
@@ -26,15 +27,14 @@ public class MediaMonitor extends MediaController.Callback implements
     private static final String TAG = MediaMonitor.class.getSimpleName();
 
     private MediaSessionManager mediaSessionManager;
+    private SharedPreferences sharedPreferences;
+    private Handler mainThread;
+    private Context context;
 
     // Used to keep track of the currently playing media controllers
     private ArrayList<MediaController> activeMediaControllers = new ArrayList<>();
 
-    private SharedPreferences sharedPreferences;
-
-    private Handler mainHandler;
-
-    private Context context;
+    private boolean running;
 
     MediaMonitor(Context serviceContext) {
         Log.d(TAG, "Created");
@@ -43,22 +43,30 @@ public class MediaMonitor extends MediaController.Callback implements
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         mediaSessionManager = (MediaSessionManager) context.getSystemService(Context.MEDIA_SESSION_SERVICE);
-        mainHandler = new Handler(context.getMainLooper());
+        mainThread = new Handler(context.getMainLooper());
+
+        running = false;
     }
 
     void start() {
-        Logger.log(TAG, "Starting Media Monitor");
+        if (!running) {
+            running = true;
+            Logger.log(TAG, "Starting Media Monitor");
 
-        mediaSessionManager.addOnActiveSessionsChangedListener(
-                this,
-                new ComponentName(context, GoogleMapsListenerService.class)
-        );
+            mediaSessionManager.addOnActiveSessionsChangedListener(
+                    this,
+                    new ComponentName(context, GoogleMapsListenerService.class)
+            );
+        }
     }
 
     void stop() {
-        Logger.log(TAG, "Stopping Media Monitor");
+        if (running) {
+            running = false;
+            Logger.log(TAG, "Stopping Media Monitor");
 
-        mediaSessionManager.removeOnActiveSessionsChangedListener(this);
+            mediaSessionManager.removeOnActiveSessionsChangedListener(this);
+        }
     }
 
     /**
@@ -106,7 +114,7 @@ public class MediaMonitor extends MediaController.Callback implements
             if (playbackState != null) {
                 if (playbackState.getState() == PlaybackState.STATE_PLAYING) {
                     mediaControllerActive = true;
-                    mainHandler.removeCallbacks(runnableSetNoPlayback);
+                    mainThread.removeCallbacks(runnableSetNoPlayback);
                     saveCurrentActiveMediaApp(activeMediaController.getPackageName());
                     break;
                 }
@@ -114,7 +122,7 @@ public class MediaMonitor extends MediaController.Callback implements
         }
 
         if (!mediaControllerActive) {
-            mainHandler.postDelayed(runnableSetNoPlayback, 2000);
+            mainThread.postDelayed(runnableSetNoPlayback, 2000);
         }
     }
 
@@ -143,7 +151,7 @@ public class MediaMonitor extends MediaController.Callback implements
     }
 
     @Override
-    public void onPlaybackStateChanged(PlaybackState state) {
+    public void onPlaybackStateChanged(@NonNull PlaybackState state) {
         super.onPlaybackStateChanged(state);
         checkActiveMediaControllers();
     }

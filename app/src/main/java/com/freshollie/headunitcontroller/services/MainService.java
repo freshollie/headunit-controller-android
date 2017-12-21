@@ -79,7 +79,6 @@ public class MainService extends Service implements
         notificationListeningSettingsObserver = new ContentObserver(new Handler(getMainLooper())) {
             @Override
             public void onChange(boolean selfChange, Uri uri) {
-                Log.e(TAG, "Test");
                 if (haveListeningPermission()) {
                     startActivity(
                             new Intent(getApplicationContext(), SettingsActivity.class)
@@ -101,7 +100,6 @@ public class MainService extends Service implements
         usagePermissionChangeListener = new AppOpsManager.OnOpChangedListener() {
             @Override
             public void onOpChanged(String s, String s1) {
-                Log.e(TAG, "Test");
                 if (haveUsageStatsPermission()) {
                     startActivity(
                             new Intent(getApplicationContext(), SettingsActivity.class)
