@@ -7,7 +7,7 @@ android {
         applicationId "com.freshollie.headunitcontroller"
         minSdkVersion 21
         // Nexus 7 2013 supports only up to marshmallow, so no point in any higher than that
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 44
         versionName "2.2.2"
 
@@ -15,8 +15,7 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

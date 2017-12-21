@@ -18,3 +18,4 @@
 
 -dontobfuscate
 -optimizations !code/allocation/variable
+-keep class android.support.v7.widget.Toolbar

@@ -164,7 +164,7 @@ public class MainService extends Service implements
     private void informNoListeningPermission() {
         startActivity(
                 new Intent(NOTIFICATION_LISTENER_SETTINGS_ACTION)
-                        .setFlags(FLAG_ACTIVITY_NEW_TASK| FLAG_ACTIVITY_NO_HISTORY)
+                        .setFlags(FLAG_ACTIVITY_NEW_TASK)
         );
         stopWithStatus(getString(R.string.notify_no_notification_listen_permission));
     }
@@ -172,7 +172,7 @@ public class MainService extends Service implements
     private void informNoUsageStatsPermission() {
         startActivity(
                 new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
-                        .setFlags(FLAG_ACTIVITY_NEW_TASK| FLAG_ACTIVITY_NO_HISTORY)
+                        .setFlags(FLAG_ACTIVITY_NEW_TASK)
         );
         stopWithStatus(getString(R.string.notify_no_usage_stats_permission));
     }
