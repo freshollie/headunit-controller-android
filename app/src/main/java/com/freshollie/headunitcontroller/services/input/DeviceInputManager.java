@@ -10,6 +10,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.freshollie.headunitcontroller.BuildConfig;
 import com.freshollie.headunitcontroller.R;
 import com.freshollie.headunitcontroller.services.controllers.NavigationAppController;
 import com.freshollie.headunitcontroller.util.Logger;
@@ -220,7 +221,7 @@ public class DeviceInputManager {
     }
 
     private void sendKeyEvent(int keyCode) {
-        Log.d(TAG, "Sending key, " + String.valueOf(keyCode));
+        log("Sending key, " + String.valueOf(keyCode));
         SuperuserManager.getInstance().asyncExecute("input keyevent " + String.valueOf(keyCode));
         context.sendBroadcast(new Intent(ACTION_SEND_KEYEVENT).putExtra("keyCode", keyCode));
     }
@@ -306,5 +307,11 @@ public class DeviceInputManager {
         }
 
         return 0;
+    }
+
+    private void log(String message) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, message);
+        }
     }
 }

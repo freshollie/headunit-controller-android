@@ -21,18 +21,6 @@ android {
         }
     }
 }
-repositories {
-    maven { url 'https://dl.bintray.com/rvalerio/maven' }
-}
-
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-
-    compile 'com.rvalerio:fgchecker:1.1.0'
-    compile 'com.android.support:appcompat-v7:27.0.2'
-
-    compile project(":shuttle-xpress-library")
-}
 
 task makeApkDir {
     doLast {
@@ -47,4 +35,17 @@ build.finalizedBy {
             into "/build/app/outputs/apk"
         }
     }
+}
+
+repositories {
+    maven { url 'https://dl.bintray.com/rvalerio/maven' }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    compile 'com.rvalerio:fgchecker:1.1.0'
+    compile 'com.android.support:appcompat-v7:27.0.2'
+
+    compile project(":shuttle-xpress-library")
 }
