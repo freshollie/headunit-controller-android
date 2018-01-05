@@ -1,7 +1,7 @@
 # Android Headunit Controller
 Android application designed to be used along side Timurs Kernel to control an android tablet as a headunit.
 
-[Latest Build](../releases) (Minimum android version 5.0)
+[Latest Build](../../releases) (Minimum android version 5.0)
 
 ## Functionality
 
